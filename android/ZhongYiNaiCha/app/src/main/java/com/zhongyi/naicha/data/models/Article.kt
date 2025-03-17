@@ -1,15 +1,13 @@
 package com.zhongyi.naicha.data.models
 
+import java.util.Date
+
 data class Article(
     val id: String,
     val title: String,
-    val summary: String,
+    val description: String,
     val content: String,
-    val categories: List<Category>,
-    val author: String? = null,
-    val imageUrl: String? = null,
-    val createdAt: Long = 0,
-    val updatedAt: Long = 0,
-    val tags: List<String> = emptyList(),
-    val viewCount: Int = 0
+    val category: Category,
+    val publishDate: Date?,
+    val imageUrl: String?
 ) 

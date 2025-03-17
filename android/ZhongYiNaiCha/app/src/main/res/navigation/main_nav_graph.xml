@@ -2,4 +2,31 @@
     android:id="@+id/knowledgeCenterFragment"
     android:name="com.zhongyi.naicha.ui.screens.knowledge.KnowledgeCenterFragment"
     android:label="Knowledge Center"
-    tools:layout="@layout/fragment_knowledge_center" /> 
+    tools:layout="@layout/fragment_knowledge_center">
+    <action
+        android:id="@+id/action_knowledgeCenterFragment_to_articleDetailFragment"
+        app:destination="@id/articleDetailFragment" />
+    <action
+        android:id="@+id/action_knowledgeCenterFragment_to_herbDetailFragment"
+        app:destination="@id/herbDetailFragment" />
+</fragment>
+
+<fragment
+    android:id="@+id/articleDetailFragment"
+    android:name="com.zhongyi.naicha.ui.screens.knowledge.ArticleDetailFragment"
+    android:label="Article Detail"
+    tools:layout="@layout/fragment_article_detail">
+    <argument
+        android:name="articleId"
+        app:argType="string" />
+</fragment>
+
+<fragment
+    android:id="@+id/herbDetailFragment"
+    android:name="com.zhongyi.naicha.ui.screens.knowledge.HerbDetailFragment"
+    android:label="Herb Detail"
+    tools:layout="@layout/fragment_herb_detail">
+    <argument
+        android:name="herbId"
+        app:argType="string" />
+</fragment> 

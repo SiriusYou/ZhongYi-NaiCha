@@ -62,4 +62,6 @@
     <string name="error_loading_data">Error loading data. Please try again.</string>
     <string name="no_data_found">No data found.</string>
     <string name="loading_more">Loading more items...</string>
+    <string name="benefits">Benefits</string>
+    <string name="precautions">Precautions</string>
 </resources> 

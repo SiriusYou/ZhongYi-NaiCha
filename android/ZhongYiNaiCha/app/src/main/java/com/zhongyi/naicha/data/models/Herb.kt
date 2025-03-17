@@ -3,13 +3,11 @@ package com.zhongyi.naicha.data.models
 data class Herb(
     val id: String,
     val name: String,
-    val chineseName: String,
-    val description: String,
-    val imageUrl: String? = null,
-    val properties: HerbProperties,
-    val useCases: List<String> = emptyList(),
-    val contraindications: List<String> = emptyList(),
-    val relatedHerbs: List<String> = emptyList()
+    val properties: String,
+    val commonUsage: String,
+    val benefits: String,
+    val precautions: String,
+    val imageUrl: String?
 )
 
 data class HerbProperties(

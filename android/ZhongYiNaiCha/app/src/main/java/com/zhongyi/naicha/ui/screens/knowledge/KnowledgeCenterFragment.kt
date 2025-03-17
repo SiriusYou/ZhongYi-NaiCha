@@ -18,6 +18,7 @@ import com.zhongyi.naicha.ui.adapters.ArticleAdapter
 import com.zhongyi.naicha.ui.adapters.HerbAdapter
 import com.zhongyi.naicha.ui.viewmodels.KnowledgeCenterViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import androidx.navigation.fragment.findNavController
 
 @AndroidEntryPoint
 class KnowledgeCenterFragment : Fragment() {
@@ -190,15 +191,13 @@ class KnowledgeCenterFragment : Fragment() {
     }
     
     private fun navigateToArticleDetail(article: Article) {
-        // TODO: Implement navigation to article detail
-        // val action = KnowledgeCenterFragmentDirections.actionKnowledgeCenterFragmentToArticleDetailFragment(article.id)
-        // findNavController().navigate(action)
+        val action = KnowledgeCenterFragmentDirections.actionKnowledgeCenterFragmentToArticleDetailFragment(article.id)
+        findNavController().navigate(action)
     }
     
     private fun navigateToHerbDetail(herb: Herb) {
-        // TODO: Implement navigation to herb detail
-        // val action = KnowledgeCenterFragmentDirections.actionKnowledgeCenterFragmentToHerbDetailFragment(herb.id)
-        // findNavController().navigate(action)
+        val action = KnowledgeCenterFragmentDirections.actionKnowledgeCenterFragmentToHerbDetailFragment(herb.id)
+        findNavController().navigate(action)
     }
 
     override fun onDestroyView() {
