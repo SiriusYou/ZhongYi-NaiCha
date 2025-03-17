@@ -1,0 +1,4 @@
+<item
+    android:id="@+id/knowledgeCenterFragment"
+    android:icon="@drawable/ic_knowledge"
+    android:title="@string/knowledge_center" /> 

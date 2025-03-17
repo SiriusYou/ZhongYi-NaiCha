@@ -49,4 +49,17 @@
     <string name="bmi">BMI</string>
     <string name="health_goals">健康目标</string>
     <string name="allergies">过敏源</string>
+    
+    <!-- Knowledge Center -->
+    <string name="knowledge_center">Knowledge Center</string>
+    <string name="articles">Articles</string>
+    <string name="herbs">Herbs</string>
+    <string name="search_knowledge">Search articles or herbs...</string>
+    <string name="article_image">Article image</string>
+    <string name="herb_image">Herb image</string>
+    <string name="properties">Properties:</string>
+    <string name="common_usage">Common Usage:</string>
+    <string name="error_loading_data">Error loading data. Please try again.</string>
+    <string name="no_data_found">No data found.</string>
+    <string name="loading_more">Loading more items...</string>
 </resources> 

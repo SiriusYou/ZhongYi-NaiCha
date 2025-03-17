@@ -1,0 +1,5 @@
+<fragment
+    android:id="@+id/knowledgeCenterFragment"
+    android:name="com.zhongyi.naicha.ui.screens.knowledge.KnowledgeCenterFragment"
+    android:label="Knowledge Center"
+    tools:layout="@layout/fragment_knowledge_center" /> 
