@@ -1,0 +1,195 @@
+---
+description: Apply these rules when making changes to the project
+globs:
+alwaysApply: true
+---
+
+Update this rule if user requested changes to the project requirement, etc.
+# Backend Structure Document
+
+This document provides an overview of the backend architecture for the 中医奶茶养生 App (TCM Milk Tea Wellness App). It outlines the overall design, data management practices, API set-up, hosting solution, infrastructure components, security protocols, and maintenance strategies – all explained in everyday language for clarity.
+
+## Backend Architecture
+
+*   **Microservices Architecture:**
+
+    *   The backend is built on a microservices architecture, meaning that each core functionality of the app (such as user management, recommendation engine, and content delivery) runs as a separate service. This makes development, testing, and scaling individual pieces much easier.
+    *   Each service communicates with others through standard API calls, ensuring that changes in one service do not impact the overall system.
+
+*   **API Gateway:**
+
+    *   An API Gateway serves as the entry point to the system, routing requests to the appropriate microservice. This architecture helps consolidate and secure communication between the frontend and backend.
+
+*   **Machine Learning Recommendation Engine:**
+
+    *   A dedicated service handles the personalized tea recommendations using a mix of rule-based logic and machine learning. This service gathers user health data, seasonal information, and expert feedback for real-time, personalized suggestions.
+
+*   **Scalability and Maintainability:**
+
+    *   The use of microservices allows the backend to easily scale components independently as user demand increases.
+    *   Modular design principles are applied to simplify updates and maintenance, ensuring long-term stability and performance.
+
+## Database Management
+
+*   **Relational Database for User Data:**
+
+    *   Stores structured data such as user profiles, authentication credentials, and health parameters. It uses SQL technology, ensuring data integrity and quick transaction handling.
+
+*   **NoSQL Database for Knowledge Content:**
+
+    *   Used for storing semi-structured or unstructured data such as TCM articles, recipes, videos, and podcasts.
+    *   This provides flexibility to handle various content types without needing rigid structures.
+
+*   **Object Storage for Media Content:**
+
+    *   Media files like images, videos, and audio podcasts are stored in an object storage system. This storage is designed for high availability and scalability.
+
+*   **Data Management Practices:**
+
+    *   Regular data backups, indexing, and partitioning for performance improvement.
+    *   Data is securely stored and segregated based on purpose, ensuring compliance with privacy laws and regulations (GDPR, CCPA).
+
+## Database Schema
+
+### Relational Database (SQL) – User Data
+
+*We have a SQL database that contains key tables to manage user data. Below is a human-readable explanation of some of the tables and their records:*
+
+*   **Users Table:**
+
+    *   Contains records such as user ID, phone number, email, and encrypted password.
+    *   Additional fields include registration dates and user role (regular, expert, admin).
+
+*   **Health Profile Table:**
+
+    *   Stores user health data including age, gender, height, weight, and TCM constitution assessments.
+    *   Related to the Users table by a unique user ID to maintain one-to-one user profiles.
+
+*   **Session/Authentication Table:**
+
+    *   Manages login sessions, tokens (for ensuring secure communication), and timestamp details.
+
+*Example SQL Schema:*
+
+-- Users Table • id: Primary Key, unique identifier • phone_number: User phone number • email: User email address • password: Encrypted password • role: User role (regular/expert/admin)
+
+-- Health Profile Table • user_id: Foreign Key linked to Users table • age: User age • gender: M/F/Other • height: Height in cm • weight: Weight in kg • tcm_constitution: Text description of TCM assessment
+
+### NoSQL Database – Knowledge Content
+
+*   Documents store entries for TCM articles, recipes, videos, and audio content.
+*   Each document might include fields like title, content type, description, media URLs, publication date, and any related keywords.
+
+## API Design and Endpoints
+
+*   **API Design Approach:**
+
+    *   RESTful APIs are used for most services, ensuring that each URL path represents a specific resource (e.g., user, recipe, tea recommendation).
+    *   For complex queries (like filtering personalized tea recommendations), lightweight GraphQL options might be implemented in the future.
+
+*   **Key Endpoints Include:**
+
+    *   **User Management Endpoints:**
+
+        *   /api/users/register – For new user registration
+        *   /api/users/login – For user authentication (phone or third-party accounts)
+        *   /api/users/profile – To retrieve or update user health profiles
+
+    *   **Recommendation Engine Endpoints:**
+
+        *   /api/recommendations/tea – Provides personalized tea suggestions based on user data, season, and symptoms
+        *   /api/recommendations/feedback – Allows users to provide feedback on recommendations
+
+    *   **Content Delivery Endpoints:**
+
+        *   /api/knowledge/articles – To fetch TCM encyclopedia articles
+        *   /api/recipes – For recipe information and DIY guides
+
+    *   **Community and Interaction Endpoints:**
+
+        *   /api/community/posts – For user-generated content and logs
+        *   /api/community/qna – For expert Q&A sessions
+
+    *   **Ordering System Endpoints:**
+
+        *   /api/orders – For placing and tracking orders
+        *   /api/shops – Integration with local tea shops and pickup scheduling
+
+## Hosting Solutions
+
+*   **Cloud Hosting:**
+
+    *   The entire backend is hosted on a cloud service, ensuring high reliability and scalability.
+    *   Cloud providers (such as AWS, Google Cloud, or Azure) are chosen for their global reach and availability.
+
+*   **Benefits of Cloud Hosting:**
+
+    *   **Reliability:** Automated scaling and redundancy ensure minimal downtime.
+    *   **Scalability:** Resources can quickly adjust to sudden increases in user load.
+    *   **Cost-effectiveness:** Pay-as-you-go pricing and optimized resource utilization keep costs in check.
+
+## Infrastructure Components
+
+*   **Load Balancers:**
+
+    *   Distribute incoming traffic evenly across multiple servers ensuring consistent performance.
+
+*   **Caching Mechanisms:**
+
+    *   Often using systems like Redis to cache frequently accessed data, reducing database load and accelerating response times.
+
+*   **Content Delivery Networks (CDNs):**
+
+    *   Used to serve static media content (images, videos, audio) quickly to users regardless of their geographical location.
+
+*   **CI/CD Pipelines and Monitoring Tools:**
+
+    *   Automated pipelines support continual development and deployment, reducing manual errors.
+    *   Monitoring tools help track system health and performance, ensuring rapid responses to issues.
+
+## Security Measures
+
+*   **Encryption:**
+
+    *   TLS 1.3 encryption is enforced for all data transmitted between the client and server, ensuring secure communications.
+    *   End-to-end encryption is applied where necessary to protect sensitive information.
+
+*   **Authentication and Authorization:**
+
+    *   Robust authentication systems, including support for phone number verification and third-party authorizations.
+    *   Fine-grained access controls to manage different user roles, ensuring that regular users, experts, and administrators have distinct permissions.
+
+*   **Data Protection and Compliance:**
+
+    *   Adherence to privacy regulations such as GDPR and CCPA with transparent privacy policies and proper consent mechanisms.
+
+*   **Third-party Integrations:**
+
+    *   Secure integration with external payment gateways and AI-assisted content moderation services adds another layer to data validation and security checks.
+
+## Monitoring and Maintenance
+
+*   **Monitoring Tools:**
+
+    *   Continuous monitoring using tools that collect logs, track performance metrics, and alert the team on potential issues (for example, cloud-native monitoring services, Datadog, or Prometheus).
+
+*   **Maintenance Practices:**
+
+    *   Regular updates to ensure all components, including dependencies and security protocols, remain up-to-date.
+    *   Automated CI/CD pipelines help to deploy patches and new features seamlessly while minimizing risk.
+
+*   **Backup and Disaster Recovery:**
+
+    *   Periodic backups and tested disaster recovery procedures guarantee that data remains safe and the system can quickly recover from unforeseen issues.
+
+## Conclusion and Overall Backend Summary
+
+The backend for the 中医奶茶养生 App is structured with a robust microservices architecture that emphasizes scalability, modularity, and security. Here’s a recap:
+
+*   A **microservices architecture** coupled with an **API gateway** ensures clarity and modularity in service deployment.
+*   Data is managed across **SQL databases** (for user data), **NoSQL databases** (for dynamic knowledge content), and **object storage** (for media content), all protected by modern encryption.
+*   The API design follows **RESTful principles** with clear endpoints for user management, recommendations, knowledge sharing, and ordering, facilitating smooth interaction between frontend and backend.
+*   The system is hosted on a reliable **cloud platform** enhanced by load balancers, caching, and CDNs, ensuring both high performance and user satisfaction.
+*   With strict **security measures** in place (encryption, authentication, and compliance guidelines) and a comprehensive monitoring and maintenance strategy, the backend is aligned with the project’s goal of offering personalized, secure, and innovative health and wellness experiences.
+
+This comprehensive backend structure not only meets the project’s core requirements but also provides a foundation that can scale, adapt, and evolve as the app grows.

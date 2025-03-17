@@ -1,0 +1,83 @@
+---
+description: Apply these rules when making changes to the project
+globs:
+alwaysApply: true
+---
+
+Update this rule if user requested changes to the project requirement, etc.
+# Tech Stack Document for 中医奶茶养生 App
+
+This document explains our technology choices in plain language, making it easier for everyone to understand how our app works behind the scenes. We built the app with a balanced blend of modern and traditional elements to deliver a seamless user experience that aligns with our vision of "饮茶养生，悦享生活".
+
+## 1. Frontend Technologies
+
+The frontend is all about what users see and interact with. For our app, we have chosen technologies that ensure a smooth and attractive user interface across both mobile platforms. Our choices include:
+
+*   **iOS Native App**: Built specifically for Apple devices to ensure seamless performance and take full advantage of iOS capabilities.
+*   **Android Native App**: Developed to maximize the potential of Android devices, ensuring consistent user experience on a wide range of phones and tablets.
+*   **Modular and Lightweight Design**: We use techniques like resource-on-demand loading and low-memory optimization. These help keep the app fast and responsive even on older devices.
+*   **Offline Content Caching**: Key content such as DIY guides, recipes, and health tips is available offline. This ensures that users can access essential information even without internet connectivity.
+
+These technologies enhance user experience by providing a modern yet culturally resonant design, ensuring that the app is both beautiful and easy to use.
+
+## 2. Backend Technologies
+
+Behind every app is a solid backend that handles data, business logic, and interactions. Our backend is built to support both the complex features of our tea recipe recommendations and user data management. The key components are:
+
+*   **Microservices Architecture**: This design breaks the backend into smaller, manageable services. It makes it easier to update individual parts without affecting the whole system and supports scalability.
+*   **Machine Learning Recommendation Engine**: A hybrid system that blends rule-based logic with machine learning. It personalizes tea recipe suggestions based on user profiles, seasonal changes, and specific symptoms.
+*   **Relational Database**: Stores structured user data such as personal details and health profiles. It ensures data consistency and supports complex queries.
+*   **NoSQL Database**: Optimized for handling dynamic content, especially for the Knowledge Center where information can change frequently.
+*   **Object Storage**: Designed for storing large media files and other resources, making sure videos, images, and guides load efficiently.
+*   **API Gateway**: Acts as a single entry point for all services, enhancing security and making it simpler to manage API calls across our multiple microservices.
+
+Together, these backend technologies help us maintain a robust, scalable, and secure system that can handle our app’s functionality flawlessly.
+
+## 3. Infrastructure and Deployment
+
+For our app’s infrastructure, reliability and scalability are key. We chose platforms and processes that ensure our app is always up to date and can grow with its user base. Our infrastructure includes:
+
+*   **Cloud Hosting**: Robust cloud services support our microservices architecture, ensuring the app can scale as more users join and more data is processed.
+*   **CI/CD Pipelines**: Continuous Integration and Continuous Deployment pipelines streamline the testing and deployment process. This helps us roll out updates quickly and reliably.
+*   **Version Control Systems**: We use industry-standard version control (like Git) to track changes in our codebase and collaborate effectively among our development team.
+*   **Automated Monitoring and Logging**: These practices help us detect issues early, ensuring quick fixes and maintaining a smooth experience for all users.
+
+These choices ensure that our app is reliable, performs well under high load, and is easy to update.
+
+## 4. Third-Party Integrations
+
+To add extra functionality and provide a richer user experience, we have integrated several third-party services into our app. These external tools complement our core features in the following ways:
+
+*   **External Payment Gateways**: For secure and straightforward payment processing, users are redirected to trusted external platforms. This reduces regulatory burdens and enhances reliability during transactions.
+*   **AI-Assisted Content Moderation**: Integrated tools help maintain a positive and respectful community by automatically detecting and filtering inappropriate content. This, combined with manual moderation, ensures the community remains welcoming.
+
+These integrations enrich the app by providing secure and reliable services that would be complex to develop from scratch.
+
+## 5. Security and Performance Considerations
+
+Security and performance are at the heart of our decisions. We built security measures and performance optimizations into every layer of the tech stack:
+
+*   **Data Encryption**:
+
+    *   *TLS 1.3*: Ensures all data transmitted between the user and our servers is secure.
+    *   *End-to-End Encryption*: Protects sensitive user data from unauthorized access during storage and transmission.
+
+*   **Access Controls and Privacy Settings**: Users have fine-grained control over their data, ensuring their privacy is maintained according to best practices and compliance standards (including GDPR and CCPA).
+
+*   **Optimized Resource Loading**: Both frontend and backend are designed to load resources only when needed, ensuring fast and efficient performance, especially in offline scenarios.
+
+*   **Regular Security Audits**: Consistent monitoring and testing ensure the app adheres to the highest security standards, protecting user data and building trust.
+
+These measures provide robust security while ensuring our app runs smoothly and responsively, keeping user trust and satisfaction at the forefront.
+
+## 6. Conclusion and Overall Tech Stack Summary
+
+Our tech stack perfectly blends the modern with the traditional to support our app's vision. Here's a quick recap:
+
+*   **Frontend**: Built with iOS and Android native apps, employing modular design and offline caching for an optimal and user-friendly experience.
+*   **Backend**: Powered by microservices, machine learning recommendations, robust databases, and an API gateway to ensure scalability and personalized service.
+*   **Infrastructure & Deployment**: Cloud hosting, CI/CD pipelines, and modern version control ensure reliability and smooth updates.
+*   **Third-Party Integrations**: Secure payment gateways and AI-powered content moderation enhance functionality without reinventing the wheel.
+*   **Security & Performance**: Advanced encryption, strict privacy controls, and performance optimizations ensure safety and a responsive experience for users.
+
+In summary, every technology choice we made is driven by the goal of delivering a personalized, secure, and high-performing app that brings traditional health wisdom into modern daily life. This balanced approach allows us to cater to both the practical needs and the cultural essence of our target audience, making the 中医奶茶养生 App a unique and compelling solution in the health and wellness space.

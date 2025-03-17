@@ -1,0 +1,183 @@
+---
+description: Apply these rules when making changes to the project
+globs:
+alwaysApply: true
+---
+
+Update this rule if user requested changes to the project requirement, etc.
+# Project Requirements Document (PRD)
+
+This document outlines the detailed requirements for the 中医奶茶养生 App, a mobile application that merges Traditional Chinese Medicine principles with modern beverage culture. The app will offer personalized tea recipe recommendations based on a user’s body constitution, seasonal changes, and specific health symptoms. By providing expert-approved content, engaging community interactions, and an intuitive ordering system, the application aims to help users enjoy healthy, delicious tea beverages while promoting a balanced lifestyle.
+
+Built with a vision to make ancient health wisdom accessible in a modern, user-friendly format, the app focuses on solving everyday health concerns such as managing suboptimal lifestyle habits and understanding one’s body constitution. Success will be measured by user engagement, improved personal wellness, and a vibrant community that embraces both modern convenience and traditional knowledge.
+
+## In-Scope vs. Out-of-Scope
+
+**In-Scope:**
+
+*   **User Center**: Lightweight registration (phone number/verification and third-party login), personal health profile setup including basic information (age, gender, height, weight), TCM body constitution assessment, goal setting, and health data tracking with trend charts.
+*   **Intelligent Recommendation System**: Hybrid recommendation engine (rules and machine learning) for personalized tea recipes based on user health profile, season, and specific symptoms (e.g., fatigue, insomnia), with ingredient matching, dosage adjustment, and screening for allergens.
+*   **Knowledge Center**: A comprehensive repository including a TCM encyclopedia, multimedia resources such as short video courses and health podcasts, and offline caching for DIY guides, recipes, and health tips.
+*   **Recipe & DIY Guidance**: Detailed recipe pages with ingredient lists, nutritional information, DIY guides (text, image, and short video), and customization options (e.g., adjusting sweetness, temperature).
+*   **Ordering System**: In-app ordering integrated with a custom platform for local tea outlets and ingredient packages, including appointment scheduling for pickups or deliveries and redirection to external payment gateways.
+*   **Community Interaction**: Social features allowing users to share experiences, track daily tea consumption (health check-ins), post feedback, and engage in expert Q&A sessions with AI-assisted content moderation.
+*   **Data Analysis & Health Insights**: Tools for tracking user consumption habits, symptom improvement over time, and generating personalized PDF health reports.
+*   **Security & Privacy**: Implementation of data encryption (TLS 1.3, end-to-end encryption), fine-grained privacy controls, and compliance with network security laws as well as GDPR/CCPA guidelines.
+
+**Out-of-Scope (Planned for Future Phases or Not Included in MVP):**
+
+*   Advanced AI enhancements for recommendation system beyond the hybrid approach.
+*   Deep integration with smart devices (e.g., smart tea sets, wearable health monitors).
+*   Extensive e-commerce functionalities like in-app payment processing (the app redirects to external trusted payment gateways).
+*   Desktop or full web app version (only limited versions like lightweight web views or mini-programs are considered later).
+*   Enterprise-level health management solutions and offline expert consultations outside designated time slots.
+
+## User Flow
+
+A new user starts by opening the app and is greeted with a clean onboarding screen. They register using either their phone number with a verification code or a third-party login option. The registration process quickly leads to the creation of a personalized health profile where the user provides basic information and completes a simplified TCM body constitution assessment. This process sets the stage for custom-tailored tea recommendations and wellness tips.
+
+After setting up their profile, the user is directed to the main dashboard. Here they see personalized tea recipe recommendations based on their health profile, the current season, and any reported symptoms. The dashboard also provides easy access to the Knowledge Center, community features, and ordering options. Users can explore detailed recipes, watch DIY preparation videos, place orders for tea or ingredients, and interact with other community members while adjusting privacy settings and managing account preferences all within the app.
+
+## Core Features
+
+*   **User Center**
+
+    *   Quick registration via phone number or third-party login.
+    *   Personalized health profile setup (age, gender, height, weight, TCM constitution assessment).
+    *   Health tracking and goal setting with trend charts.
+    *   Fine-grained privacy settings.
+
+*   **Intelligent Recommendation System**
+
+    *   Personalized tea recipe recommendations based on body constitution, season, and symptoms.
+    *   Hybrid approach with rule-based logic and machine learning.
+    *   Intelligent pairing of Chinese herbal ingredients with modern tea components.
+    *   Allergens and contraindications screening.
+
+*   **Knowledge Center**
+
+    *   Comprehensive TCM encyclopedia covering herbal functions, body constitution, and seasonal tips.
+    *   Short video courses (up to 5 minutes) for practical health guidance.
+    *   Audio podcasts with offline caching support.
+    *   Offline access to key DIY guides, recipes, and health tips.
+
+*   **Recipe & DIY Guidance**
+
+    *   Detailed recipe pages with ingredient lists, effectiveness explanations, nutritional info, and cautionary notes.
+    *   Step-by-step DIY instructions provided in text, image, and short video format.
+    *   Customization options for tea recipes (e.g., adjusting sweetness, temperature, and ingredient substitutions).
+
+*   **Ordering System**
+
+    *   In-app ordering for tea from partnered local outlets.
+    *   Map integration to show outlets and facilitate pick-up scheduling.
+    *   Option to purchase ingredient bundles or recipe packages.
+    *   Redirection to external payment gateways for secure transactions.
+
+*   **Community Interaction**
+
+    *   Daily health check-ins and tea consumption logs.
+    *   Experience sharing including user-generated content (text, pictures, videos).
+    *   Expert Q&A sessions with designated time slots.
+    *   AI-assisted and moderator-backed content moderation with clear community guidelines.
+
+*   **Data Analysis & Health Insights**
+
+    *   Health trend analysis tracking tea consumption habits and symptom improvements.
+    *   Personalized lifestyle and health suggestions based on historical data.
+    *   Capability to export monthly/quarterly health reports in PDF format.
+
+## Tech Stack & Tools
+
+*   **Frontend:**
+
+    *   iOS Native App and Android Native App.
+    *   Clean, modular design with resource-on-demand loading and low-memory optimization.
+    *   Offline caching mechanisms for key content (DIY guides, recipes, health tips).
+
+*   **Backend:**
+
+    *   Microservices architecture that separates functions into manageable modules (user management, recommendation engine, community management, ordering system).
+    *   Hybrid recommendation engine integrating rule-based logic and machine learning algorithms.
+    *   API Gateway for unified and secure API access.
+
+*   **Databases & Storage:**
+
+    *   Relational databases for structured user data.
+    *   NoSQL databases for dynamic content in the Knowledge Center.
+    *   Object Storage for media and large content files.
+
+*   **Security:**
+
+    *   TLS 1.3 for secure data transmission.
+    *   End-to-end encryption for sensitive data.
+    *   Fine-grained privacy controls compliant with GDPR, CCPA, and network security laws.
+
+*   **Integration & Tools:**
+
+    *   External payment gateway integrations for processing transactions securely.
+    *   AI-assisted content moderation tools.
+    *   IDE integrations via Cursor for real-time coding suggestions.
+
+## Non-Functional Requirements
+
+*   **Performance:**
+
+    *   Fast and responsive user experience with low memory consumption.
+    *   Efficient resource loading ensuring content is quickly available, even in offline mode for key sections.
+
+*   **Security:**
+
+    *   End-to-end encryption and TLS 1.3 for safe data communication.
+    *   Storage encryption for sensitive user health information.
+    *   Compliance with international data privacy regulations (GDPR, CCPA).
+
+*   **Usability:**
+
+    *   Intuitive and responsive UI design.
+    *   Consistent experience across iOS, Android, and future platforms.
+    *   User control over privacy, data sharing, and account settings.
+
+*   **Compliance:**
+
+    *   Adherence to local network security laws and international standards regarding user privacy.
+    *   Clear, transparent privacy policies and easy opt-in/out mechanisms for data collection.
+
+## Constraints & Assumptions
+
+*   The recommendation engine relies on continuous user data collection and expert input. Assumes regular feedback from TCM experts and active usage data for model tuning.
+*   Offline caching must prioritize essential DIY guides, recipes, and health tips, assuming users will need access in low connectivity scenarios.
+*   Redirection to external payment gateways is used instead of in-app payment processing, reducing regulatory burdens but assuming integration reliability.
+*   Multi-language support is required (Chinese and English) to meet the target audience needs.
+*   The microservices architecture assumes availability of robust backend infrastructure and scalable cloud services.
+*   Different user roles (regular users, experts, administrators) will be implemented, with varied permissions based on role-specific functionalities.
+*   Future expansions (e.g., web app, smart devices) will retain core functionalities, ensuring consistency in user experience.
+
+## Known Issues & Potential Pitfalls
+
+*   **Data Collection & Model Tuning:**
+
+    *   Continuous improvement of the recommendation engine depends on substantial user data and expert verification. There may be challenges in collecting and processing this data timely.
+    *   Mitigation: Implement robust feedback and A/B testing mechanisms and schedule regular expert reviews.
+
+*   **Offline Caching:**
+
+    *   Ensuring that critical health information, recipes, and guides are updated regularly and available offline might consume storage or become outdated.
+    *   Mitigation: Use versioning and smart caching techniques to balance offline availability with up-to-date content.
+
+*   **Security Compliance:**
+
+    *   Adhering to GDPR, CCPA, and local network security standards can be complex, particularly when managing sensitive health data.
+    *   Mitigation: Perform routine security audits, maintain transparent data policies, and implement a user-friendly consent management system.
+
+*   **Community Moderation:**
+
+    *   AI-assisted moderation can sometimes misclassify content, leading to false positives or negatives in a community setting.
+    *   Mitigation: Combine automated moderation with human oversight and allow users to report issues directly for prompt manual reviews.
+
+*   **Platform Integration & Scalability:**
+
+    *   Integrating with a variety of external services (e.g., maps, payment gateways) can lead to dependency risks if services change their APIs or performance standards.
+    *   Mitigation: Establish fallback mechanisms and maintain a modular backend that allows independent service updates without overhauling the entire system.
+
+This PRD serves as the main reference for developing the 中医奶茶养生 App. It provides clear guidance on core functionalities, technical requirements, user flow, and potential challenges. Every subsequent technical document—from tech stack specifics to front-end guidelines and backend structures—should align with the details noted here, ensuring consistency and clarity throughout the development process.

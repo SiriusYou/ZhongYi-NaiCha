@@ -1,0 +1,12 @@
+---
+description: Apply these rules when making changes to the project
+globs:
+alwaysApply: true
+---
+
+Update this rule if user requested changes to the project requirement, etc.
+# App Flow Document for 中医奶茶养生 App
+
+## Onboarding and Sign-In/Sign-Up
+
+The journey begins when a brand-new user opens the app and is greeted with a clean, welcoming landing screen that speaks to both modern design and traditional Chinese elements. From this point users can choose to sign up either with their phone number using a verification code or through a third-party quick login. New users are swiftly taken through a lightweight registration process that collects basic details and sets the stage for a personalized Traditional Chinese Medicine (TCM) health profile. The flow also includes a simple sign-in mechanism for returning users, a clear option to sign out, and an easy-to-find

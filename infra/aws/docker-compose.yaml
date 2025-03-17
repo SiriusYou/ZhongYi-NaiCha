@@ -1,0 +1,171 @@
+version: '3.8'
+
+services:
+  api-gateway:
+    build: 
+      context: ../../backend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - MONGODB_URI=mongodb://mongo:27017/zhongyi-naicha
+      - REDIS_URL=redis://redis:6379
+      - USER_SERVICE_URL=http://user-service:3001
+      - RECOMMENDATION_SERVICE_URL=http://recommendation-service:3002
+      - KNOWLEDGE_SERVICE_URL=http://knowledge-service:3003
+      - RECIPE_SERVICE_URL=http://recipe-service:3004
+      - ORDER_SERVICE_URL=http://order-service:3005
+      - COMMUNITY_SERVICE_URL=http://community-service:3006
+      - DATA_SERVICE_URL=http://data-service:3007
+    depends_on:
+      - mongo
+      - redis
+      - user-service
+      - recommendation-service
+      - knowledge-service
+      - recipe-service
+      - order-service
+      - community-service
+      - data-service
+    restart: always
+    networks:
+      - app-network
+
+  user-service:
+    build:
+      context: ../../backend
+      dockerfile: Dockerfile
+    command: node user/server.js
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - MONGODB_URI=mongodb://mongo:27017/zhongyi-naicha
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - mongo
+      - redis
+    restart: always
+    networks:
+      - app-network
+
+  recommendation-service:
+    build:
+      context: ../../backend
+      dockerfile: Dockerfile
+    command: node recommendation/server.js
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+      - MONGODB_URI=mongodb://mongo:27017/zhongyi-naicha
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - mongo
+      - redis
+    restart: always
+    networks:
+      - app-network
+
+  knowledge-service:
+    build:
+      context: ../../backend
+      dockerfile: Dockerfile
+    command: node knowledge/server.js
+    environment:
+      - NODE_ENV=production
+      - PORT=3003
+      - MONGODB_URI=mongodb://mongo:27017/zhongyi-naicha
+    depends_on:
+      - mongo
+    restart: always
+    networks:
+      - app-network
+
+  recipe-service:
+    build:
+      context: ../../backend
+      dockerfile: Dockerfile
+    command: node recipe/server.js
+    environment:
+      - NODE_ENV=production
+      - PORT=3004
+      - MONGODB_URI=mongodb://mongo:27017/zhongyi-naicha
+    depends_on:
+      - mongo
+    restart: always
+    networks:
+      - app-network
+
+  order-service:
+    build:
+      context: ../../backend
+      dockerfile: Dockerfile
+    command: node order/server.js
+    environment:
+      - NODE_ENV=production
+      - PORT=3005
+      - MONGODB_URI=mongodb://mongo:27017/zhongyi-naicha
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - mongo
+      - redis
+    restart: always
+    networks:
+      - app-network
+
+  community-service:
+    build:
+      context: ../../backend
+      dockerfile: Dockerfile
+    command: node community/server.js
+    environment:
+      - NODE_ENV=production
+      - PORT=3006
+      - MONGODB_URI=mongodb://mongo:27017/zhongyi-naicha
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - mongo
+      - redis
+    restart: always
+    networks:
+      - app-network
+
+  data-service:
+    build:
+      context: ../../backend
+      dockerfile: Dockerfile
+    command: node data/server.js
+    environment:
+      - NODE_ENV=production
+      - PORT=3007
+      - MONGODB_URI=mongodb://mongo:27017/zhongyi-naicha
+    depends_on:
+      - mongo
+    restart: always
+    networks:
+      - app-network
+
+  mongo:
+    image: mongo:6
+    volumes:
+      - mongo-data:/data/db
+    restart: always
+    networks:
+      - app-network
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis-data:/data
+    restart: always
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
+  redis-data: 

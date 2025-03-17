@@ -1,0 +1,135 @@
+---
+description: Apply these rules when making changes to the project
+globs: 
+alwaysApply: true
+---
+
+Update this rule if user requested changes to the project requirement, etc.
+## Project Overview
+
+*   **Type:** cursor_project_rules
+*   **Description:** 中医奶茶养生 App 产品需求文档 (PRD)\n本项目旨在打造一款结合传统中医理论与现代饮品文化的移动应用，通过个性化奶茶配方推荐，帮助用户在享受美味的同时获得中医养生功效，实现“饮茶养生，悦享生活”的健康理念。\n
+*   **Primary Goal:** 打造一款功能丰富但轻量级的中医奶茶养生应用，提供个性化茶饮配方、完善的健康数据分析和社区互动，以改善用户日常生活健康，同时确保技术实施的高效性、安全性和扩展性。
+
+## Project Structure
+
+### Framework-Specific Routing
+
+*   **Directory Rules:**
+
+    *   **ios_native_app:** 使用 Xcode 项目结构，建议采用 Storyboards 或 SwiftUI 进行视图层的模块划分，例如：`Views/`, `ViewModels/`, `Services/` 等目录。
+    *   **android_native_app:** 采用 Android Studio 项目结构，运用 XML 布局文件与 Activity/Fragment 分离管理，例如：`res/layout/`, `ui/`, `data/` 文件夹。
+    *   **Microservices (Backend):** 基于微服务架构，建议每个服务独立维护路由，例如：`/user`, `/recipe`, `/order` 等 RESTful API 路径。
+
+### Core Directories
+
+*   **Versioned Structure:**
+
+    *   **Mobile App (iOS/Android):**
+
+        *   例如：`src/main/` (Android) 或 `Sources/` (iOS) → 用于存放业务逻辑、界面模块和辅助工具。
+
+    *   **Backend Services:**
+
+        *   例如：`services/api_gateway` → 存放统一的 API 路由与安全认证；
+        *   例如：`services/recommendation_engine` → 存放机器学习模型与规则逻辑；
+        *   例如：`services/content_management` → 管理知识库与媒体资源。
+
+### Key Files
+
+*   **Stack-Versioned Patterns:**
+
+    *   **Mobile App:**
+
+        *   iOS: `ContentView.swift` (主要界面入口)
+        *   Android: `MainActivity.kt` 与 `activity_main.xml` (入口与布局)
+
+    *   **Backend Services:**
+
+        *   `gateway.js` 或 `gateway.go` → 定义 API 网关路由与中间件
+        *   `recommendation.py` → 集成机器学习与规则算法的关键文件
+
+## Tech Stack Rules
+
+*   **Version Enforcement:**
+
+    *   **ios_native_app@[Xcode Version]:** 遵循最新 iOS 开发规范，推荐使用 SwiftUI 和 Combine 框架以确保响应式设计。
+    *   **android_native_app@[Android Studio Version]:** 使用最新稳定版构建工具，推荐采用 MVVM 架构与 Jetpack 组件。
+    *   **microservices_architecture:** 强调服务解耦，使用 API Gateway 统一管理接口，推荐遵循 RESTful 或 gRPC 标准。
+    *   **machine_learning_recommendation_engine:** 混合规则与机器学习方法，在数据更新时定期重新训练模型，确保算法与中医专家指导保持一致。
+    *   **relational_database / nosql_database / object_storage:** 分别用于结构化用户数据、动态知识内容及大文件存储，必须确保数据的一致性与安全性。
+    *   **external_payment_gateway:** 所有支付流程通过外部认证安全网关处理，确保敏感支付数据不在本系统存储。
+    *   **tls_1.3_encryption / ai_assisted_content_moderation:** 坚持最新安全加密标准与 AI 内容过滤，确保数据传输及社区互动的安全性和规范性。
+
+## PRD Compliance
+
+*   **Non-Negotiable:**
+
+    *   "通过个性化奶茶配方推荐，帮助用户在享受美味的同时获得中医养生功效，实现"饮茶养生，悦享生活"的健康理念。"
+
+        *   项目必须严格依照此核心目标进行设计与实现，同时确保用户数据隐私安全、内容审核合规及跨平台一致性。
+
+## App Flow Integration
+
+*   **Stack-Aligned Flow:**
+
+    *   **Mobile App Flow:**
+
+        *   Onboarding 与注册流程：各平台各自实现轻量级注册（手机号验证码/第三方登录），后续引导用户创建健康档案。
+        *   健康数据与推荐页面：依据用户体质与季节变化，通过混合算法生成个性化茶饮推荐，在主界面直观展示。
+        *   知识中心与离线缓存功能：重点 DIY 指南和健康提示需支持离线访问，确保无网络时亦可正常使用。
+        *   社区与专家问答：确保各平台遵循一致的交互设计，支持用户上传分享与 AI 辅助审核。
+
+## Best Practices
+
+*   **ios_native_app**
+
+    *   遵循 Apple Human Interface Guidelines，确保界面简洁且响应迅速。
+    *   使用 Storyboards 或 SwiftUI 实现模块化、复用性高的界面组件。
+    *   进行及时的内存与性能优化，保证低内存占用与流畅体验。
+
+*   **android_native_app**
+
+    *   遵守 Material Design 规范，确保统一的视觉风格与操作体验。
+    *   采用 MVVM 架构及 Jetpack 组件实现数据与 UI 分离，方便后续维护与单元测试。
+    *   优化资源加载与内存管理，提升低性能设备上的运行流畅性。
+
+*   **microservices_architecture**
+
+    *   服务应做到解耦，每个服务仅关注单一功能，确保高内聚低耦合。
+    *   采用容器化部署与自动化 CI/CD 流程，提高开发效率与系统稳定性。
+    *   严格接口文档标准，确保各服务之间接口调用清晰可靠。
+
+*   **machine_learning_recommendation_engine**
+
+    *   定期更新与调参，确保混合算法结合中医专家建议不断优化推荐结果。
+    *   使用 A/B 测试验证模型效果，并及时迭代。
+    *   加强数据隐私与安全审计，确保模型训练与数据采集合规执行。
+
+*   **Database & Storage (relational_database / nosql_database / object_storage)**
+
+    *   根据数据特性选择合适数据库，确保数据存储高效且安全。
+    *   实现数据备份及恢复策略，防止数据丢失。
+    *   对大文件数据采用 CDN 与对象存储，提升数据传输速度与抗压能力。
+
+*   **external_payment_gateway**
+
+    *   与权威支付平台合作，确保所有交易数据即时加密传输。
+    *   定期进行安全验证与漏洞扫描，防止敏感数据泄漏。
+    *   提供清晰的交易流程与用户反馈，确保用户信任与满意度。
+
+*   **tls_1.3_encryption / ai_assisted_content_moderation**
+
+    *   坚持使用最新安全协议，确保所有数据传输均被加密。
+    *   实现自动化内容审核及人工复核机制，确保社区环境健康有序。
+    *   建立详细日志及审计机制，便于追踪并解决安全问题。
+
+## Rules
+
+*   Derive folder/file patterns **directly** from techStackDoc versions and platform-specific guidelines.
+*   For mobile native apps, enforce platform-specific structure: iOS projects use Storyboards/SwiftUI and Android projects must use distinct XML layout directories and Activity/Fragment separation.
+*   Maintain clear separation between client-side (mobile app) and server-side (microservices) concerns; never mix mobile app code with backend service routes.
+*   Ensure security and privacy rules are enforced following latest encryption standards (e.g., TLS 1.3) and data protection regulations (GDPR/CCPA).
+*   All naming conventions and version patterns must be strictly followed; do not mix platform-specific patterns (e.g., Android XML layouts should not be used in iOS projects).
+*   Adhere to modular design principles ensuring that any update to one tech component (e.g., recommendation engine) does not necessitate breaking changes across the platform.
+*   创建一个进度文档，每完成一个功能模块后，记得把实现思路，代码函数等打印到文档中，方便后续提供上下文

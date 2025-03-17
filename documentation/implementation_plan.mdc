@@ -1,0 +1,76 @@
+---
+description: Apply these rules when making changes to the project
+globs:
+alwaysApply: true
+---
+
+Update this rule if user requested changes to the project requirement, etc.
+# Implementation plan
+
+## Phase 1: Environment Setup
+
+1.  Create the project repository named `zhongyi-naicha-yangsheng-app` with separate folders for mobile apps and backend services. (Project Overview)
+2.  Create directories for mobile frontend: `/ios` and `/android` for native iOS and Android apps. (Tech Stack: Frontend)
+3.  Create a directory for backend microservices at `/backend` with subfolders for each service: `/backend/user`, `/backend/recommendation`, `/backend/knowledge`, `/backend/recipe`, `/backend/order`, `/backend/community`, `/backend/data`. (Tech Stack: Backend)
+4.  Set up development tools for mobile: install Xcode for iOS and Android Studio for Android. (Tech Stack: Frontend)
+5.  Set up development tools for backend services (editors, container tools, etc.). (Tech Stack: Backend)
+6.  **Validation**: Verify directory structure exists and tools are installed by opening Xcode, Android Studio, and checking `/backend` folders. (Project Overview)
+
+## Phase 2: Frontend Development
+
+1.  Create the lightweight registration screen in the iOS project at `/ios/Screens/Registration.swift` to support phone number + verification code and third-party logins. (Key Features: User Center)
+2.  Develop the equivalent registration screen for Android in `/android/app/src/main/java/com/zhongyin/screens/RegistrationActivity.java`. (Key Features: User Center)
+3.  Create the user health profile screen in iOS at `/ios/Screens/HealthProfile.swift` with input fields for age, gender, height, weight, TCM constitution assessment, and health goals. (Key Features: User Center)
+4.  Develop the health profile screen in Android in `/android/app/src/main/java/com/zhongyin/screens/HealthProfileActivity.java`. (Key Features: User Center)
+5.  Implement offline caching for DIY guides, recipes, and health tips by creating a caching module at `/ios/Services/OfflineCache.swift` and `/android/app/src/main/java/com/zhongyin/services/OfflineCache.java`. (Key Features: Knowledge Center, Recipe & DIY Guidance)
+6.  Implement multi-language (Chinese and English) support by configuring language resource files. Add localization files in `/ios/Localizations` and in `/android/app/src/main/res/values` (and `/values-zh`). (Important Considerations: Languages)
+7.  **Validation**: Run the iOS Simulator and Android Emulator to verify that registration, profile, and language selection screens load correctly. (Key Features: User Center)
+
+## Phase 3: Backend Development
+
+1.  In `/backend/user/auth.js`, implement the User Service with endpoints for lightweight registration (phone/verification code) and third-party login. (Key Features: User Center)
+2.  In `/backend/user/profile.js`, develop APIs to create and update the user health profile. (Key Features: User Center)
+3.  **Validation**: Use Postman to send requests to the registration and profile endpoints and verify correct responses. (Key Features: User Center)
+4.  In `/backend/recommendation/recommend.js`, implement the Recommendation Engine Service using a hybrid rule-based and machine learning approach for personalized tea recipe recommendations. (Key Features: Intelligent Recommendation System)
+5.  **Validation**: Test the recommendation endpoint with dummy user data via API client and verify expected recipe recommendations. (Key Features: Intelligent Recommendation System)
+6.  In `/backend/knowledge/content.js`, develop the Knowledge Center Service to deliver TCM encyclopedia content, video courses, and audio podcasts, integrating with a NoSQL database for content storage. (Key Features: Knowledge Center)
+7.  In `/backend/recipe/guidance.js`, implement the Recipe & DIY Guidance Service to provide detailed recipe information (ingredients, nutrition, benefits, cautions) along with step-by-step instructions. (Key Features: Recipe & DIY Guidance)
+8.  **Validation**: Query both Knowledge Center and Recipe endpoints using an API client and verify sample content is returned. (Key Features: Knowledge Center, Recipe & DIY Guidance)
+9.  In `/backend/order/ordering.js`, develop endpoints for the lightweight ordering system, including integration points for map-based shop location, pickup scheduling, and redirection to external payment gateways. (Key Features: Ordering System)
+10. **Validation**: Execute test orders via the API and confirm that order data and scheduling information are correctly processed. (Key Features: Ordering System)
+11. In `/backend/community/interaction.js`, create the Community Interaction Service to handle user health check-ins, content sharing, expert Q&A, and integrate with an external AI-assisted moderation API. (Key Features: Community Interaction)
+12. **Validation**: Use API tests to simulate community posts and expert Q&A submissions, ensuring moderation calls are triggered. (Key Features: Community Interaction)
+13. In `/backend/data/analysis.js`, set up the Data Analysis & Health Insights Service to track consumption habits and generate exportable PDF health reports. (Key Features: Data Analysis & Health Insights)
+14. **Validation**: Simulate data ingestion and run the report generation to produce a sample PDF report. (Key Features: Data Analysis & Health Insights)
+15. Configure security for all backend services by updating `/backend/config/security.json` to enforce TLS 1.3 encryption for data transmission and enabling end-to-end encryption for sensitive data. (Security: TLS 1.3, End-to-End Encryption)
+16. **Validation**: Run an SSL test against the backend endpoints to confirm TLS 1.3 is active. (Security: TLS 1.3)
+17. In `/backend/api-gateway/routes.js`, implement the API Gateway to route requests to the correct microservice endpoints and apply CORS and rate limiting settings. (Tech Stack: Integrations)
+18. **Validation**: Test the API Gateway routing using sample endpoints from each microservice. (Tech Stack: Integrations)
+
+## Phase 4: Integration
+
+1.  In the mobile apps’ networking modules (i.e. `/ios/Networking/ApiService.swift` and `/android/app/src/main/java/com/zhongyin/ApiService.java`), integrate API calls to the User Service endpoints for registration and profile management. (App Flow: User System Integration)
+2.  Integrate the recommendation API by updating the mobile apps to fetch personalized tea recipes from `/backend/recommendation/recommend.js`. (App Flow: Recommendation Integration)
+3.  Connect the mobile apps to the offline caching module to ensure DIY guides, recipes, and health tips are available without network connectivity. (App Flow: Offline Functionality)
+4.  Integrate the ordering system API into the mobile apps to handle ingredient/recipe package orders and scheduling via the endpoint in `/backend/order/ordering.js`. (App Flow: Ordering System Integration)
+5.  Integrate community features by wiring mobile app social feeds and expert Q&A screens to the endpoints in `/backend/community/interaction.js`. (App Flow: Community Integration)
+6.  **Validation**: Perform end-to-end testing on the mobile app flows (registration, recommendation, ordering, community posting) using mobile emulators. (App Flow: End-to-End Testing)
+
+## Phase 5: Deployment
+
+1.  Set up CI/CD pipelines for the mobile apps using Fastlane for iOS (store configuration in `/ci/ios/Fastfile`) and Gradle configuration for Android at `/ci/android/build.gradle`. (Deployment: Mobile CI/CD)
+2.  Set up a CI/CD pipeline for the backend microservices using Jenkins; store the pipeline configuration at `/ci/backend/Jenkinsfile`. (Deployment: Backend CI/CD)
+3.  Deploy backend microservices in Docker containers to a cloud environment (e.g., AWS region us-east-1) using the configuration defined in `/infra/aws/docker-compose.yaml`. (Tech Stack: Deployment)
+4.  Deploy the API Gateway configuration to the cloud load balancer using `/infra/aws/api-gateway.yaml`. (Tech Stack: Deployment)
+5.  Publish the iOS mobile app build to TestFlight using the Apple Developer account and the Android app to Google Play Beta. (Deployment: Mobile App Distribution)
+6.  **Validation**: Run automated end-to-end tests and monitor CI/CD pipelines for successful deployments across mobile and backend channels. (Deployment: QA)
+
+## Additional Steps: Security, Analytics, and Compliance
+
+1.  Set up logging and monitoring for backend microservices by configuring `/backend/config/logging.json` and integrating with AWS CloudWatch (region us-east-1). (Security: Monitoring)
+2.  Integrate mobile app analytics by adding configurations in `/ios/Analytics/Config.swift` and `/android/app/src/main/java/com/zhongyin/AnalyticsConfig.java` for tracking usage and errors. (Deployment: Analytics)
+3.  In `/backend/community/interaction.js`, integrate external AI-assisted content moderation by calling the external moderation API during content submission. (Key Features: Community Interaction)
+4.  **Validation**: Simulate user-generated content submissions to ensure the moderation API filters inappropriate content. (Key Features: Community Interaction)
+5.  Validate multi-language support by switching the mobile app language from Chinese to English in the language files and verifying all UI elements translate correctly. (Important Considerations: Languages)
+6.  Audit all privacy and security controls to ensure GDPR and CCPA compliance; document audit findings in `/docs/audit/PrivacyCompliance.md`. (Important Considerations: Data Privacy)
+7.  **Validation**: Run a final comprehensive end-to-end test of all modules using the test suite located at `/ci/test/E2ETests` to ensure seamless user experience and security compliance. (Deployment: QA)
