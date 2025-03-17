@@ -733,47 +733,115 @@ class OfflineCacheManager: ObservableObject {
 ### Android应用
 
 #### 完成情况
-- [x] 项目基础结构搭建
-- [x] MainActivity和导航设置
-- [x] 主题资源文件
-- [x] 字符串本地化资源
 - [x] 登录和注册界面
 - [x] 健康档案管理
-- [x] 首页实现
-- [ ] 知识中心界面
-- [ ] 配方详情界面
-- [ ] API集成
+- [x] 首页实现（个性化茶饮推荐）
+- [x] 知识中心（文章和中药材浏览）
+- [x] 文章和中药材详情页
+- [x] 书签功能（收藏文章和中药材）
+- [ ] 配方详情页
+- [ ] 社区互动功能
+- [ ] 订单管理
+
+#### 实现思路
+Android应用采用Kotlin语言开发，使用MVVM架构模式，主要组件包括：
+
+1. **UI层**：使用Jetpack Compose和XML布局混合开发，实现现代化的用户界面。
+2. **ViewModel层**：使用Android ViewModel组件，处理UI逻辑和数据转换。
+3. **Repository层**：封装数据访问逻辑，提供统一的数据接口。
+4. **网络层**：使用Retrofit进行API调用，OkHttp处理网络请求，Gson进行JSON解析。
+5. **本地存储**：使用Room数据库存储本地数据，SharedPreferences存储用户配置。
+6. **依赖注入**：使用Hilt进行依赖注入，简化组件间的依赖关系。
+
+#### 关键代码
+```kotlin
+// 首页ViewModel
+@HiltViewModel
+class HomeViewModel @Inject constructor(
+    private val recipeRepository: RecipeRepository,
+    private val userRepository: UserRepository,
+    private val tipRepository: TipRepository
+) : ViewModel() {
+
+    private val _recommendations = MutableLiveData<List<Recipe>>()
+    val recommendations: LiveData<List<Recipe>> = _recommendations
+
+    private val _dailyTip = MutableLiveData<String>()
+    val dailyTip: LiveData<String> = _dailyTip
+
+    private val _isLoading = MutableLiveData<Boolean>(false)
+    val isLoading: LiveData<Boolean> = _isLoading
+
+    private val _error = MutableLiveData<String?>(null)
+    val error: LiveData<String?> = _error
+
+    init {
+        loadRecommendations()
+        loadDailyTip()
+    }
+
+    fun loadRecommendations() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _error.value = null
+            try {
+                val recipes = recipeRepository.getRecommendedRecipes()
+                _recommendations.value = recipes
+            } catch (e: Exception) {
+                _error.value = "Failed to load recommendations: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun loadDailyTip() {
+        viewModelScope.launch {
+            try {
+                val tip = tipRepository.getDailyTip()
+                _dailyTip.value = tip
+            } catch (e: Exception) {
+                // Silently fail for tips, not critical
+            }
+        }
+    }
+}
+```
 
 ## 待完成功能 (Pending Features)
 
 ### 后端服务
-- ✅ User Authentication Service
-- ✅ Recipe Management Service 
-- ✅ Order Service
-- ✅ Community Interaction Service
-- ✅ Data Analysis Service
-- ✅ API Gateway
+- [ ] 社区互动服务完善
+- [ ] 数据分析服务实现
+- [ ] 订单服务与支付集成
+- [ ] 专家问答系统
 
 ### 移动应用
-**Android Application**:
-- ✅ 用户认证界面 (登录, 注册, 资料管理)
-- ✅ 健康档案管理
-- ✅ 体质评估和个性化推荐
-- ✅ 奶茶详情和营养信息
-- ✅ 购物车和下单功能
-- ✅ 社区互动功能
-- ✅ 首页实现
-- ❌ 知识中心界面
-- ❌ 配方详情界面
-- ❌ 健康数据分析与报告
-- ❌ 推送通知功能
-- ❌ 性能优化与完整测试
+- [ ] iOS应用开发
+- [ ] Android应用完善
+  - [ ] 配方详情页实现
+  - [ ] 社区互动功能
+  - [ ] 订单管理
+  - [ ] 用户反馈系统
+- [ ] 离线模式优化
+- [ ] 性能优化
 
-### Next Steps
-1. Complete the Android app's remaining screens:
-   - Implement the Home screen with personalized tea recommendations
-   - Implement the Knowledge Center screen for browsing TCM content
-   - Implement the Recipe Detail screen for viewing tea recipes
-2. Implement API integration for the Android app
-3. Implement comprehensive testing across all services
-4. Prepare for deployment to production environment 
+## 下一步计划 (Next Steps)
+
+1. **完善Android应用**
+   - 实现配方详情页
+   - 添加社区互动功能
+   - 集成订单管理系统
+
+2. **开发iOS应用**
+   - 搭建基础架构
+   - 实现核心功能
+
+3. **后端服务优化**
+   - 完善社区互动服务
+   - 实现数据分析服务
+   - 集成支付系统
+
+4. **测试与部署**
+   - 进行全面测试
+   - 准备应用上线 

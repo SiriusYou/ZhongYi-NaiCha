@@ -19,15 +19,29 @@
 
             <TextView
                 android:id="@+id/tvArticleTitle"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:textSize="24sp"
                 android:textStyle="bold"
                 android:textColor="@color/black"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/btnBookmark"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                android:layout_marginEnd="8dp"
                 tools:text="Seasonal Health Tips for Spring" />
+
+            <ImageButton
+                android:id="@+id/btnBookmark"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/bookmark"
+                android:padding="8dp"
+                android:src="@drawable/ic_bookmark_border"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/primary" />
 
             <TextView
                 android:id="@+id/tvArticleCategory"

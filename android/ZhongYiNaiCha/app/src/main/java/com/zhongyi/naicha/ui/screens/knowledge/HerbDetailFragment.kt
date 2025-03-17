@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
@@ -37,6 +38,13 @@ class HerbDetailFragment : Fragment() {
         viewModel.loadHerbDetails(args.herbId)
         
         setupObservers()
+        setupClickListeners()
+    }
+    
+    private fun setupClickListeners() {
+        binding.btnBookmark.setOnClickListener {
+            viewModel.toggleBookmark()
+        }
     }
     
     private fun setupObservers() {
@@ -63,6 +71,11 @@ class HerbDetailFragment : Fragment() {
             }
         }
         
+        // Observe bookmark state
+        viewModel.isBookmarked.observe(viewLifecycleOwner) { isBookmarked ->
+            updateBookmarkIcon(isBookmarked)
+        }
+        
         // Observe loading state
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
@@ -79,6 +92,16 @@ class HerbDetailFragment : Fragment() {
                 binding.tvError.visibility = View.GONE
             }
         }
+    }
+    
+    private fun updateBookmarkIcon(isBookmarked: Boolean) {
+        binding.btnBookmark.setImageResource(
+            if (isBookmarked) R.drawable.ic_bookmark else R.drawable.ic_bookmark_border
+        )
+        
+        // Show toast message when bookmark state changes
+        val message = if (isBookmarked) R.string.bookmark_added else R.string.bookmark_removed
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
     
     override fun onDestroyView() {

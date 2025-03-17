@@ -64,4 +64,13 @@
     <string name="loading_more">Loading more items...</string>
     <string name="benefits">Benefits</string>
     <string name="precautions">Precautions</string>
+    <string name="bookmark">Bookmark</string>
+    <string name="bookmark_added">Added to bookmarks</string>
+    <string name="bookmark_removed">Removed from bookmarks</string>
+    <string name="my_bookmarks">My Bookmarks</string>
+    <string name="bookmarked_articles">Articles</string>
+    <string name="bookmarked_herbs">Herbs</string>
+    <string name="no_bookmarks">You don't have any bookmarks yet</string>
+    <string name="no_bookmarked_articles">No bookmarked articles yet</string>
+    <string name="no_bookmarked_herbs">No bookmarked herbs yet</string>
 </resources> 

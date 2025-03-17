@@ -22,7 +22,8 @@ class MainActivity : AppCompatActivity() {
             setOf(
                 R.id.homeFragment,
                 R.id.profileFragment,
-                R.id.knowledgeCenterFragment
+                R.id.knowledgeCenterFragment,
+                R.id.bookmarksFragment
             )
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
