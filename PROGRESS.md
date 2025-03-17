@@ -739,7 +739,7 @@ class OfflineCacheManager: ObservableObject {
 - [x] 知识中心（文章和中药材浏览）
 - [x] 文章和中药材详情页
 - [x] 书签功能（收藏文章和中药材）
-- [ ] 配方详情页
+- [x] 配方详情页
 - [ ] 社区互动功能
 - [ ] 订单管理
 
@@ -829,7 +829,7 @@ class HomeViewModel @Inject constructor(
 ## 下一步计划 (Next Steps)
 
 1. **完善Android应用**
-   - 实现配方详情页
+   - ✅ 实现配方详情页
    - 添加社区互动功能
    - 集成订单管理系统
 

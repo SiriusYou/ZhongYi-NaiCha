@@ -42,4 +42,20 @@
     <action
         android:id="@+id/action_bookmarksFragment_to_herbDetailFragment"
         app:destination="@id/herbDetailFragment" />
+</fragment>
+
+<fragment
+    android:id="@+id/recipeDetailFragment"
+    android:name="com.zhongyi.naicha.ui.screens.recipes.RecipeDetailFragment"
+    android:label="Recipe Detail"
+    tools:layout="@layout/fragment_recipe_detail">
+    <argument
+        android:name="recipeId"
+        app:argType="string" />
+    <action
+        android:id="@+id/action_recipeDetailFragment_to_herbDetailFragment"
+        app:destination="@id/herbDetailFragment" />
+    <action
+        android:id="@+id/action_recipeDetailFragment_self"
+        app:destination="@id/recipeDetailFragment" />
 </fragment> 

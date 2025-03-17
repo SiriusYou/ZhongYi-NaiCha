@@ -97,79 +97,113 @@ class RecipeRepository @Inject constructor(
     }
     
     /**
+     * Get all recipes (paginated)
+     */
+    suspend fun getRecipes(page: Int = 1, pageSize: Int = 10): List<Recipe> = withContext(Dispatchers.IO) {
+        try {
+            val token = tokenManager.getToken()
+            val response = if (token != null) {
+                recipeService.getRecipes("Bearer $token", page, pageSize)
+            } else {
+                recipeService.getRecipes(page = page, pageSize = pageSize)
+            }
+            
+            if (response.isSuccessful && response.body() != null) {
+                return@withContext response.body()!!.recipes
+            }
+            return@withContext emptyList()
+        } catch (e: Exception) {
+            // Log error
+            e.printStackTrace()
+            return@withContext emptyList()
+        }
+    }
+    
+    /**
      * Get recipe details by ID
      */
     suspend fun getRecipeDetails(recipeId: String): Recipe? = withContext(Dispatchers.IO) {
         try {
             val token = tokenManager.getToken()
-            
-            // If user is logged in, get personalized recipe details
-            if (token != null) {
-                val response = recipeService.getRecipeDetail(
-                    token = "Bearer $token",
-                    recipeId = recipeId
-                )
-                
-                if (response.isSuccessful && response.body() != null) {
-                    return@withContext response.body()?.recipe
-                }
+            val response = if (token != null) {
+                recipeService.getRecipeDetails("Bearer $token", recipeId)
+            } else {
+                recipeService.getRecipeDetails(recipeId = recipeId)
             }
-            
-            // If not logged in or request failed, get public recipe details
-            val response = recipeService.getPublicRecipeDetail(recipeId)
             
             if (response.isSuccessful && response.body() != null) {
-                return@withContext response.body()?.recipe
+                return@withContext response.body()!!.recipe
             }
-            
-            return@withContext null
-        } catch (e: IOException) {
-            // Network error
             return@withContext null
         } catch (e: Exception) {
-            // Other errors
+            // Log error
+            e.printStackTrace()
             return@withContext null
         }
     }
     
     /**
-     * Search recipes by query
+     * Get recipes by category
      */
-    suspend fun searchRecipes(query: String, page: Int = 1, limit: Int = 10): List<Recipe> = withContext(Dispatchers.IO) {
+    suspend fun getRecipesByCategory(categoryId: String, page: Int = 1, pageSize: Int = 10): List<Recipe> = withContext(Dispatchers.IO) {
         try {
             val token = tokenManager.getToken()
-            
-            // If user is logged in, search personalized recipes
-            if (token != null) {
-                val response = recipeService.getRecipes(
-                    token = "Bearer $token",
-                    query = query,
-                    page = page,
-                    limit = limit
-                )
-                
-                if (response.isSuccessful && response.body() != null) {
-                    return@withContext response.body()?.recipes ?: emptyList()
-                }
+            val response = if (token != null) {
+                recipeService.getRecipesByCategory("Bearer $token", categoryId, page, pageSize)
+            } else {
+                recipeService.getRecipesByCategory(categoryId = categoryId, page = page, pageSize = pageSize)
             }
-            
-            // If not logged in or request failed, search public recipes
-            val response = recipeService.getPublicRecipes(
-                query = query,
-                page = page,
-                limit = limit
-            )
             
             if (response.isSuccessful && response.body() != null) {
-                return@withContext response.body()?.recipes ?: emptyList()
+                return@withContext response.body()!!.recipes
             }
-            
-            return@withContext emptyList()
-        } catch (e: IOException) {
-            // Network error
             return@withContext emptyList()
         } catch (e: Exception) {
-            // Other errors
+            // Log error
+            e.printStackTrace()
+            return@withContext emptyList()
+        }
+    }
+    
+    /**
+     * Get recommended recipes for the user
+     */
+    suspend fun getRecommendedRecipes(limit: Int = 5): List<Recipe> = withContext(Dispatchers.IO) {
+        try {
+            val token = tokenManager.getToken() ?: return@withContext emptyList()
+            
+            val response = recipeService.getRecommendedRecipes("Bearer $token", limit)
+            
+            if (response.isSuccessful && response.body() != null) {
+                return@withContext response.body()!!.recipes
+            }
+            return@withContext emptyList()
+        } catch (e: Exception) {
+            // Log error
+            e.printStackTrace()
+            return@withContext emptyList()
+        }
+    }
+    
+    /**
+     * Search recipes
+     */
+    suspend fun searchRecipes(query: String, page: Int = 1, pageSize: Int = 10): List<Recipe> = withContext(Dispatchers.IO) {
+        try {
+            val token = tokenManager.getToken()
+            val response = if (token != null) {
+                recipeService.searchRecipes("Bearer $token", query, page, pageSize)
+            } else {
+                recipeService.searchRecipes(query = query, page = page, pageSize = pageSize)
+            }
+            
+            if (response.isSuccessful && response.body() != null) {
+                return@withContext response.body()!!.recipes
+            }
+            return@withContext emptyList()
+        } catch (e: Exception) {
+            // Log error
+            e.printStackTrace()
             return@withContext emptyList()
         }
     }

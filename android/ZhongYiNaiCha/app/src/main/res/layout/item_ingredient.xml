@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingVertical="8dp">
+
+    <ImageView
+        android:id="@+id/ivIngredientImage"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:contentDescription="Ingredient image"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:src="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/tvIngredientName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="8dp"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/tvIngredientAmount"
+        app:layout_constraintStart_toEndOf="@+id/ivIngredientImage"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="桂花" />
+
+    <TextView
+        android:id="@+id/tvIngredientNote"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="8dp"
+        android:textSize="14sp"
+        android:visibility="visible"
+        app:layout_constraintEnd_toStartOf="@+id/tvIngredientAmount"
+        app:layout_constraintStart_toEndOf="@+id/ivIngredientImage"
+        app:layout_constraintTop_toBottomOf="@+id/tvIngredientName"
+        tools:text="干燥的，建议使用陈年桂花" />
+
+    <TextView
+        android:id="@+id/tvIngredientAmount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="5克" />
+
+    <ImageView
+        android:id="@+id/ivHerbBadge"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_marginStart="4dp"
+        android:contentDescription="Herb badge"
+        android:src="@drawable/ic_herb_badge"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/tvIngredientName"
+        app:layout_constraintStart_toEndOf="@+id/tvIngredientName"
+        app:layout_constraintTop_toTopOf="@+id/tvIngredientName"
+        tools:visibility="visible" />
+
+</androidx.constraintlayout.widget.ConstraintLayout> 
