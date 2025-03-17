@@ -735,74 +735,115 @@ class OfflineCacheManager: ObservableObject {
 #### 完成情况
 - [x] 登录和注册界面
 - [x] 健康档案管理
-- [x] 首页实现（个性化茶饮推荐）
-- [x] 知识中心（文章和中药材浏览）
-- [x] 文章和中药材详情页
-- [x] 书签功能（收藏文章和中药材）
+- [x] 首页（个性化茶饮推荐）
+- [x] 知识中心（中医百科、草药库）
 - [x] 配方详情页
-- [ ] 社区互动功能
-- [ ] 订单管理
+- [x] 社区互动功能
 
 #### 实现思路
-Android应用采用Kotlin语言开发，使用MVVM架构模式，主要组件包括：
 
-1. **UI层**：使用Jetpack Compose和XML布局混合开发，实现现代化的用户界面。
-2. **ViewModel层**：使用Android ViewModel组件，处理UI逻辑和数据转换。
-3. **Repository层**：封装数据访问逻辑，提供统一的数据接口。
-4. **网络层**：使用Retrofit进行API调用，OkHttp处理网络请求，Gson进行JSON解析。
-5. **本地存储**：使用Room数据库存储本地数据，SharedPreferences存储用户配置。
-6. **依赖注入**：使用Hilt进行依赖注入，简化组件间的依赖关系。
+Android应用采用原生开发方式，使用Kotlin语言，遵循MVVM架构模式，主要组件包括：
+
+1. **UI层**：使用Fragment和Activity构建用户界面，采用Material Design设计规范。
+2. **ViewModel层**：使用AndroidX ViewModel组件，处理UI相关的业务逻辑和数据转换。
+3. **Repository层**：封装数据访问逻辑，提供统一的数据接口给ViewModel。
+4. **网络层**：使用Retrofit进行API调用，OkHttp处理HTTP请求，Gson进行JSON序列化。
+5. **依赖注入**：使用Hilt进行依赖注入，简化组件间的依赖关系。
+
+#### 社区互动功能实现
+
+社区互动功能允许用户浏览社区帖子、发布新帖子、评论、点赞和收藏。主要包括以下组件：
+
+1. **数据模型**：
+   - `Post`：帖子模型，包含标题、内容、作者信息、点赞数、评论数等。
+   - `Comment`：评论模型，包含内容、作者信息、点赞数等。
+
+2. **API服务**：
+   - `CommunityService`：定义与社区相关的API接口，包括获取帖子列表、帖子详情、发布帖子、评论等。
+
+3. **Repository**：
+   - `CommunityRepository`：封装社区相关的数据访问逻辑，处理API调用和数据缓存。
+
+4. **ViewModel**：
+   - `CommunityViewModel`：管理社区帖子列表，处理分页加载、筛选等逻辑。
+   - `PostDetailViewModel`：管理帖子详情和评论，处理评论加载、发布评论等逻辑。
+
+5. **UI组件**：
+   - `CommunityFragment`：显示社区帖子列表，支持分类筛选和下拉刷新。
+   - `PostDetailFragment`：显示帖子详情和评论列表，支持发表评论和回复。
+   - `CreatePostFragment`：提供发布新帖子的界面，支持添加图片和选择分类。
+
+6. **适配器**：
+   - `PostAdapter`：用于在RecyclerView中显示帖子列表。
+   - `CommentAdapter`：用于在RecyclerView中显示评论列表。
+   - `ImagePreviewAdapter`：用于在发布帖子时预览选择的图片。
 
 #### 关键代码
+
 ```kotlin
-// 首页ViewModel
-@HiltViewModel
-class HomeViewModel @Inject constructor(
-    private val recipeRepository: RecipeRepository,
-    private val userRepository: UserRepository,
-    private val tipRepository: TipRepository
-) : ViewModel() {
-
-    private val _recommendations = MutableLiveData<List<Recipe>>()
-    val recommendations: LiveData<List<Recipe>> = _recommendations
-
-    private val _dailyTip = MutableLiveData<String>()
-    val dailyTip: LiveData<String> = _dailyTip
-
-    private val _isLoading = MutableLiveData<Boolean>(false)
-    val isLoading: LiveData<Boolean> = _isLoading
-
-    private val _error = MutableLiveData<String?>(null)
-    val error: LiveData<String?> = _error
-
-    init {
-        loadRecommendations()
-        loadDailyTip()
-    }
-
-    fun loadRecommendations() {
-        viewModelScope.launch {
-            _isLoading.value = true
-            _error.value = null
-            try {
-                val recipes = recipeRepository.getRecommendedRecipes()
-                _recommendations.value = recipes
-            } catch (e: Exception) {
-                _error.value = "Failed to load recommendations: ${e.message}"
-            } finally {
-                _isLoading.value = false
-            }
+// CommunityViewModel中的加载帖子方法
+fun loadPosts(category: String? = null) {
+    if (_isLoading.value == true) return
+    
+    currentPage = 1
+    isLastPage = false
+    _selectedCategory.value = category
+    _isLoading.value = true
+    _error.value = null
+    
+    viewModelScope.launch {
+        try {
+            val fetchedPosts = communityRepository.getPosts(
+                page = currentPage,
+                limit = 10,
+                category = category
+            )
+            
+            _posts.value = fetchedPosts
+            isLastPage = fetchedPosts.isEmpty() || fetchedPosts.size < 10
+            
+        } catch (e: IOException) {
+            _error.value = "网络连接错误，请检查网络连接后重试"
+        } catch (e: Exception) {
+            _error.value = "加载内容失败: ${e.message}"
+        } finally {
+            _isLoading.value = false
         }
     }
+}
 
-    fun loadDailyTip() {
-        viewModelScope.launch {
-            try {
-                val tip = tipRepository.getDailyTip()
-                _dailyTip.value = tip
-            } catch (e: Exception) {
-                // Silently fail for tips, not critical
+// PostDetailViewModel中的添加评论方法
+fun addComment(content: String, parentId: String? = null) {
+    if (_isAddingComment.value == true) return
+    
+    val postId = currentPostId ?: return
+    
+    _isAddingComment.value = true
+    _commentsError.value = null
+    
+    viewModelScope.launch {
+        try {
+            val success = communityRepository.addComment(
+                postId = postId,
+                content = content,
+                parentId = parentId
+            )
+            
+            if (success) {
+                // Refresh comments
+                loadComments()
+                
+                // Refresh post to update comment count
+                refreshPost()
+            } else {
+                _commentsError.value = "添加评论失败"
             }
+        } catch (e: IOException) {
+            _commentsError.value = "网络连接错误，请检查网络连接后重试"
+        } catch (e: Exception) {
+            _commentsError.value = "添加评论失败: ${e.message}"
+        } finally {
+            _isAddingComment.value = false
         }
     }
 }
