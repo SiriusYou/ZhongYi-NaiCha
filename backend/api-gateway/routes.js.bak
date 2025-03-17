@@ -1,0 +1,63 @@
+/**
+ * API Gateway routes configuration
+ * This file defines the routing for all microservices
+ */
+
+const express = require('express');
+const router = express.Router();
+
+// User service routes
+router.use('/api/users', (req, res, next) => {
+  // Route to user service
+  // In production, this would forward to the user microservice
+  next();
+});
+
+// Recommendation service routes
+router.use('/api/recommendations', (req, res, next) => {
+  // Route to recommendation service
+  // In production, this would forward to the recommendation microservice
+  next();
+});
+
+// Knowledge center routes
+router.use('/api/knowledge', (req, res, next) => {
+  // Route to knowledge service
+  // In production, this would forward to the knowledge microservice
+  next();
+});
+
+// Recipe routes
+router.use('/api/recipes', (req, res, next) => {
+  // Route to recipe service
+  // In production, this would forward to the recipe microservice
+  next();
+});
+
+// Order routes
+router.use('/api/orders', (req, res, next) => {
+  // Route to order service
+  // In production, this would forward to the order microservice
+  next();
+});
+
+// Community routes
+router.use('/api/community', (req, res, next) => {
+  // Route to community service
+  // In production, this would forward to the community microservice
+  next();
+});
+
+// Data analysis routes
+router.use('/api/data', (req, res, next) => {
+  // Route to data analysis service
+  // In production, this would forward to the data analysis microservice
+  next();
+});
+
+// Health check endpoint
+router.get('/health', (req, res) => {
+  res.status(200).json({ status: 'UP' });
+});
+
+module.exports = router; 

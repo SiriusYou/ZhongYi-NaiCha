@@ -1,0 +1,44 @@
+{
+  "logging": {
+    "level": "info",
+    "format": "json",
+    "output": [
+      "console",
+      "file",
+      "cloudwatch"
+    ]
+  },
+  "file_logging": {
+    "directory": "/var/log/zhongyi-naicha",
+    "filename_pattern": "app-%DATE%.log",
+    "max_size": "10m",
+    "max_files": "7d"
+  },
+  "cloudwatch": {
+    "enabled": true,
+    "region": "us-east-1",
+    "log_group": "zhongyi-naicha-logs",
+    "log_stream_prefix": "app-"
+  },
+  "monitoring": {
+    "health_check_interval_seconds": 60,
+    "metrics_reporting_interval_seconds": 300
+  },
+  "audit": {
+    "enabled": true,
+    "sensitive_operations": [
+      "user.login",
+      "user.register",
+      "user.updateProfile",
+      "user.resetPassword",
+      "order.create",
+      "payment.process"
+    ],
+    "retention_days": 90
+  },
+  "error_reporting": {
+    "enabled": true,
+    "notify_on_levels": ["error", "fatal"],
+    "include_stack_trace": true
+  }
+}
