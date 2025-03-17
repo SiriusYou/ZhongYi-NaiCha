@@ -5,15 +5,18 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.zhongyi.naicha.data.models.Recipe
+import com.zhongyi.naicha.data.repositories.OrderRepository
 import com.zhongyi.naicha.data.repositories.RecipeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.io.IOException
+import java.math.BigDecimal
 import javax.inject.Inject
 
 @HiltViewModel
 class RecipeDetailViewModel @Inject constructor(
-    private val recipeRepository: RecipeRepository
+    private val recipeRepository: RecipeRepository,
+    private val orderRepository: OrderRepository
 ) : ViewModel() {
 
     // Recipe details
@@ -31,6 +34,10 @@ class RecipeDetailViewModel @Inject constructor(
     // Error state
     private val _error = MutableLiveData<String?>(null)
     val error: LiveData<String?> = _error
+    
+    // Add to cart success
+    private val _addToCartSuccess = MutableLiveData<Boolean>(false)
+    val addToCartSuccess: LiveData<Boolean> = _addToCartSuccess
     
     // Current recipe ID
     private var currentRecipeId: String? = null
@@ -85,6 +92,30 @@ class RecipeDetailViewModel @Inject constructor(
     fun refreshRecipe() {
         currentRecipeId?.let { recipeId ->
             loadRecipeDetails(recipeId)
+        }
+    }
+    
+    /**
+     * Add the current recipe to the cart
+     */
+    fun addToCart(quantity: Int = 1, options: Map<String, String>? = null, notes: String? = null) {
+        val currentRecipe = _recipe.value ?: return
+        
+        val success = orderRepository.addItemToCart(
+            recipeId = currentRecipe.id,
+            name = currentRecipe.name,
+            image = currentRecipe.imageUrl,
+            price = BigDecimal(currentRecipe.price),
+            quantity = quantity,
+            options = options,
+            notes = notes
+        )
+        
+        _addToCartSuccess.value = success
+        // Reset after a short delay
+        viewModelScope.launch {
+            kotlinx.coroutines.delay(2000)
+            _addToCartSuccess.value = false
         }
     }
 } 

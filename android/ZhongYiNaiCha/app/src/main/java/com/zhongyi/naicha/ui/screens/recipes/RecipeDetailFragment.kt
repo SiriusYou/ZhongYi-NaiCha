@@ -10,6 +10,8 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.zhongyi.naicha.R
 import com.zhongyi.naicha.data.models.Ingredient
 import com.zhongyi.naicha.data.models.Recipe
@@ -80,9 +82,44 @@ class RecipeDetailFragment : Fragment() {
     private fun setupClickListeners() {
         // Handle order button click
         binding.fabOrder.setOnClickListener {
-            // Navigate to order screen or show ordering options
-            Toast.makeText(context, "订购功能即将推出", Toast.LENGTH_SHORT).show()
+            showAddToCartDialog()
         }
+        
+        // Add cart icon to toolbar
+        binding.toolbar.inflateMenu(R.menu.menu_recipe_detail)
+        binding.toolbar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.action_view_cart -> {
+                    navigateToCart()
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+    
+    private fun showAddToCartDialog() {
+        val recipe = viewModel.recipe.value ?: return
+        
+        val quantities = arrayOf("1", "2", "3", "4", "5")
+        var selectedQuantity = 1
+        
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(getString(R.string.add_to_cart))
+            .setSingleChoiceItems(quantities, 0) { _, which ->
+                selectedQuantity = which + 1
+            }
+            .setPositiveButton(getString(R.string.add_to_cart)) { _, _ ->
+                viewModel.addToCart(quantity = selectedQuantity)
+            }
+            .setNegativeButton(getString(R.string.cancel), null)
+            .show()
+    }
+    
+    private fun navigateToCart() {
+        findNavController().navigate(
+            RecipeDetailFragmentDirections.actionRecipeDetailFragmentToCartFragment()
+        )
     }
     
     private fun observeViewModel() {
@@ -111,6 +148,19 @@ class RecipeDetailFragment : Fragment() {
                 binding.tvError.text = errorMessage
             } else {
                 binding.tvError.visibility = View.GONE
+            }
+        }
+        
+        // Observe add to cart success
+        viewModel.addToCartSuccess.observe(viewLifecycleOwner) { success ->
+            if (success) {
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.add_to_cart_success),
+                    Snackbar.LENGTH_LONG
+                ).setAction(getString(R.string.view_cart)) {
+                    navigateToCart()
+                }.show()
             }
         }
     }
@@ -148,6 +198,9 @@ class RecipeDetailFragment : Fragment() {
         // Set description
         binding.tvDescription.text = recipe.description
         
+        // Set price
+        binding.tvPrice.text = getString(R.string.price_format, recipe.price)
+        
         // Set ingredients
         ingredientAdapter.submitList(recipe.ingredients)
         
@@ -174,6 +227,9 @@ class RecipeDetailFragment : Fragment() {
         
         // Set suitable constitutions
         binding.tvConstitutions.text = recipe.suitableConstitutions.joinToString("\n") { "• $it" }
+        
+        // Update order button text
+        binding.fabOrder.text = getString(R.string.add_to_cart)
     }
     
     private fun navigateToIngredientDetail(ingredient: Ingredient) {

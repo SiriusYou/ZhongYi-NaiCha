@@ -63,4 +63,8 @@ object ApiClient {
     val communityService: CommunityService by lazy {
         retrofit.create(CommunityService::class.java)
     }
+    
+    val orderService: OrderService by lazy {
+        retrofit.create(OrderService::class.java)
+    }
 } 

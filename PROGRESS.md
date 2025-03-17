@@ -307,93 +307,112 @@ router.get('/search/recommendations', async (req, res) => {
 ### 订单服务
 
 #### 完成情况
+- [x] 购物车管理
+- [x] 结算流程
 - [x] 订单创建和管理
-- [x] 支付集成
-- [x] 订单状态跟踪
-- [x] 历史订单查询
-- [x] 商店信息管理
-- [x] 支付回调处理
+- [ ] 支付集成
+- [ ] 订单状态跟踪
+- [ ] 订单历史查询
 
 #### 实现思路
 订单服务采用Express框架实现，使用MongoDB作为数据库。主要功能包括：
 
-1. **订单管理**：提供订单的创建、查询、取消和更新功能，支持按状态和用户筛选。
-2. **支付处理**：集成支付宝和微信支付，处理支付通知回调，支持退款操作。
-3. **商店管理**：提供商店信息的CRUD操作，支持地理位置搜索和菜单管理。
-4. **状态跟踪**：订单状态全流程跟踪，从创建到完成或取消。
+1. **购物车管理**：提供购物车的CRUD操作，支持添加、更新、删除购物车项目。
+2. **结算流程**：支持多种配送方式（自取、外送）和支付方式。
+3. **订单管理**：提供订单的创建、查询、取消等功能。
+4. **支付集成**：支持多种支付方式，包括现金、刷卡和移动支付。
+5. **订单状态跟踪**：提供订单状态的实时更新和通知。
 
 #### 关键代码
 ```javascript
-// 订单状态更新API示例
-router.put('/:id/status', [auth], async (req, res) => {
-  try {
-    // TODO: Add check to verify user is an admin or shop owner
-    
-    const { status } = req.body;
-    
-    // Validate status
-    if (!status || !['processing', 'prepared', 'out_for_delivery', 'delivered', 'completed', 'cancelled'].includes(status)) {
-      return res.status(400).json({ msg: 'Invalid status' });
-    }
-    
-    // Find order by ID
-    const order = await Order.findById(req.params.id);
-    
-    // Check if order exists
-    if (!order) {
-      return res.status(404).json({ msg: 'Order not found' });
-    }
-    
-    // Update status and add to status history
-    order.status = status;
-    order.statusHistory.push({
-      status,
-      timestamp: Date.now(),
-      note: req.body.note || ''
-    });
-    
-    // Save updated order
-    await order.save();
-    
-    res.json(order);
-  } catch (err) {
-    console.error(err.message);
-    if (err.kind === 'ObjectId') {
-      return res.status(404).json({ msg: 'Order not found' });
-    }
-    res.status(500).send('Server Error');
+// 购物车项目模型
+const CartItemSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  recipe: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Recipe',
+    required: true
+  },
+  name: {
+    type: String,
+    required: true
+  },
+  price: {
+    type: Number,
+    required: true
+  },
+  quantity: {
+    type: Number,
+    required: true,
+    default: 1
+  },
+  options: {
+    type: Map,
+    of: String
+  },
+  notes: String,
+  createdAt: {
+    type: Date,
+    default: Date.now
   }
 });
 
-// 支付处理回调API示例
-router.post('/webhook', async (req, res) => {
-  try {
-    const event = req.body;
-    
-    // 根据支付平台的不同处理不同的事件类型
-    switch(event.type) {
-      case 'payment.success':
-        // 处理支付成功事件
-        await handlePaymentSuccess(event.data);
-        break;
-      case 'payment.failed':
-        // 处理支付失败事件
-        await handlePaymentFailure(event.data);
-        break;
-      case 'refund.processed':
-        // 处理退款成功事件
-        await handleRefundProcessed(event.data);
-        break;
-      default:
-        console.log(`Unhandled event type: ${event.type}`);
-    }
-    
-    res.status(200).json({ received: true });
-  } catch (err) {
-    console.error(`Webhook Error: ${err.message}`);
-    res.status(400).send(`Webhook Error: ${err.message}`);
-  }
+// 订单模型
+const OrderSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  items: [{
+    recipe: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Recipe'
+    },
+    name: String,
+    price: Number,
+    quantity: Number,
+    options: {
+      type: Map,
+      of: String
+    },
+    notes: String
+  }],
+  total: {
+    type: Number,
+    required: true
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'processing', 'ready', 'completed', 'cancelled'],
+    default: 'pending'
+  },
+  paymentMethod: {
+    type: String,
+    enum: ['CASH', 'CARD', 'MOBILE'],
+    required: true
+  },
+  shop: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Shop'
+  },
+  deliveryAddress: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Address'
+  },
+  pickupTime: Date,
+  notes: String,
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: Date
 });
+```
 
 ### 社区互动服务
 
@@ -733,139 +752,94 @@ class OfflineCacheManager: ObservableObject {
 ### Android应用
 
 #### 完成情况
-- [x] 登录和注册界面
-- [x] 健康档案管理
-- [x] 首页（个性化茶饮推荐）
-- [x] 知识中心（中医百科、草药库）
+- [x] 应用基础架构搭建
+- [x] 用户认证模块
+- [x] 健康档案模块
+- [x] 知识中心模块
 - [x] 配方详情页
-- [x] 社区互动功能
+- [x] 收藏功能
+- [x] 购物车和结算功能
+- [ ] 订单历史和详情
+- [ ] 社区互动模块
+- [ ] 数据分析和报告
 
 #### 实现思路
-
-Android应用采用原生开发方式，使用Kotlin语言，遵循MVVM架构模式，主要组件包括：
+Android应用采用Kotlin语言开发，使用MVVM架构模式，主要组件包括：
 
 1. **UI层**：使用Fragment和Activity构建用户界面，采用Material Design设计规范。
-2. **ViewModel层**：使用AndroidX ViewModel组件，处理UI相关的业务逻辑和数据转换。
-3. **Repository层**：封装数据访问逻辑，提供统一的数据接口给ViewModel。
-4. **网络层**：使用Retrofit进行API调用，OkHttp处理HTTP请求，Gson进行JSON序列化。
-5. **依赖注入**：使用Hilt进行依赖注入，简化组件间的依赖关系。
+2. **ViewModel层**：处理UI相关的业务逻辑，管理UI状态。
+3. **Repository层**：提供数据访问接口，协调远程数据源和本地数据源。
+4. **数据源层**：包括远程API服务和本地数据库。
 
-#### 社区互动功能实现
+主要功能模块：
 
-社区互动功能允许用户浏览社区帖子、发布新帖子、评论、点赞和收藏。主要包括以下组件：
-
-1. **数据模型**：
-   - `Post`：帖子模型，包含标题、内容、作者信息、点赞数、评论数等。
-   - `Comment`：评论模型，包含内容、作者信息、点赞数等。
-
-2. **API服务**：
-   - `CommunityService`：定义与社区相关的API接口，包括获取帖子列表、帖子详情、发布帖子、评论等。
-
-3. **Repository**：
-   - `CommunityRepository`：封装社区相关的数据访问逻辑，处理API调用和数据缓存。
-
-4. **ViewModel**：
-   - `CommunityViewModel`：管理社区帖子列表，处理分页加载、筛选等逻辑。
-   - `PostDetailViewModel`：管理帖子详情和评论，处理评论加载、发布评论等逻辑。
-
-5. **UI组件**：
-   - `CommunityFragment`：显示社区帖子列表，支持分类筛选和下拉刷新。
-   - `PostDetailFragment`：显示帖子详情和评论列表，支持发表评论和回复。
-   - `CreatePostFragment`：提供发布新帖子的界面，支持添加图片和选择分类。
-
-6. **适配器**：
-   - `PostAdapter`：用于在RecyclerView中显示帖子列表。
-   - `CommentAdapter`：用于在RecyclerView中显示评论列表。
-   - `ImagePreviewAdapter`：用于在发布帖子时预览选择的图片。
+1. **用户认证**：支持手机号+验证码登录，使用JWT进行身份验证。
+2. **健康档案**：提供用户健康信息的录入和管理。
+3. **知识中心**：展示中医知识内容，支持搜索和收藏。
+4. **配方指南**：展示茶饮配方，支持按分类浏览和搜索。
+5. **购物车和结算**：支持添加商品到购物车，选择配送方式和支付方式进行结算。
+6. **订单管理**：查看订单历史和详情，跟踪订单状态。
+7. **社区互动**：用户论坛和专家问答功能。
 
 #### 关键代码
-
 ```kotlin
-// CommunityViewModel中的加载帖子方法
-fun loadPosts(category: String? = null) {
-    if (_isLoading.value == true) return
+// 购物车管理
+@Singleton
+class CartManager @Inject constructor(
+    private val sharedPreferences: SharedPreferences,
+    private val gson: Gson
+) {
+    private val CART_ITEMS_KEY = "cart_items"
     
-    currentPage = 1
-    isLastPage = false
-    _selectedCategory.value = category
-    _isLoading.value = true
-    _error.value = null
-    
-    viewModelScope.launch {
-        try {
-            val fetchedPosts = communityRepository.getPosts(
-                page = currentPage,
-                limit = 10,
-                category = category
-            )
-            
-            _posts.value = fetchedPosts
-            isLastPage = fetchedPosts.isEmpty() || fetchedPosts.size < 10
-            
-        } catch (e: IOException) {
-            _error.value = "网络连接错误，请检查网络连接后重试"
-        } catch (e: Exception) {
-            _error.value = "加载内容失败: ${e.message}"
-        } finally {
-            _isLoading.value = false
-        }
+    fun getCartItems(): List<CartItem> {
+        val json = sharedPreferences.getString(CART_ITEMS_KEY, null) ?: return emptyList()
+        val type = object : TypeToken<List<CartItem>>() {}.type
+        return gson.fromJson(json, type)
     }
-}
-
-// PostDetailViewModel中的添加评论方法
-fun addComment(content: String, parentId: String? = null) {
-    if (_isAddingComment.value == true) return
     
-    val postId = currentPostId ?: return
-    
-    _isAddingComment.value = true
-    _commentsError.value = null
-    
-    viewModelScope.launch {
-        try {
-            val success = communityRepository.addComment(
-                postId = postId,
-                content = content,
-                parentId = parentId
-            )
-            
-            if (success) {
-                // Refresh comments
-                loadComments()
-                
-                // Refresh post to update comment count
-                refreshPost()
-            } else {
-                _commentsError.value = "添加评论失败"
-            }
-        } catch (e: IOException) {
-            _commentsError.value = "网络连接错误，请检查网络连接后重试"
-        } catch (e: Exception) {
-            _commentsError.value = "添加评论失败: ${e.message}"
-        } finally {
-            _isAddingComment.value = false
+    fun addItem(item: CartItem): Boolean {
+        val items = getCartItems().toMutableList()
+        
+        // Check if item already exists with same options
+        val existingItemIndex = items.indexOfFirst { 
+            it.recipeId == item.recipeId && it.options == item.options 
         }
+        
+        if (existingItemIndex >= 0) {
+            // Update quantity of existing item
+            val existingItem = items[existingItemIndex]
+            items[existingItemIndex] = existingItem.copy(
+                quantity = existingItem.quantity + item.quantity
+            )
+        } else {
+            // Add new item
+            items.add(item)
+        }
+        
+        return saveCartItems(items)
     }
+    
+    // Other cart management methods...
 }
 ```
 
 ## 待完成功能 (Pending Features)
 
-### 后端服务
-- [ ] 社区互动服务完善
-- [ ] 数据分析服务实现
-- [ ] 订单服务与支付集成
-- [ ] 专家问答系统
+### 已完成
+- ✅ 用户认证系统
+- ✅ 健康档案管理
+- ✅ 知识中心基础功能
+- ✅ 配方详情页
+- ✅ 收藏功能
+- ✅ 购物车和结算功能
 
-### 移动应用
-- [ ] iOS应用开发
-- [ ] Android应用完善
-  - [ ] 配方详情页实现
-  - [ ] 社区互动功能
-  - [ ] 订单管理
-  - [ ] 用户反馈系统
-- [ ] 离线模式优化
-- [ ] 性能优化
+### 下一步
+- 订单历史和详情页面
+- 社区互动功能
+- 数据分析和健康报告
+- 支付集成
+- 推送通知
+- 离线模式优化
 
 ## 下一步计划 (Next Steps)
 
