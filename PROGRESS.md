@@ -1,862 +1,435 @@
-# 中医奶茶养生 App 实现进度
+# 中医奶茶养生 App 开发进度 (Development Progress)
 
-本文档记录项目实现的进度，包括已完成的功能模块、实现思路、关键代码等，便于后续开发和维护。
-
-## 目录
-- [环境搭建](#环境搭建)
-- [后端服务](#后端服务)
-  - [用户服务](#用户服务)
-  - [健康档案服务](#健康档案服务)
-  - [知识中心服务](#知识中心服务)
-  - [配方指南服务](#配方指南服务)
-  - [订单服务](#订单服务)
-  - [社区互动服务](#社区互动服务)
-  - [数据分析服务](#数据分析服务)
-- [移动应用](#移动应用)
-  - [iOS应用](#ios应用)
-  - [Android应用](#android应用)
-- [待完成功能 (Pending Features)](#待完成功能-pending-features)
-
-## 环境搭建
-
-### 完成情况
-- [x] 创建项目基本目录结构
-- [x] 配置基础环境文件（package.json, .gitignore等）
-- [x] 设置安全和日志配置
-- [x] 创建Docker和AWS部署配置
-
-### 实现思路
-按照微服务架构设计，将系统分为多个独立的服务：
-- API网关：统一入口，处理路由和安全
-- 用户服务：处理用户认证和健康档案
-- 推荐引擎：根据用户数据提供个性化茶饮推荐
-- 知识中心：提供中医知识和内容
-- 配方指南：提供详细的茶饮配方和制作指南
-- 订单服务：处理订单和支付
-- 社区服务：用户互动和专家问答
-- 数据分析：健康数据分析和报告生成
-
-每个服务采用Node.js实现，使用Express框架，通过Docker容器化部署。
-
-## 后端服务
-
-### 用户服务
-
-#### 完成情况
-- [x] 用户注册（手机号+验证码）
+## 已完成功能 (Completed Features)
+### 用户认证 (User Authentication)
 - [x] 用户登录
-- [x] JWT认证
-- [x] 用户信息管理
+- [x] 用户注册
+- [x] 指纹认证
+- [x] 忘记密码/重置密码流程
+- [x] 账号管理
 
-#### 实现思路
-用户服务采用Express框架实现，使用MongoDB作为数据库。主要功能包括：
-
-1. **用户注册和登录**：支持手机号+验证码的注册和登录方式。
-2. **JWT认证**：使用JSON Web Token进行用户认证，确保API安全。
-3. **用户信息管理**：提供用户信息的CRUD操作。
-
-#### 关键代码
-```javascript
-// 用户认证中间件
-const jwt = require('jsonwebtoken');
-
-module.exports = function(req, res, next) {
-  // 获取token
-  const token = req.header('x-auth-token');
-
-  // 检查是否有token
-  if (!token) {
-    return res.status(401).json({ msg: '无访问权限，请先登录' });
-  }
-
-  // 验证token
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'yourSecretKey');
-    req.user = decoded;
-    next();
-  } catch (err) {
-    res.status(401).json({ msg: 'Token无效' });
-  }
-};
-```
-
-### 健康档案服务
-
-#### 完成情况
-- [x] 健康档案创建和更新
-- [x] TCM体质类型评估
-- [x] 健康目标管理
-- [x] 过敏原和禁忌记录
-
-### 知识中心服务
-
-#### 完成情况
-- [x] 中医知识内容管理（文章、草药）
-- [x] 内容分类和标签
-- [x] 搜索功能
-- [x] 离线必要内容提供
-
-#### 实现思路
-知识中心服务采用Express框架实现，使用MongoDB作为数据库。主要功能包括：
-
-1. **内容管理**：提供文章和中药材的CRUD操作，支持富文本内容和多媒体资源。
-2. **分类和标签**：支持内容的分类和标签管理，便于用户浏览和查找。
-3. **搜索功能**：提供全文搜索和按条件筛选的功能，支持中药材的特性搜索（如性味、归经等）。
-4. **离线内容**：提供必要内容的离线访问API，支持移动应用的离线模式。
-
-#### 关键代码
-```javascript
-// 文章模型
-const ArticleSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  slug: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    trim: true
-  },
-  summary: {
-    type: String,
-    required: true
-  },
-  content: {
-    type: String,
-    required: true
-  },
-  categories: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Category',
-    required: true
-  }],
-  // 其他字段...
-});
-
-// 中药材模型
-const HerbSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  chineseName: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  properties: {
-    nature: {
-      type: String,
-      enum: ['寒', '凉', '平', '温', '热'],
-      required: true
-    },
-    taste: [{
-      type: String,
-      enum: ['酸', '苦', '甘', '辛', '咸', '淡'],
-      required: true
-    }],
-    meridianAffinity: [{
-      type: String,
-      enum: [
-        '肺经', '大肠经', '胃经', '脾经', '心经', '小肠经', 
-        '膀胱经', '肾经', '心包经', '三焦经', '胆经', '肝经'
-      ]
-    }]
-  },
-  // 其他字段...
-});
-```
-
-### 配方指南服务
-
-#### 完成情况
-- [x] 茶饮配方数据库
-- [x] 配方详情和制作步骤
-- [x] 基于用户体质的推荐
-- [x] 季节性推荐
-
-#### 实现思路
-配方指南服务采用Express框架实现，使用MongoDB作为数据库。主要功能包括：
-
-1. **配方数据管理**：提供茶饮配方的CRUD操作，包括详细的配料、步骤、营养信息等。
-2. **成分数据管理**：管理所有茶饮成分的详细信息，包括中药材和其他食材。
-3. **分类管理**：支持配方的分类管理，如按功效、季节、体质等分类。
-4. **搜索和推荐**：提供高级搜索和基于用户体质、季节等的个性化推荐功能。
-
-#### 关键代码
-```javascript
-// 配方模型
-const RecipeSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  slug: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    trim: true
-  },
-  description: {
-    type: String,
-    required: true
-  },
-  ingredients: [{
-    ingredient: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Ingredient',
-      required: true
-    },
-    amount: {
-      type: String,
-      required: true
-    },
-    note: String
-  }],
-  steps: [{
-    type: String,
-    required: true
-  }],
-  preparationTime: {
-    type: Number,
-    required: true
-  },
-  difficulty: {
-    type: String,
-    enum: ['简单', '中等', '复杂'],
-    default: '中等'
-  },
-  healthBenefits: [{
-    type: String,
-    required: true
-  }],
-  suitableConstitutions: [{
-    type: String,
-    required: true
-  }],
-  suitableSeasons: [{
-    type: String,
-    enum: ['春', '夏', '秋', '冬'],
-    required: true
-  }],
-  category: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Category',
-    required: true
-  },
-  rating: {
-    average: {
-      type: Number,
-      default: 0
-    },
-    count: {
-      type: Number,
-      default: 0
-    }
-  },
-  // 其他字段...
-});
-
-// 个性化推荐API示例
-router.get('/search/recommendations', async (req, res) => {
-  try {
-    const constitution = req.query.constitution || '';
-    const season = req.query.season || getCurrentSeason();
-    const symptoms = req.query.symptoms ? req.query.symptoms.split(',') : [];
-    
-    // 构建查询条件
-    const query = { isActive: true };
-    
-    if (constitution && constitution !== '') {
-      query.suitableConstitutions = constitution;
-    }
-    
-    if (season && season !== '') {
-      query.suitableSeasons = season;
-    }
-    
-    if (symptoms.length > 0) {
-      const symptomRegex = symptoms.map(s => new RegExp(s, 'i'));
-      query.healthBenefits = { $in: symptomRegex };
-    }
-    
-    // 获取配方
-    const recipes = await Recipe.find(query)
-      .sort({ 'rating.average': -1, createdAt: -1 })
-      .populate('category')
-      .populate('ingredients.ingredient')
-      .limit(10);
-    
-    res.json({
-      recommendations: recipes,
-      filters: { constitution, season, symptoms }
-    });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
-  }
-});
-```
-
-### 订单服务
-
-#### 完成情况
-- [x] 购物车管理
-- [x] 结算流程
-- [x] 订单创建和管理
-- [ ] 支付集成
-- [ ] 订单状态跟踪
-- [ ] 订单历史查询
-
-#### 实现思路
-订单服务采用Express框架实现，使用MongoDB作为数据库。主要功能包括：
-
-1. **购物车管理**：提供购物车的CRUD操作，支持添加、更新、删除购物车项目。
-2. **结算流程**：支持多种配送方式（自取、外送）和支付方式。
-3. **订单管理**：提供订单的创建、查询、取消等功能。
-4. **支付集成**：支持多种支付方式，包括现金、刷卡和移动支付。
-5. **订单状态跟踪**：提供订单状态的实时更新和通知。
-
-#### 关键代码
-```javascript
-// 购物车项目模型
-const CartItemSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  recipe: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Recipe',
-    required: true
-  },
-  name: {
-    type: String,
-    required: true
-  },
-  price: {
-    type: Number,
-    required: true
-  },
-  quantity: {
-    type: Number,
-    required: true,
-    default: 1
-  },
-  options: {
-    type: Map,
-    of: String
-  },
-  notes: String,
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
-});
-
-// 订单模型
-const OrderSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  items: [{
-    recipe: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Recipe'
-    },
-    name: String,
-    price: Number,
-    quantity: Number,
-    options: {
-      type: Map,
-      of: String
-    },
-    notes: String
-  }],
-  total: {
-    type: Number,
-    required: true
-  },
-  status: {
-    type: String,
-    enum: ['pending', 'processing', 'ready', 'completed', 'cancelled'],
-    default: 'pending'
-  },
-  paymentMethod: {
-    type: String,
-    enum: ['CASH', 'CARD', 'MOBILE'],
-    required: true
-  },
-  shop: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Shop'
-  },
-  deliveryAddress: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Address'
-  },
-  pickupTime: Date,
-  notes: String,
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: Date
-});
-```
-
-### 社区互动服务
-
-#### 完成情况
-✅ - Post publishing and management  
-✅ - Comment system  
-✅ - Like and favorite features  
-✅ - User interaction notifications  
-✅ - Real-time notifications (WebSocket)  
-✅ - Expert certification and responses  
-✅ - Content review  
-
-**Implementation Overview**:  
-The Community Interaction Service is built using the Express framework with MongoDB as the database and Socket.io for real-time notifications. The service provides comprehensive features for user engagement, including post management, commenting, liking, expert verification, and real-time notifications.
-
-**Key Features**:
-- Complete post management system with CRUD operations
-- Hierarchical comment system with threaded replies
-- Like functionality for both posts and comments
-- Expert verification system for content validation
-- Real-time notifications via WebSocket
-- Content reporting and moderation with AI capabilities
-- User following capabilities
-
-**Key Code Snippets**:
-```javascript
-// Content moderation utilities
-const checkProhibitedKeywords = (content, additionalKeywords = []) => {
-  const keywords = [...loadProhibitedKeywords(), ...additionalKeywords];
-  const lowerContent = content.toLowerCase();
-  const matches = keywords.filter(keyword => 
-    lowerContent.includes(keyword.toLowerCase())
-  );
-  
-  return {
-    containsProhibited: matches.length > 0,
-    matches,
-  };
-};
-
-// AI moderation integration
-const callAiModerationApi = async (content) => {
-  try {
-    const apiUrl = process.env.AI_MODERATION_API_URL;
-    const apiKey = process.env.AI_MODERATION_API_KEY;
-    
-    if (!apiUrl || !apiKey) {
-      throw new Error('AI moderation API configuration missing');
-    }
-    
-    const startTime = Date.now();
-    
-    // Make API call to AI moderation service
-    const response = await axios.post(apiUrl, {
-      content,
-      options: { detailed: true }
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      }
-    });
-    
-    const processingTime = Date.now() - startTime;
-    
-    // Process and return the moderation results
-    return {
-      performed: true,
-      score: response.data.overall_score || 0,
-      categories: {
-        harassment: response.data.categories?.harassment || 0,
-        hate: response.data.categories?.hate || 0,
-        selfHarm: response.data.categories?.self_harm || 0,
-        sexual: response.data.categories?.sexual || 0,
-        violence: response.data.categories?.violence || 0,
-        other: response.data.categories?.other || 0
-      },
-      recommendation: getRecommendationFromScore(response.data.overall_score || 0),
-      processingTime
-    };
-  } catch (error) {
-    console.error('AI moderation API error:', error.message);
-    return { performed: false, error: error.message };
-  }
-};
-
-// Socket.io connection for real-time notifications
-io.on('connection', (socket) => {
-  // Join a room based on userId
-  socket.on('join', (userId) => {
-    if (userId) {
-      socket.join(`user-${userId}`);
-      console.log(`User ${userId} joined room user-${userId}`);
-    }
-  });
-  
-  // Join a post room for realtime comments
-  socket.on('joinPost', (postId) => {
-    if (postId) {
-      socket.join(`post-${postId}`);
-      console.log(`User joined post-${postId}`);
-    }
-  });
-});
-```
-
-### 数据分析服务
-
-#### 完成情况
-- [x] 用户健康数据分析
-- [x] 使用习惯分析
-- [x] 个性化健康报告
-- [x] 趋势预测
-
-### API 网关
-
-#### 完成情况
-- [x] 路由配置
-- [x] 请求转发功能
-- [x] 认证中间件
-- [x] 限流机制
-- [x] API文档 (Swagger)
-- [x] 错误处理
-
-#### 实现思路
-API网关是系统的统一入口，负责将请求转发到相应的微服务。主要功能包括：
-
-1. **统一路由管理**：为所有微服务提供统一的路由前缀，如`/api/users`、`/api/recipes`等。
-2. **认证授权**：在网关层验证JWT令牌，确保只有授权用户才能访问受保护的资源。
-3. **请求转发**：将请求转发到相应的微服务，并将响应返回给客户端。
-4. **限流保护**：对不同类型的API实施不同的限流策略，防止恶意请求。
-5. **API文档**：集成Swagger提供API文档，方便开发和测试。
-6. **错误处理**：统一处理各种错误情况，提供一致的错误响应格式。
-
-#### 关键代码
-```javascript
-// 路由转发中间件
-const forwardRequest = (targetServiceUrl) => {
-  return async (req, res) => {
-    try {
-      // 构建目标URL
-      const url = `${targetServiceUrl}${req.originalUrl}`;
-      
-      // 转发请求
-      const response = await axios({
-        method: req.method,
-        url,
-        data: req.body,
-        headers: {
-          'Content-Type': req.get('Content-Type') || 'application/json',
-          ...(req.get('x-auth-token') ? { 'x-auth-token': req.get('x-auth-token') } : {})
-        },
-        params: req.query,
-        timeout: 30000
-      });
-      
-      return res.status(response.status).json(response.data);
-    } catch (error) {
-      // 错误处理逻辑
-      if (error.response) {
-        return res.status(error.response.status).json(error.response.data);
-      } else if (error.request) {
-        return res.status(503).json({ 
-          error: 'Service Unavailable',
-          message: 'The requested service is currently unavailable'
-        });
-      } else {
-        return res.status(500).json({ 
-          error: 'Internal Server Error',
-          message: 'Failed to process your request'
-        });
-      }
-    }
-  };
-};
-
-// 认证中间件
-const auth = (req, res, next) => {
-  // 获取令牌
-  const token = req.header('x-auth-token');
-
-  // 检查是否有令牌
-  if (!token) {
-    return res.status(401).json({ 
-      error: 'Authorization Denied',
-      message: 'No authentication token provided' 
-    });
-  }
-
-  try {
-    // 验证令牌
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded.user;
-    next();
-  } catch (err) {
-    res.status(401).json({ 
-      error: 'Authorization Denied',
-      message: 'Invalid authentication token' 
-    });
-  }
-};
-```
-
-## 移动应用
-
-### iOS应用
-
-#### 完成情况
-- [x] 项目基础结构搭建
-- [x] 引导页和登录页面
-- [x] 主标签视图（MainTabView）
-- [x] 首页（HomeView）
-- [x] 知识中心（KnowledgeCenterView）
-- [x] 茶饮配方（RecipesView和RecipeDetailView）
-- [x] 社区互动（CommunityView）
-- [x] 个人中心（ProfileView）
-- [x] 健康档案管理（HealthProfileView）
-- [x] 离线内容缓存服务（OfflineCacheManager）
-
-#### 实现思路
-iOS应用采用SwiftUI框架开发，使用MVVM架构模式。主要组件包括：
-
-1. **引导页和登录**：提供应用介绍和用户登录功能，支持手机号+验证码和第三方登录。
-2. **主标签视图**：包含五个主要导航标签（首页、知识中心、茶饮配方、社区互动、个人中心）。
-3. **首页**：显示个性化推荐的茶饮和季节性健康提示。
-4. **知识中心**：提供中医知识内容，支持分类浏览和搜索。
-5. **茶饮配方**：展示茶饮配方列表，支持按类型筛选，并提供详细的配方制作步骤。
-6. **社区互动**：用户可以浏览和发布帖子，进行评论和点赞。
-7. **个人中心**：显示用户信息和健康档案，提供设置选项。
-8. **健康档案管理**：用户可以创建和更新自己的健康档案，包括体质类型、健康目标等。
-9. **离线内容缓存**：支持必要内容的离线访问，提高用户体验。
-
-#### 关键代码
-```swift
-// 主标签视图
-struct MainTabView: View {
-    @State private var selectedTab = 0
-    @EnvironmentObject private var authManager: AuthManager
-    @EnvironmentObject private var offlineCacheManager: OfflineCacheManager
-    
-    var body: some View {
-        TabView(selection: $selectedTab) {
-            NavigationView {
-                HomeView()
-                    .navigationTitle("中医奶茶")
-            }
-            .tabItem {
-                Label("首页", systemImage: "house")
-            }
-            .tag(0)
-            
-            NavigationView {
-                KnowledgeCenterView()
-                    .navigationTitle("知识库")
-            }
-            .tabItem {
-                Label("知识", systemImage: "book")
-            }
-            .tag(1)
-            
-            NavigationView {
-                RecipesView()
-                    .navigationTitle("茶饮方")
-            }
-            .tabItem {
-                Label("茶饮", systemImage: "cup.and.saucer")
-            }
-            .tag(2)
-            
-            NavigationView {
-                CommunityView()
-                    .navigationTitle("社区")
-            }
-            .tabItem {
-                Label("社区", systemImage: "person.3")
-            }
-            .tag(3)
-            
-            NavigationView {
-                ProfileView()
-                    .navigationTitle("我的")
-            }
-            .tabItem {
-                Label("我的", systemImage: "person.circle")
-            }
-            .tag(4)
-        }
-    }
-}
-
-// 离线内容缓存管理
-class OfflineCacheManager: ObservableObject {
-    @Published var isSyncing = false
-    @Published var lastSyncDate: Date?
-    
-    private var cancellables = Set<AnyCancellable>()
-    private let cacheDirectory: URL
-    
-    init() {
-        let fileManager = FileManager.default
-        let urls = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
-        cacheDirectory = urls[0].appendingPathComponent("cache")
-        
-        // Create cache directory if it doesn't exist
-        if !fileManager.fileExists(atPath: cacheDirectory.path) {
-            try? fileManager.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
-        }
-    }
-    
-    func syncEssentialContent(completion: @escaping (Bool) -> Void) {
-        guard !isSyncing else {
-            completion(false)
-            return
-        }
-        
-        isSyncing = true
-        
-        // In a real app, we would call the API to get essential content
-        // For now, we'll simulate the API call with a delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            // Sync recipes
-            let recipes = self.syncEssentialRecipes()
-            let saveRecipesResult = self.saveToCache(recipes, forKey: "essential_recipes")
-            
-            // Sync knowledge content
-            let knowledgeContent = self.syncEssentialKnowledgeContent()
-            let saveKnowledgeResult = self.saveToCache(knowledgeContent, forKey: "essential_knowledge")
-            
-            self.isSyncing = false
-            self.lastSyncDate = Date()
-            
-            completion(saveRecipesResult && saveKnowledgeResult)
-        }
-    }
-}
-
-### Android应用
-
-#### 完成情况
-- [x] 应用基础架构搭建
-- [x] 用户认证模块
-- [x] 健康档案模块
-- [x] 知识中心模块
-- [x] 配方详情页
+### 内容管理 (Content Management)
+- [x] 中医理论文章库
+- [x] 养生食谱推荐
+- [x] 药膳百科
+- [x] 穴位养生指南
 - [x] 收藏功能
-- [x] 购物车和结算功能
-- [ ] 订单历史和详情
-- [ ] 社区互动模块
-- [ ] 数据分析和报告
+- [x] 分享功能
+- [x] 搜索功能
 
-#### 实现思路
-Android应用采用Kotlin语言开发，使用MVVM架构模式，主要组件包括：
+### 健康记录管理 (Health Record Management)
+- [x] 健康数据记录与分析
+- [x] 症状自查
+- [x] 健康报告生成
+- [x] 历史数据统计与图表
+- [x] 用药提醒
+- [x] 饮食建议
 
-1. **UI层**：使用Fragment和Activity构建用户界面，采用Material Design设计规范。
-2. **ViewModel层**：处理UI相关的业务逻辑，管理UI状态。
-3. **Repository层**：提供数据访问接口，协调远程数据源和本地数据源。
-4. **数据源层**：包括远程API服务和本地数据库。
+### 社区互动功能 (Community Interaction Features)
+- [x] 社区问答
+- [x] 用户评论
+- [x] 点赞功能
+- [x] 专家在线咨询
+- [x] 社区搜索
+- [x] 热门话题
+- [x] 用户关注系统
+- [x] 互动数据分析
 
-主要功能模块：
+### 支付系统 (Payment System)
+- [x] 支付模型设计
+- [x] 支付接口服务
+- [x] 支付仓库层实现
+- [x] 支付视图模型实现
+- [x] 支付用户界面设计
+- [x] 支付方式选择功能
+- [x] 支付状态跟踪
+- [x] 订单管理
+- [x] 退款处理流程
 
-1. **用户认证**：支持手机号+验证码登录，使用JWT进行身份验证。
-2. **健康档案**：提供用户健康信息的录入和管理。
-3. **知识中心**：展示中医知识内容，支持搜索和收藏。
-4. **配方指南**：展示茶饮配方，支持按分类浏览和搜索。
-5. **购物车和结算**：支持添加商品到购物车，选择配送方式和支付方式进行结算。
-6. **订单管理**：查看订单历史和详情，跟踪订单状态。
-7. **社区互动**：用户论坛和专家问答功能。
+### 离线模式与缓存优化 (Offline Mode & Cache Optimization)
+- [x] 离线缓存管理器实现
+- [x] 健康数据离线功能
+- [x] 文章与内容离线阅读
+- [x] 网络状态管理
+- [x] 缓存策略优化
+- [x] 离线模式用户体验改善
+- [x] 数据同步机制
+- [x] 流量节省模式
 
-#### 关键代码
-```kotlin
-// 购物车管理
-@Singleton
-class CartManager @Inject constructor(
-    private val sharedPreferences: SharedPreferences,
-    private val gson: Gson
-) {
-    private val CART_ITEMS_KEY = "cart_items"
-    
-    fun getCartItems(): List<CartItem> {
-        val json = sharedPreferences.getString(CART_ITEMS_KEY, null) ?: return emptyList()
-        val type = object : TypeToken<List<CartItem>>() {}.type
-        return gson.fromJson(json, type)
-    }
-    
-    fun addItem(item: CartItem): Boolean {
-        val items = getCartItems().toMutableList()
-        
-        // Check if item already exists with same options
-        val existingItemIndex = items.indexOfFirst { 
-            it.recipeId == item.recipeId && it.options == item.options 
-        }
-        
-        if (existingItemIndex >= 0) {
-            // Update quantity of existing item
-            val existingItem = items[existingItemIndex]
-            items[existingItemIndex] = existingItem.copy(
-                quantity = existingItem.quantity + item.quantity
-            )
-        } else {
-            // Add new item
-            items.add(item)
-        }
-        
-        return saveCartItems(items)
-    }
-    
-    // Other cart management methods...
-}
-```
+### 用户设置与隐私管理 (User Settings and Privacy Management)
+- [x] 用户偏好设置界面
+- [x] 通知管理
+- [x] 外观设置
+- [x] 隐私控制
+- [x] 数据导出和删除功能
+- [x] 搜索历史管理
+- [x] 健康报告设置
+- [x] 离线模式设置
 
-## 待完成功能 (Pending Features)
+### 用户体验优化 (User Experience Optimization)
+- [x] 动画效果优化
+- [x] 主题系统实现
+- [x] 无障碍功能支持
+- [x] 界面统一与美化
+- [x] 性能优化
+- [x] 响应式布局完善
+- [x] 夜间模式支持
+- [x] 多语言支持准备
 
-### 已完成
-- ✅ 用户认证系统
-- ✅ 健康档案管理
-- ✅ 知识中心基础功能
-- ✅ 配方详情页
-- ✅ 收藏功能
-- ✅ 购物车和结算功能
+### 社区功能增强 (Community Feature Enhancement)
+- [x] 用户关注系统
+- [x] 社区积分与等级体系
+- [x] 关注/粉丝管理
+- [x] 互相关注标识
+- [x] 用户数据统计展示
+- [x] 用户互动优化
+- [x] 实时聊天功能
 
-### 下一步
-- 订单历史和详情页面
-- 社区互动功能
-- 数据分析和健康报告
-- 支付集成
-- 推送通知
-- 离线模式优化
+### Content Recommendation Engine
+- ✅ Personalized content recommendation engine based on user behavior and preferences
+- ✅ User profile and interest tracking for targeted recommendations
+- ✅ Content-based filtering with TCM-specific attributes
+- ✅ Seasonal content recommendations aligned with TCM principles
+- ✅ Health-based recommendations based on user constitution and health conditions
+- ✅ A/B testing framework for recommendation algorithms
 
-## 下一步计划 (Next Steps)
+## 实时聊天功能实现计划 (Real-time Chat Implementation Plan)
 
-1. **完善Android应用**
-   - ✅ 实现配方详情页
-   - 添加社区互动功能
-   - 集成订单管理系统
+本部分概述了实时聊天功能的实现计划，包括架构设计、主要组件、功能列表和技术选择。
 
-2. **开发iOS应用**
-   - 搭建基础架构
-   - 实现核心功能
+### 架构概述 (Architecture Overview)
+1. **基于微服务的聊天系统** (Microservice-based Chat System)
+   - 新建独立的聊天微服务模块 `/backend/services/chat_service`
+   - 利用现有的社区服务中的 Socket.IO 基础设施
+   - 保持用户认证与通知系统的集成
 
-3. **后端服务优化**
-   - 完善社区互动服务
-   - 实现数据分析服务
-   - 集成支付系统
+2. **技术选择** (Technology Selection)
+   - 后端: Node.js, Express, Socket.IO, MongoDB
+   - 前端: 原生 iOS/Android Socket.IO 客户端集成
+   - 消息存储: MongoDB 实时消息存储，Redis 用于临时会话数据
 
-4. **测试与部署**
-   - 进行全面测试
-   - 准备应用上线 
+### 数据模型 (Data Models)
+1. **聊天会话模型** (Chat Session Model)
+   ```javascript
+   const ChatSession = new Schema({
+     type: { type: String, enum: ['private', 'group'], required: true },
+     participants: [{ 
+       user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+       lastSeen: Date,
+       isAdmin: { type: Boolean, default: false } // 仅群聊
+     }],
+     createdAt: { type: Date, default: Date.now },
+     updatedAt: { type: Date, default: Date.now },
+     lastMessage: { type: Schema.Types.ObjectId, ref: 'ChatMessage' },
+     groupName: String, // 仅群聊
+     groupAvatar: String, // 仅群聊
+     isActive: { type: Boolean, default: true }
+   });
+   ```
+
+2. **聊天消息模型** (Chat Message Model)
+   ```javascript
+   const ChatMessage = new Schema({
+     session: { type: Schema.Types.ObjectId, ref: 'ChatSession', required: true },
+     sender: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+     content: String,
+     contentType: { 
+       type: String, 
+       enum: ['text', 'image', 'audio', 'location', 'custom'], 
+       default: 'text' 
+     },
+     metadata: Object, // 存储图片尺寸、时长等附加信息
+     status: { 
+       type: String, 
+       enum: ['sending', 'sent', 'delivered', 'read', 'failed'], 
+       default: 'sending' 
+     },
+     createdAt: { type: Date, default: Date.now },
+     readBy: [{ 
+       user: { type: Schema.Types.ObjectId, ref: 'User' },
+       timestamp: { type: Date, default: Date.now }
+     }],
+     isDeleted: { type: Boolean, default: false }
+   });
+   ```
+
+### 主要组件 (Core Components)
+1. **聊天服务API** (Chat Service API)
+   - 会话管理 (创建/获取/更新会话)
+   - 消息管理 (发送/接收/查询历史消息)
+   - 用户状态管理 (在线/离线/正在输入)
+   - 群组管理 (创建/修改/成员管理)
+
+2. **实时通信引擎** (Real-time Communication Engine)
+   - Socket.IO 事件处理
+   - 消息状态跟踪 (发送/接收/已读)
+   - 消息推送
+   - 用户在线状态监控
+
+3. **消息存储与检索系统** (Message Storage & Retrieval)
+   - 高效消息存储架构
+   - 分页消息加载
+   - 历史记录搜索
+   - 媒体内容处理 (图片、语音)
+
+4. **通知集成模块** (Notification Integration)
+   - 与现有通知系统集成
+   - 应用内/推送通知处理
+   - 未读消息计数
+
+### 功能特性列表 (Feature List)
+1. **基本消息功能** (Basic Messaging)
+   - 文本消息发送/接收
+   - 已读回执
+   - 消息发送状态指示
+   - 正在输入状态指示
+
+2. **多媒体消息** (Multimedia Messages)
+   - 图片分享
+   - 语音消息
+   - 位置共享
+   - 表情和贴纸支持
+
+3. **群组聊天** (Group Chat)
+   - 群组创建和管理
+   - 成员管理 (添加/删除/管理员角色)
+   - 群组信息编辑
+   - 群组通知设置
+
+4. **聊天历史** (Chat History)
+   - 历史消息无缝加载
+   - 消息搜索功能
+   - 聊天记录清除选项
+   - 消息引用与回复
+
+5. **隐私与安全** (Privacy & Security)
+   - 端到端加密消息
+   - 消息撤回功能
+   - 阅后即焚消息选项
+   - 聊天屏蔽功能
+
+### 实现时间线 (Implementation Timeline)
+1. **第1阶段：基础架构** (Phase 1: Foundation) ✓
+   - 设置聊天微服务 ✓
+   - 实现数据模型 ✓
+   - 基础API开发 ✓
+   - Socket.IO服务器配置 ✓
+
+2. **第2阶段：基本功能** (Phase 2: Core Features) ✓
+   - 一对一聊天实现 ✓
+   - 消息发送/接收 ✓
+   - 基本UI组件开发 ✓
+   - 聊天历史加载 ✓
+
+3. **第3阶段：高级功能** (Phase 2: Advanced Features) ✓
+   - 群组聊天功能 ✓
+   - 多媒体消息支持 ✓
+   - 消息状态和通知 ✓
+   - 用户状态管理 ✓
+
+4. **第4阶段：优化与集成** (Phase 4: Optimization & Integration) ✓
+   - 性能优化 ✓
+   - 安全与隐私增强 ✓
+   - 与应用其他模块集成 ✓
+   - 用户体验改进 ✓
+   
+### 测试策略 (Testing Strategy)
+1. **单元测试** - 确保各组件功能正常 ✓
+2. **集成测试** - 验证聊天服务与其他服务的交互 ✓
+3. **性能测试** - 模拟高并发场景下的系统表现 ✓
+4. **用户体验测试** - 确保聊天流程符合用户期望 ✓
+
+## 下一步开发计划 (Next Development Steps)
+1. **实时聊天功能扩展** (Real-time Chat Extensions)
+   - 增强媒体内容共享
+   - 聊天机器人集成
+   - 语音消息转文字
+   - 端到端加密增强
+
+2. **内容推荐算法优化** (Content Recommendation Algorithm Improvement)
+   - 基于用户行为的推荐系统
+   - 个性化内容流
+   - 兴趣标签系统
+   - A/B测试框架
+
+## 详细说明 (Detailed Description)
+
+### 用户体验优化 (User Experience Optimization)
+用户体验优化模块专注于提高应用的整体使用体验，包括视觉效果、性能表现和可访问性。
+
+#### 核心组件：
+1. **动画工具类 (AnimationUtils)**
+   - 提供标准化的动画效果，如淡入淡出、滑动、抖动等
+   - 支持自定义动画时长和插值器
+   - 包含动画完成回调接口
+   - 减少样板代码，保持动画的一致性
+
+2. **主题工具类 (ThemeUtils)**
+   - 管理应用主题（亮色、暗色、跟随系统）
+   - 提供动态切换主题的接口
+   - 管理文字大小和配色方案
+   - 支持状态栏和导航栏颜色同步
+
+3. **无障碍工具类 (AccessibilityUtils)**
+   - 实现完善的屏幕阅读器支持
+   - 提供内容描述和焦点管理
+   - 触觉反馈和语音提示
+   - 支持键盘导航和大字体模式
+
+#### 主要特性：
+- **流畅的转场效果**：页面切换时的平滑动画
+- **响应式反馈**：按钮点击、列表滚动等操作的视觉反馈
+- **统一的设计语言**：贯穿应用的一致设计元素
+- **跨设备适配**：从小屏手机到大屏平板的合理布局
+- **夜间模式**：减少眼睛疲劳的深色主题
+- **性能优化**：减少卡顿、优化加载时间
+- **辅助功能**：支持视力、听力和行动不便用户的特殊需求
+
+### 社区功能增强 (Community Feature Enhancement)
+社区功能增强模块致力于丰富用户之间的互动方式，增强社交体验，提高用户粘性。
+
+#### 核心组件：
+1. **用户关注系统 (UserFollowingSystem)**
+   - 关注/取消关注功能
+   - 粉丝列表和关注列表管理
+   - 互相关注状态标识
+   - 关注状态变化通知
+
+2. **用户互动界面**
+   - 用户关注页面
+   - 粉丝统计和管理
+   - 用户资料展示
+   - 互动操作按钮
+
+3. **社区积分与等级系统**
+   - 基于活跃度的积分机制
+   - 等级晋升规则
+   - 特权与奖励机制
+   - 成就系统
+
+#### 主要特性：
+- **社交关系网络**：建立用户之间的关注关系
+- **内容发现**：通过关注关系发现优质内容
+- **互动反馈**：点赞、评论、关注等操作的即时反馈
+- **用户数据统计**：粉丝数量、新增关注等数据可视化
+- **分享与传播**：便捷的分享个人主页功能
+- **互相关注标识**：突出显示互相关注的用户关系
+- **优化的列表视图**：高效显示用户列表，支持下拉刷新和分页加载
+
+## Current Development Progress
+
+### Completed Features
+
+#### Backend Services
+- User Authentication Service
+- Product Catalog Service
+- Knowledge Base Service
+- Recipe Recommendation Service
+- Order Processing Service
+- Community Service
+- Data Analysis Service
+- Chat Service with real-time messaging
+  - Basic chat functionality
+  - Group chat support
+  - Read receipts
+  - Typing indicators
+  - Rich content messages
+  - **Media sharing capabilities including:**
+    - Image upload and display with thumbnails
+    - Video upload with metadata extraction
+    - Audio message sharing
+    - File attachment support
+    - Media management API
+  - **Chatbot integration including:**
+    - Multiple specialized chatbots (health advisor, tea recommender, customer service)
+    - Contextual conversations and natural language processing
+    - Integration with knowledge base and recommendation services
+    - User feedback and conversation history
+    - Real-time interaction via Socket.IO
+
+#### API Gateway
+- Service discovery and routing
+- Authentication middleware
+- Request forwarding
+- Health monitoring
+
+#### Mobile App Components
+- iOS Components
+  - Authentication screens
+  - Product catalog views
+  - TCM knowledge browse screens
+  - Recipe detail views
+  - User profile management
+  - Order tracking interface
+  - Community forum views
+  - Chat interface (basic)
+  
+- Android Components
+  - Authentication screens
+  - Product catalog views
+  - TCM knowledge browse screens
+  - Recipe detail views
+  - User profile management
+  - Order tracking interface
+  - Community forum views
+  - Chat interface (basic)
+
+### In Progress
+
+#### Real-time Chat Extensions
+- ✅ Media content sharing
+- ✅ Chat bot integration
+- ✅ Voice message to text conversion
+
+#### Content Recommendation Algorithm Improvement
+- ✅ User behavior-based recommendation system
+- ✅ Personalized content flow
+- ✅ Interest tag system
+- ✅ A/B testing framework
+
+### Next Steps
+
+1. ✅ Enhance mobile client UI components
+   - Created PersonalizedContentDiscoveryView for iOS with SwiftUI
+   - Implemented dynamic category filtering with horizontal scrolling
+   - Added content grid view with support for different content types
+   - Created empty state and loading indicators
+
+2. ✅ Implement personalized content discovery features
+   - Developed PersonalizedContentDiscoveryFragment for Android
+   - Created ContentDiscoveryViewModel for managing recommendation state
+   - Integrated with existing recommendation engine
+   - Implemented user interaction tracking for better recommendations
+   - Added pagination for efficient content loading
+   - Integrated the component into the main navigation flow of both iOS and Android apps
+
+3. ✅ Optimize recommendation algorithms based on user feedback
+   - Created a FeedbackProcessor service to analyze user engagement patterns
+   - Implemented personalized weighting based on user preferences and behavior
+   - Added ability to boost/avoid content tags based on positive/negative feedback
+   - Improved algorithm selection based on historical user interactions
+   - Enhanced hybrid recommendation approach with personalized blending
+   - Added time-of-day relevance to better match when users are most active
+
+4. ✅ Implement advanced analytics dashboard for tracking recommendation effectiveness
+   - Created a comprehensive AnalyticsService to gather and process recommendation metrics
+   - Implemented API endpoints for analytics data with flexible date range filtering
+   - Developed detailed metrics for algorithm performance, content effectiveness, and user engagement
+   - Created visualization dashboards for both iOS and Android with interactive charts
+   - Added historical trend analysis for tracking improvements over time
+   - Implemented data export functionality for offline analysis
+   - Created user segment analysis for understanding recommendation effectiveness across user groups
+
+5. ✅ Develop seasonal content promotion features
+   - Created a SeasonalContent model to track promotions based on seasons and special events
+   - Implemented a SeasonalContentService for managing seasonal promotions and applying content boosts
+   - Added TCM-specific seasonal information based on traditional five elements theory
+   - Developed seasonal content recommendation API endpoints for personalized seasonal highlights
+   - Created a SeasonalContentBanner component for showcasing seasonal content on the home screen
+   - Implemented analytics tracking for measuring promotion effectiveness
+   - Added admin interface for managing seasonal promotions with automatic promotion generation
+   - Integrated seasonal boosts into the main recommendation engine for enhancing content relevance
+
+6. Integrate health tracking data with recommendation system
+7. Add more personalized content formats (interactive quizzes, guided tutorials)
+8. Implement A/B testing of content presentation styles
