@@ -7,6 +7,7 @@ const ABTest = require('../models/ABTest');
 const { calculateSimilarity, exponentialDecay } = require('../utils/algorithms');
 const RecommendationLog = require('../models/RecommendationLog');
 const FeedbackProcessor = require('./FeedbackProcessor');
+const HealthDataProcessor = require('./HealthDataProcessor');
 const config = require('../config');
 const SeasonalContentService = require('./SeasonalContentService');
 
@@ -31,6 +32,8 @@ class RecommendationService {
    * @param {boolean} options.includeViewed - Whether to include content the user has already viewed
    * @param {string[]} options.tags - Specific tags to filter by
    * @param {string} options.abTestId - A/B test ID to use for algorithm selection
+   * @param {boolean} options.applyHealthData - Whether to consider health data for recommendations
+   * @param {boolean} options.applySeasonalBoosts - Whether to apply seasonal content boosts
    * @returns {Promise<Array>} - Array of recommended content items
    */
   async getPersonalizedRecommendations(userId, options = {}) {
@@ -40,7 +43,9 @@ class RecommendationService {
         limit = 20,
         includeViewed = false,
         tags = [],
-        abTestId = null
+        abTestId = null,
+        applyHealthData = true,
+        applySeasonalBoosts = true
       } = options;
 
       // Fetch user profile, behavior data, and personalized weights
@@ -80,14 +85,19 @@ class RecommendationService {
       // Log this recommendation event for future model training
       await this._logRecommendationEvent(userId, recommendations.map(r => r._id), algorithm);
 
-      // Apply seasonal promotions to boost relevant content
-      if (options.applySeasonalBoosts !== false) {
+      // Apply health data boost if option is enabled
+      if (applyHealthData && recommendations.length > 0) {
+        recommendations = await this._applyHealthDataBoost(userId, recommendations);
+      }
+      
+      // Apply seasonal promotion boosts if option is enabled
+      if (applySeasonalBoosts && recommendations.length > 0) {
         recommendations = await SeasonalContentService.applySeasonalBoosts(recommendations, userId);
       }
 
       return recommendations;
     } catch (error) {
-      console.error('Error generating personalized recommendations:', error);
+      console.error('Error getting personalized recommendations:', error.message);
       return this.getFallbackRecommendations(options.contentType, options.limit);
     }
   }
@@ -999,6 +1009,97 @@ class RecommendationService {
     } catch (error) {
       console.error('Error fetching content by tags:', error);
       return [];
+    }
+  }
+
+  /**
+   * Apply health data insights to boost recommendation relevance
+   * @param {string} userId - User ID
+   * @param {Array} recommendations - Current recommendations
+   * @returns {Promise<Array>} - Recommendations with health boosts applied
+   * @private
+   */
+  async _applyHealthDataBoost(userId, recommendations) {
+    try {
+      // Get health-enhanced relevance scores
+      const enhancedItems = await HealthDataProcessor.getHealthEnhancedRelevanceScores(
+        userId, 
+        recommendations
+      );
+      
+      if (!enhancedItems || enhancedItems.length === 0) {
+        return recommendations;
+      }
+      
+      // Apply health relevance to the final score
+      const boostedRecommendations = enhancedItems.map(item => {
+        const healthBoost = item.healthRelevance || 0.5;
+        // Adjust relevance score: 70% original + 30% health relevance
+        const adjustedRelevance = (item.relevance * 0.7) + (healthBoost * 0.3);
+        
+        return {
+          ...item,
+          relevance: adjustedRelevance,
+          healthRelevance: healthBoost
+        };
+      });
+      
+      // Resort by new relevance scores
+      return boostedRecommendations.sort((a, b) => b.relevance - a.relevance);
+    } catch (error) {
+      console.error(`Error applying health data boost: ${error.message}`);
+      // Return original recommendations if there's an error
+      return recommendations;
+    }
+  }
+
+  /**
+   * Get health-based content recommendations for a user
+   * @param {string} userId - User ID
+   * @param {Object} options - Options for recommendations
+   * @param {number} options.limit - Maximum number of recommendations
+   * @param {string} options.contentType - Type of content to recommend
+   * @returns {Promise<Array>} - Health-optimized content recommendations
+   */
+  async getHealthBasedRecommendations(userId, options = {}) {
+    try {
+      const { limit = 10, contentType = 'all' } = options;
+      
+      // Get basic recommendations from the HealthDataProcessor
+      const baseRecommendations = await HealthDataProcessor.getHealthBasedRecommendations(userId, limit * 2);
+      
+      if (!baseRecommendations || baseRecommendations.length === 0) {
+        return this.getFallbackRecommendations(contentType, limit);
+      }
+      
+      // Filter by content type if specified
+      let filteredRecommendations = baseRecommendations;
+      if (contentType !== 'all') {
+        filteredRecommendations = baseRecommendations.filter(item => 
+          item.contentType === contentType
+        );
+      }
+      
+      // Apply seasonal boost if available
+      let finalRecommendations = filteredRecommendations;
+      try {
+        finalRecommendations = await SeasonalContentService.applySeasonalBoosts(
+          filteredRecommendations, 
+          userId
+        );
+      } catch (error) {
+        console.error(`Error applying seasonal boosts: ${error.message}`);
+        // Continue with filtered recommendations
+      }
+      
+      // Log the recommendation event
+      const contentIds = finalRecommendations.slice(0, limit).map(item => item._id);
+      await this._logRecommendationEvent(userId, contentIds, 'health_based');
+      
+      return finalRecommendations.slice(0, limit);
+    } catch (error) {
+      console.error(`Error getting health-based recommendations: ${error.message}`);
+      return this.getFallbackRecommendations(options.contentType, options.limit);
     }
   }
 }
