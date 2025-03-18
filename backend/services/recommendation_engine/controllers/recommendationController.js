@@ -5,6 +5,7 @@ const UserBehavior = require('../models/UserBehavior');
 const Content = require('../models/Content');
 const UserInterest = require('../models/UserInterest');
 const ABTest = require('../models/ABTest');
+const PersonalizedContentService = require('../services/PersonalizedContentService');
 const mongoose = require('mongoose');
 
 /**
@@ -659,4 +660,230 @@ function getCurrentSeason() {
   if (month >= 5 && month <= 7) return 'summer';
   if (month >= 8 && month <= 10) return 'autumn';
   return 'winter';
-} 
+}
+
+/**
+ * Get personalized quizzes for the current user
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+exports.getPersonalizedQuizzes = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { 
+      limit = 5, 
+      difficulty = null, 
+      quizType = null,
+      includeCompleted = false
+    } = req.query;
+    
+    // Get personalized quizzes
+    const quizzes = await RecommendationService.getPersonalizedQuizzes(userId, {
+      limit: parseInt(limit),
+      difficulty,
+      quizType,
+      includeCompleted: includeCompleted === 'true'
+    });
+    
+    res.json({
+      success: true,
+      count: quizzes.length,
+      data: quizzes
+    });
+  } catch (error) {
+    console.error('Error getting personalized quizzes:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error getting personalized quizzes',
+      message: error.message
+    });
+  }
+};
+
+/**
+ * Get personalized tutorials for the current user
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+exports.getPersonalizedTutorials = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { 
+      limit = 5, 
+      difficulty = null, 
+      tutorialType = null,
+      includeCompleted = false
+    } = req.query;
+    
+    // Get personalized tutorials
+    const tutorials = await RecommendationService.getPersonalizedTutorials(userId, {
+      limit: parseInt(limit),
+      difficulty,
+      tutorialType,
+      includeCompleted: includeCompleted === 'true'
+    });
+    
+    res.json({
+      success: true,
+      count: tutorials.length,
+      data: tutorials
+    });
+  } catch (error) {
+    console.error('Error getting personalized tutorials:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error getting personalized tutorials',
+      message: error.message
+    });
+  }
+};
+
+/**
+ * Get mixed personalized content (standard content, quizzes, and tutorials)
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+exports.getMixedPersonalizedContent = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { 
+      limit = 10,
+      articleRatio = 0.5,
+      quizRatio = 0.3,
+      tutorialRatio = 0.2
+    } = req.query;
+    
+    // Parse content ratios
+    const contentRatios = {
+      articles: parseFloat(articleRatio),
+      quizzes: parseFloat(quizRatio),
+      tutorials: parseFloat(tutorialRatio)
+    };
+    
+    // Normalize ratios to ensure they sum to 1
+    const { articles, quizzes, tutorials } = contentRatios;
+    const total = articles + quizzes + tutorials;
+    
+    if (total !== 1) {
+      const normalizedRatios = {
+        articles: articles / total,
+        quizzes: quizzes / total,
+        tutorials: tutorials / total
+      };
+      contentRatios.articles = normalizedRatios.articles;
+      contentRatios.quizzes = normalizedRatios.quizzes;
+      contentRatios.tutorials = normalizedRatios.tutorials;
+    }
+    
+    // Get user profile
+    const userProfile = await UserProfile.findOne({ userId }).lean();
+    
+    if (!userProfile) {
+      return res.status(404).json({
+        success: false,
+        error: 'User profile not found'
+      });
+    }
+    
+    // Extract health profile
+    const healthProfile = {
+      constitution: userProfile.constitution,
+      conditions: userProfile.healthConditions || [],
+      goals: userProfile.goals || []
+    };
+    
+    // Get user preferred tags
+    const userInterests = await UserInterest.find({ userId })
+      .sort({ weight: -1 })
+      .limit(20)
+      .lean();
+    
+    const preferredTags = userInterests.map(interest => interest.tag);
+    
+    // Get mixed personalized content
+    const content = await PersonalizedContentService.getMixedPersonalizedContent(userId, {
+      healthProfile,
+      preferredTags,
+      limit: parseInt(limit),
+      contentRatios
+    });
+    
+    res.json({
+      success: true,
+      count: content.length,
+      data: content
+    });
+  } catch (error) {
+    console.error('Error getting mixed personalized content:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error getting mixed personalized content',
+      message: error.message
+    });
+  }
+};
+
+/**
+ * Submit quiz results
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+exports.submitQuizResult = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { quizId } = req.params;
+    const resultData = req.body;
+    
+    // Submit quiz result
+    const result = await PersonalizedContentService.submitQuizResult(
+      userId,
+      quizId,
+      resultData
+    );
+    
+    res.json({
+      success: true,
+      data: result
+    });
+  } catch (error) {
+    console.error('Error submitting quiz result:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error submitting quiz result',
+      message: error.message
+    });
+  }
+};
+
+/**
+ * Track tutorial progress
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+exports.trackTutorialProgress = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { tutorialId } = req.params;
+    const progressData = req.body;
+    
+    // Track tutorial progress
+    const progress = await PersonalizedContentService.trackContentProgress(
+      userId,
+      tutorialId,
+      'tutorial',
+      progressData
+    );
+    
+    res.json({
+      success: true,
+      data: progress
+    });
+  } catch (error) {
+    console.error('Error tracking tutorial progress:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error tracking tutorial progress',
+      message: error.message
+    });
+  }
+}; 

@@ -10,6 +10,9 @@ const FeedbackProcessor = require('./FeedbackProcessor');
 const HealthDataProcessor = require('./HealthDataProcessor');
 const config = require('../config');
 const SeasonalContentService = require('./SeasonalContentService');
+const PersonalizedContentService = require('./PersonalizedContentService');
+const InteractiveQuiz = require('../models/InteractiveQuiz');
+const GuidedTutorial = require('../models/GuidedTutorial');
 
 class RecommendationService {
   constructor() {
@@ -19,7 +22,12 @@ class RecommendationService {
       recencyWeight: 0.2,
       popularityWeight: 0.1,
       personalizedWeight: 0.4,
-      seasonalBoost: 0.2
+      seasonalBoost: 0.2,
+      contentFormatMix: {
+        standard: 0.7,   // Standard content (articles, recipes, etc.)
+        quizzes: 0.15,   // Interactive quizzes
+        tutorials: 0.15  // Guided tutorials
+      }
     };
   }
 
@@ -34,6 +42,7 @@ class RecommendationService {
    * @param {string} options.abTestId - A/B test ID to use for algorithm selection
    * @param {boolean} options.applyHealthData - Whether to consider health data for recommendations
    * @param {boolean} options.applySeasonalBoosts - Whether to apply seasonal content boosts
+   * @param {boolean} options.includeInteractiveFormats - Whether to include quizzes and tutorials
    * @returns {Promise<Array>} - Array of recommended content items
    */
   async getPersonalizedRecommendations(userId, options = {}) {
@@ -45,7 +54,8 @@ class RecommendationService {
         tags = [],
         abTestId = null,
         applyHealthData = true,
-        applySeasonalBoosts = true
+        applySeasonalBoosts = true,
+        includeInteractiveFormats = true
       } = options;
 
       // Fetch user profile, behavior data, and personalized weights
@@ -56,7 +66,7 @@ class RecommendationService {
       ]);
 
       if (!userProfile) {
-        return this.getFallbackRecommendations(contentType, limit);
+        return this.getFallbackRecommendations(contentType, limit, includeInteractiveFormats);
       }
 
       // Use personalized weights or default settings
@@ -65,7 +75,18 @@ class RecommendationService {
       // Determine which algorithm to use (potentially based on A/B test or user performance)
       const algorithm = await this._getRecommendationAlgorithm(userId, abTestId);
 
-      // Generate recommendations based on selected algorithm
+      // If we're including interactive formats, use mixed content recommendation
+      if (includeInteractiveFormats) {
+        return this._getMixedFormatRecommendations(
+          userId, 
+          userProfile, 
+          userBehaviors, 
+          options, 
+          weights
+        );
+      }
+
+      // Otherwise, continue with standard recommendation flow
       let recommendations;
       switch (algorithm) {
         case 'collaborative-filtering':
@@ -98,7 +119,155 @@ class RecommendationService {
       return recommendations;
     } catch (error) {
       console.error('Error getting personalized recommendations:', error.message);
-      return this.getFallbackRecommendations(options.contentType, options.limit);
+      return this.getFallbackRecommendations(options.contentType, options.limit, options.includeInteractiveFormats);
+    }
+  }
+
+  /**
+   * Get recommendations that include a mix of standard content, quizzes, and tutorials
+   * @param {string} userId - User ID 
+   * @param {Object} userProfile - User profile
+   * @param {Array} userBehaviors - User behavior data
+   * @param {Object} options - Recommendation options
+   * @param {Object} weights - Personalized weights
+   * @returns {Promise<Array>} Mixed-format recommendations
+   * @private 
+   */
+  async _getMixedFormatRecommendations(userId, userProfile, userBehaviors, options, weights = this.defaultSettings) {
+    try {
+      const { limit = 20, contentType = 'all' } = options;
+      
+      // Determine the mix of content types
+      // Use personalized format mix if available, otherwise use defaults
+      const formatMix = weights.contentFormatMix || this.defaultSettings.contentFormatMix;
+      
+      // Calculate how many items of each type to include based on limit
+      const standardCount = Math.max(1, Math.floor(limit * formatMix.standard));
+      const quizCount = Math.max(1, Math.floor(limit * formatMix.quizzes));
+      const tutorialCount = limit - standardCount - quizCount;
+
+      // Get standard content recommendations using existing methods
+      const standardOptions = {
+        ...options,
+        limit: standardCount,
+        includeInteractiveFormats: false
+      };
+      
+      // Only filter by content type for standard content
+      const standardRecommendations = await this._getStandardRecommendations(
+        userId, 
+        userProfile, 
+        userBehaviors, 
+        standardOptions, 
+        weights
+      );
+
+      // Extract health profile from user profile
+      const healthProfile = {
+        constitution: userProfile.constitution,
+        conditions: userProfile.healthConditions || [],
+        goals: userProfile.goals || []
+      };
+
+      // Get user's preferred tags
+      const userInterests = await UserInterest.find({ userId })
+        .sort({ weight: -1 })
+        .limit(20)
+        .lean();
+      
+      const preferredTags = userInterests.map(interest => interest.tag);
+
+      // Get personalized quizzes and tutorials in parallel
+      const [quizzes, tutorials] = await Promise.all([
+        // Get quizzes via PersonalizedContentService
+        PersonalizedContentService.getPersonalizedQuizzes(userId, {
+          healthProfile,
+          preferredTags,
+          limit: quizCount
+        }),
+        
+        // Get tutorials via PersonalizedContentService
+        PersonalizedContentService.getPersonalizedTutorials(userId, {
+          healthProfile,
+          preferredTags,
+          limit: tutorialCount
+        })
+      ]);
+
+      // Combine all content types
+      const allRecommendations = [
+        ...standardRecommendations.map(item => ({
+          ...item,
+          contentFormat: 'standard'
+        })),
+        ...quizzes.map(quiz => ({
+          ...quiz,
+          contentFormat: 'quiz'
+        })),
+        ...tutorials.map(tutorial => ({
+          ...tutorial,
+          contentFormat: 'tutorial'
+        }))
+      ];
+
+      // Log recommendation event for analytics
+      const contentIds = allRecommendations.map(item => item._id);
+      await this._logRecommendationEvent(userId, contentIds, 'mixed_format');
+
+      return allRecommendations;
+    } catch (error) {
+      console.error('Error getting mixed format recommendations:', error);
+      // Fallback to standard recommendations
+      return this._getStandardRecommendations(
+        userId, 
+        userProfile, 
+        userBehaviors, 
+        options, 
+        weights
+      );
+    }
+  }
+
+  /**
+   * Get standard content recommendations using existing algorithm selection logic
+   * @private
+   */
+  async _getStandardRecommendations(userId, userProfile, userBehaviors, options, weights) {
+    try {
+      // Determine which algorithm to use
+      const algorithm = await this._getRecommendationAlgorithm(userId, options.abTestId);
+      
+      // Get recommendations based on selected algorithm
+      let recommendations;
+      switch (algorithm) {
+        case 'collaborative-filtering':
+          recommendations = await this._getCollaborativeFilteringRecommendations(userId, options);
+          break;
+        case 'content-based':
+          recommendations = await this._getContentBasedRecommendations(userId, userProfile, userBehaviors, options, weights);
+          break;
+        case 'hybrid':
+        default:
+          recommendations = await this._getHybridRecommendations(userId, userProfile, userBehaviors, options, weights);
+      }
+
+      // Apply post-processing filters with personalized settings
+      recommendations = this._applyPostFilters(recommendations, userBehaviors, options, weights);
+
+      // Apply health data boost if option is enabled
+      if (options.applyHealthData && recommendations.length > 0) {
+        recommendations = await this._applyHealthDataBoost(userId, recommendations);
+      }
+      
+      // Apply seasonal promotion boosts if option is enabled
+      if (options.applySeasonalBoosts && recommendations.length > 0) {
+        recommendations = await SeasonalContentService.applySeasonalBoosts(recommendations, userId);
+      }
+
+      return recommendations;
+    } catch (error) {
+      console.error('Error getting standard recommendations:', error);
+      return this.getFallbackRecommendations(options.contentType, options.limit, options.includeInteractiveFormats);
     }
   }
 
@@ -726,20 +895,73 @@ class RecommendationService {
 
   /**
    * Get fallback recommendations when personalization is not possible
+   * @param {string} contentType - Type of content to recommend
+   * @param {number} limit - Maximum number of recommendations to return
+   * @param {boolean} includeInteractiveFormats - Whether to include quizzes and tutorials
+   * @returns {Promise<Array>} - Array of recommended content items
    */
-  async getFallbackRecommendations(contentType = 'all', limit = 20) {
+  async getFallbackRecommendations(contentType = 'all', limit = 20, includeInteractiveFormats = true) {
     try {
-      const query = {
+      // If we're not including interactive formats, just do regular fallback
+      if (!includeInteractiveFormats) {
+        const query = {
+          ...(contentType !== 'all' ? { contentType } : {}),
+          isActive: true,
+          publishedAt: { $lte: new Date() }
+        };
+        
+        // Get popular content based on view count
+        return await Content.find(query)
+          .sort({ viewCount: -1, publishedAt: -1 })
+          .limit(limit)
+          .lean();
+      }
+      
+      // Otherwise, include a mix of content formats
+      const standardCount = Math.floor(limit * 0.7);
+      const quizCount = Math.floor(limit * 0.15);
+      const tutorialCount = limit - standardCount - quizCount;
+      
+      // Get standard content
+      const standardQuery = {
         ...(contentType !== 'all' ? { contentType } : {}),
         isActive: true,
         publishedAt: { $lte: new Date() }
       };
       
-      // Get popular content based on view count
-      return await Content.find(query)
-        .sort({ viewCount: -1, publishedAt: -1 })
-        .limit(limit)
-        .lean();
+      // Get popular quizzes and tutorials in parallel with standard content
+      const [standardContent, popularQuizzes, popularTutorials] = await Promise.all([
+        Content.find(standardQuery)
+          .sort({ viewCount: -1, publishedAt: -1 })
+          .limit(standardCount)
+          .lean(),
+        
+        InteractiveQuiz.find({ isActive: true, status: 'published' })
+          .sort({ 'metrics.popularity': -1 })
+          .limit(quizCount)
+          .lean(),
+        
+        GuidedTutorial.find({ isActive: true, status: 'published' })
+          .sort({ 'metrics.averageRating': -1 })
+          .limit(tutorialCount)
+          .lean()
+      ]);
+      
+      // Combine results with format information
+      return [
+        ...standardContent.map(item => ({
+          ...item,
+          contentFormat: 'standard'
+        })),
+        ...popularQuizzes.map(quiz => ({
+          ...quiz,
+          contentFormat: 'quiz'
+        })),
+        ...popularTutorials.map(tutorial => ({
+          ...tutorial,
+          contentFormat: 'tutorial'
+        }))
+      ];
     } catch (error) {
       console.error('Error getting fallback recommendations:', error);
       return [];
@@ -1069,7 +1291,7 @@ class RecommendationService {
       const baseRecommendations = await HealthDataProcessor.getHealthBasedRecommendations(userId, limit * 2);
       
       if (!baseRecommendations || baseRecommendations.length === 0) {
-        return this.getFallbackRecommendations(contentType, limit);
+        return this.getFallbackRecommendations(contentType, limit, true);
       }
       
       // Filter by content type if specified
@@ -1099,7 +1321,97 @@ class RecommendationService {
       return finalRecommendations.slice(0, limit);
     } catch (error) {
       console.error(`Error getting health-based recommendations: ${error.message}`);
-      return this.getFallbackRecommendations(options.contentType, options.limit);
+      return this.getFallbackRecommendations(options.contentType, options.limit, true);
+    }
+  }
+
+  /**
+   * Get personalized quizzes for a user
+   * @param {string} userId - User ID
+   * @param {Object} options - Options for quiz recommendations
+   * @returns {Promise<Array>} - Array of recommended quizzes
+   */
+  async getPersonalizedQuizzes(userId, options = {}) {
+    try {
+      const { limit = 5, difficulty = null, quizType = null } = options;
+      
+      // Get user profile for health data
+      const userProfile = await UserProfile.findOne({ userId }).lean();
+      if (!userProfile) {
+        return [];
+      }
+      
+      // Extract health profile
+      const healthProfile = {
+        constitution: userProfile.constitution,
+        conditions: userProfile.healthConditions || [],
+        goals: userProfile.goals || []
+      };
+      
+      // Get user preferred tags
+      const userInterests = await UserInterest.find({ userId })
+        .sort({ weight: -1 })
+        .limit(20)
+        .lean();
+      
+      const preferredTags = userInterests.map(interest => interest.tag);
+      
+      // Get personalized quizzes
+      return await PersonalizedContentService.getPersonalizedQuizzes(userId, {
+        healthProfile,
+        preferredTags,
+        limit,
+        difficulty,
+        quizType
+      });
+    } catch (error) {
+      console.error('Error getting personalized quizzes:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get personalized tutorials for a user
+   * @param {string} userId - User ID
+   * @param {Object} options - Options for tutorial recommendations
+   * @returns {Promise<Array>} - Array of recommended tutorials
+   */
+  async getPersonalizedTutorials(userId, options = {}) {
+    try {
+      const { limit = 5, difficulty = null, tutorialType = null } = options;
+      
+      // Get user profile for health data
+      const userProfile = await UserProfile.findOne({ userId }).lean();
+      if (!userProfile) {
+        return [];
+      }
+      
+      // Extract health profile
+      const healthProfile = {
+        constitution: userProfile.constitution,
+        conditions: userProfile.healthConditions || [],
+        goals: userProfile.goals || []
+      };
+      
+      // Get user preferred tags
+      const userInterests = await UserInterest.find({ userId })
+        .sort({ weight: -1 })
+        .limit(20)
+        .lean();
+      
+      const preferredTags = userInterests.map(interest => interest.tag);
+      
+      // Get personalized tutorials
+      return await PersonalizedContentService.getPersonalizedTutorials(userId, {
+        healthProfile,
+        preferredTags,
+        limit,
+        difficulty,
+        tutorialType
+      });
+    } catch (error) {
+      console.error('Error getting personalized tutorials:', error);
+      return [];
     }
   }
 }

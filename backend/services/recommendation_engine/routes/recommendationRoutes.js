@@ -58,6 +58,55 @@ router.get('/seasonal', recommendationController.getSeasonalRecommendations);
 router.get('/interests', recommendationController.getUserInterests);
 
 /**
+ * @route   GET /api/recommendations/quizzes
+ * @desc    Get personalized quizzes
+ * @access  Private
+ */
+router.get('/quizzes', recommendationController.getPersonalizedQuizzes);
+
+/**
+ * @route   GET /api/recommendations/tutorials
+ * @desc    Get personalized tutorials
+ * @access  Private
+ */
+router.get('/tutorials', recommendationController.getPersonalizedTutorials);
+
+/**
+ * @route   GET /api/recommendations/mixed
+ * @desc    Get mixed personalized content (articles, quizzes, tutorials)
+ * @access  Private
+ */
+router.get('/mixed', recommendationController.getMixedPersonalizedContent);
+
+/**
+ * @route   POST /api/recommendations/quizzes/:quizId/submit
+ * @desc    Submit quiz results
+ * @access  Private
+ */
+router.post(
+  '/quizzes/:quizId/submit',
+  [
+    body('score').notEmpty().withMessage('Score is required'),
+    body('answers').isArray().withMessage('Answers are required')
+  ],
+  recommendationController.submitQuizResult
+);
+
+/**
+ * @route   POST /api/recommendations/tutorials/:tutorialId/progress
+ * @desc    Track tutorial progress
+ * @access  Private
+ */
+router.post(
+  '/tutorials/:tutorialId/progress',
+  [
+    body('stepCompleted').notEmpty().withMessage('Step completed is required'),
+    body('completionPercentage').isFloat({ min: 0, max: 100 }).withMessage('Valid completion percentage is required')
+  ],
+  recommendationController.trackTutorialProgress
+);
+
+/**
  * @route   POST /api/recommendations/track
  * @desc    Track user behavior with content
  * @access  Private

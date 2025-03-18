@@ -16,6 +16,7 @@ const userInterestRoutes = require('./routes/userInterestRoutes');
 const abTestRoutes = require('./routes/abTestRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
 const seasonalContentRoutes = require('./routes/seasonalContentRoutes');
+const personalizedContentRoutes = require('./routes/api/personalizedContent');
 
 // Initialize express app
 const app = express();
@@ -72,6 +73,7 @@ app.use('/api/interests', userInterestRoutes);
 app.use('/api/abtests', abTestRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/seasonal', seasonalContentRoutes);
+app.use('/api/personalized-content', personalizedContentRoutes);
 
 // Default route
 app.get('/', (req, res) => {
