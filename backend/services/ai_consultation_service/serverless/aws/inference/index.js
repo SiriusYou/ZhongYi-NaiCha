@@ -67,17 +67,55 @@ const LLM_PROVIDERS = {
       }
     }),
     parseResponse: (response) => response.data.output.join(''),
+  },
+  // Add Ollama provider for local model hosting
+  ollama: {
+    apiUrl: process.env.OLLAMA_API_URL || 'http://localhost:11434/api/generate',
+    headers: () => ({
+      'Content-Type': 'application/json'
+    }),
+    formatRequest: (prompt, model) => ({
+      model: mapToProviderModel('ollama', model),
+      prompt: prompt,
+      stream: false,
+      options: {
+        temperature: 0.7,
+        top_p: 0.9
+      },
+      system: getTcmSystemPrompt(model)
+    }),
+    parseResponse: (response) => response.data.response,
   }
 };
 
 /**
- * Maps our internal model names to provider-specific model identifiers
+ * Get specialized TCM system prompt based on model and consultation type
  * 
- * @param {string} provider - LLM provider
- * @param {string} internalModel - Internal model name
+ * @param {string} modelName - Model name or consultation type
+ * @returns {string} - Specialized system prompt
+ */
+function getTcmSystemPrompt(modelName) {
+  // Base TCM prompt for all models
+  const baseTcmPrompt = "You are a Traditional Chinese Medicine expert with extensive knowledge of TCM principles, diagnosis, and herbal treatments. Provide educational information only, not medical advice.";
+  
+  // Specialized prompts based on model/consultation type
+  const specializationPrompts = {
+    'TCM-Symptom-Llama-13b': `${baseTcmPrompt} Focus on identifying patterns in symptoms according to TCM principles like Yin/Yang imbalance, Five Elements theory, and Zang-Fu organ systems. Explain how symptoms might relate to qi, blood, and fluid disharmonies.`,
+    'TCM-Constitution-Llama-13b': `${baseTcmPrompt} Specialize in analyzing body constitutions such as qi deficiency, yang deficiency, yin deficiency, phlegm-dampness, damp-heat, blood stasis, qi stagnation, and balanced constitutions. Provide lifestyle and dietary recommendations appropriate for each constitution.`,
+    'TCM-Herbs-Llama-13b': `${baseTcmPrompt} Offer detailed information about Chinese herbs, their properties (nature, flavor, channel tropism), traditional uses, and common formula combinations. Explain herb functions using TCM terminology like clearing heat, tonifying qi, or nourishing blood.`
+  };
+  
+  return specializationPrompts[modelName] || baseTcmPrompt;
+}
+
+/**
+ * Maps internal model names to provider-specific model identifiers
+ * 
+ * @param {string} provider - LLM provider name
+ * @param {string} modelName - Internal model name
  * @returns {string} - Provider-specific model identifier
  */
-function mapToProviderModel(provider, internalModel) {
+function mapToProviderModel(provider, modelName) {
   // Map of internal model names to provider-specific identifiers
   const modelMappings = {
     'openai': {
@@ -103,12 +141,18 @@ function mapToProviderModel(provider, internalModel) {
       'TCM-Constitution-Llama-13b': process.env.TCM_CONSTITUTION_MODEL_ID || 'replicate/tcm-constitution-llama:9e1a8ac160413e2b75aef38e84da887f6d76d47deca654ca8395f48d57014738',
       'TCM-Herbs-Llama-13b': process.env.TCM_HERBS_MODEL_ID || 'replicate/tcm-herbs-llama:f23c6b526a6fcb8d7ee49689bd8d74a96bb1b08dd57f5a6abb0ba275ad7dccb4',
       'default': 'replicate/llama-2-13b-chat:f4e2de70d66816a838a89eeeb621910adffb0dd0baba3976c96980970978018d'
+    },
+    'ollama': {
+      'TCM-Symptom-Llama-13b': process.env.OLLAMA_MODEL || 'OussamaELALLAM/MedExpert',
+      'TCM-Constitution-Llama-13b': process.env.OLLAMA_MODEL || 'OussamaELALLAM/MedExpert',
+      'TCM-Herbs-Llama-13b': process.env.OLLAMA_MODEL || 'OussamaELALLAM/MedExpert',
+      'default': process.env.OLLAMA_MODEL || 'OussamaELALLAM/MedExpert'
     }
   };
 
   // Get provider-specific mappings or use defaults
   const providerMappings = modelMappings[provider] || modelMappings.openai;
-  return providerMappings[internalModel] || providerMappings.default;
+  return providerMappings[modelName] || providerMappings.default;
 }
 
 /**
@@ -250,6 +294,11 @@ function determineProvider(modelSelection, consultationType) {
   const forcedProvider = process.env.FORCE_LLM_PROVIDER;
   if (forcedProvider && LLM_PROVIDERS[forcedProvider]) {
     return forcedProvider;
+  }
+
+  // Check if we should use Ollama
+  if (process.env.USE_OLLAMA === 'true') {
+    return 'ollama';
   }
 
   // If the consultation type is specified, use specialized model when appropriate

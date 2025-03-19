@@ -93,8 +93,10 @@ exports.handler = async (event, context) => {
         userId,
         sessionId,
         consultationType: 'herbal_recommendation',
-        provider: process.env.MODEL_PROVIDER || 'tcm_specialized',
-        modelOverride: process.env.MODEL_TYPE || 'TCM-Herbs-Llama-13b'
+        provider: process.env.USE_OLLAMA === 'true' ? 'ollama' : (process.env.MODEL_PROVIDER || 'tcm_specialized'),
+        modelOverride: process.env.USE_OLLAMA === 'true' ? 
+          process.env.OLLAMA_MODEL : 
+          (process.env.MODEL_TYPE || 'TCM-Herbs-Llama-13b')
       },
       { headers: { 'Content-Type': 'application/json' } }
     );

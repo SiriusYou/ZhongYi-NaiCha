@@ -93,8 +93,11 @@ exports.handler = async (event, context) => {
         userId,
         sessionId,
         consultationType: 'constitution_analysis',
-        provider: process.env.MODEL_PROVIDER || 'tcm_specialized',
-        modelOverride: process.env.MODEL_TYPE || 'TCM-Constitution-Llama-13b'
+        // Conditionally use Ollama if enabled, otherwise use the configured provider
+        provider: process.env.USE_OLLAMA === 'true' ? 'ollama' : (process.env.MODEL_PROVIDER || 'tcm_specialized'),
+        modelOverride: process.env.USE_OLLAMA === 'true' ? 
+          process.env.OLLAMA_MODEL : 
+          (process.env.MODEL_TYPE || 'TCM-Constitution-Llama-13b')
       },
       { headers: { 'Content-Type': 'application/json' } }
     );

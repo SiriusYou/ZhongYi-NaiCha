@@ -11,12 +11,16 @@ provider:
     NODE_ENV: ${opt:stage, 'dev'}
     LOG_LEVEL: info
     MONGODB_URI: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/mongodb-uri}
-    OPENAI_API_KEY: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/openai-api-key}
+    OPENAI_API_KEY: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/openai-api-key, ''}
     ANTHROPIC_API_KEY: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/anthropic-api-key, ''}
     REPLICATE_API_KEY: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/replicate-api-key, ''}
     PRIMARY_LLM_MODEL: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/primary-llm-model, 'Llama3-70b'}
     SECONDARY_LLM_MODEL: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/secondary-llm-model, 'Mistral-7b'}
     SPECIALIZED_LLM_MODEL: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/specialized-llm-model, 'TCM-Llama2-13b'}
+    # Ollama configuration
+    USE_OLLAMA: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/use-ollama, 'false'}
+    OLLAMA_API_URL: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/ollama-api-url, 'http://localhost:11434/api/generate'}
+    OLLAMA_MODEL: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/ollama-model, 'OussamaELALLAM/MedExpert'}
     # Specialized model IDs
     TCM_SYMPTOM_MODEL_ID: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/tcm-symptom-model-id, ''}
     TCM_CONSTITUTION_MODEL_ID: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/tcm-constitution-model-id, ''}

@@ -46,7 +46,10 @@ This document tracks the development progress of ZhongYi-NaiCha.
     - ✅ Implement structured dialogue management for guided health assessment journeys
     - ✅ Establish emergency detection protocols with appropriate redirection
     - ✅ Deploy specialized inference instances for each consultation type
-    - ⏳ Select and fine-tune base LLM (e.g., Mistral, LLaMA) for TCM knowledge
+    - ✅ Select and incorporate pre-trained medical model (MedExpert) with TCM-specific prompting instead of custom fine-tuning
+      - ✅ Implement Ollama provider for local model hosting
+      - ✅ Configure MedExpert model for TCM consultation types
+      - ✅ Add specialized TCM system prompts for different consultation scenarios
     - ⏳ Implement LoRA fine-tuning approach for specialized models
     - ⏳ Integrate with existing health data systems
     - ⏳ Set up monitoring and analytics for model performance
@@ -73,3 +76,9 @@ This document tracks the development progress of ZhongYi-NaiCha.
 22. ⏳ Conduct security audits and penetration testing
 23. ⏳ Optimize for performance and scalability
 24. ⏳ Prepare for global deployment across multiple regions
+
+# In serverless.yml
+environment:
+  # Existing vars...
+  OLLAMA_API_URL: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/ollama-api-url, 'http://localhost:11434/api/generate'}
+  OLLAMA_MODEL: 'OussamaELALLAM/MedExpert'
