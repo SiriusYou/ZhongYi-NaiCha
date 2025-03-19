@@ -1,0 +1,183 @@
+service: ai-consultation-service
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: ${opt:region, 'us-east-1'}
+  stage: ${opt:stage, 'dev'}
+  environment:
+    NODE_ENV: ${opt:stage, 'dev'}
+    LOG_LEVEL: info
+    MONGODB_URI: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/mongodb-uri}
+    OPENAI_API_KEY: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/openai-api-key}
+    ANTHROPIC_API_KEY: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/anthropic-api-key, ''}
+    REPLICATE_API_KEY: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/replicate-api-key, ''}
+    PRIMARY_LLM_MODEL: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/primary-llm-model, 'Llama3-70b'}
+    SECONDARY_LLM_MODEL: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/secondary-llm-model, 'Mistral-7b'}
+    SPECIALIZED_LLM_MODEL: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/specialized-llm-model, 'TCM-Llama2-13b'}
+    # Specialized model IDs
+    TCM_SYMPTOM_MODEL_ID: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/tcm-symptom-model-id, ''}
+    TCM_CONSTITUTION_MODEL_ID: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/tcm-constitution-model-id, ''}
+    TCM_HERBS_MODEL_ID: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/tcm-herbs-model-id, ''}
+    # Provider configurations
+    LLAMA3_PROVIDER: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/llama3-provider, 'replicate'}
+    MISTRAL_PROVIDER: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/mistral-provider, 'replicate'}
+    TCM_LLAMA_PROVIDER: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/tcm-llama-provider, 'replicate'}
+    # API endpoint for specialized TCM models
+    TCM_SPECIALIZED_API_URL: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/tcm-specialized-api-url, 'https://api.replicate.com/v1/predictions'}
+    # Base API gateway URL for internal service calls
+    API_GATEWAY_URL: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/api-gateway-url, ''}
+    PINECONE_API_KEY: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/pinecone-api-key}
+    PINECONE_ENVIRONMENT: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/pinecone-environment}
+    PINECONE_INDEX: ${ssm:/zhongyi-naicha/${opt:stage, 'dev'}/pinecone-index}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - ssm:GetParameter
+          Resource: 
+            - arn:aws:ssm:${aws:region}:${aws:accountId}:parameter/zhongyi-naicha/${opt:stage, 'dev'}/*
+        - Effect: Allow
+          Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+          Resource: arn:aws:logs:${aws:region}:${aws:accountId}:log-group:/aws/lambda/*
+  timeout: 60
+  memorySize: 1024
+
+package:
+  individually: true
+  exclude:
+    - "**/*"
+
+functions:
+  # Preprocessing Functions
+  preprocessing:
+    handler: aws/preprocessing/index.handler
+    package:
+      include:
+        - aws/preprocessing/**
+        - src/utils/**
+        - src/models/**
+    memorySize: 512
+    timeout: 30
+    events:
+      - http:
+          path: /api/consultation/preprocessing
+          method: post
+          cors: true
+          authorizer:
+            type: aws_iam
+  
+  # Inference Functions
+  inference:
+    handler: aws/inference/index.handler
+    package:
+      include:
+        - aws/inference/**
+        - src/utils/**
+        - src/models/**
+    memorySize: 1024
+    timeout: 60
+    events:
+      - http:
+          path: /api/consultation/inference
+          method: post
+          cors: true
+          authorizer:
+            type: aws_iam
+  
+  # Postprocessing Functions
+  postprocessing:
+    handler: aws/postprocessing/index.handler
+    package:
+      include:
+        - aws/postprocessing/**
+        - src/utils/**
+        - src/models/**
+    memorySize: 512
+    timeout: 30
+    events:
+      - http:
+          path: /api/consultation/postprocessing
+          method: post
+          cors: true
+          authorizer:
+            type: aws_iam
+  
+  # Specialized Endpoints
+  symptomAssessment:
+    handler: aws/endpoints/symptom-assessment/index.handler
+    package:
+      include:
+        - aws/endpoints/symptom-assessment/**
+        - src/utils/**
+        - src/models/**
+    memorySize: 1024
+    timeout: 60
+    environment:
+      MODEL_TYPE: 'TCM-Symptom-Llama-13b'
+      MODEL_PROVIDER: 'tcm_specialized'
+    events:
+      - http:
+          path: /api/consultation/symptom-assessment
+          method: post
+          cors: true
+          authorizer:
+            type: aws_iam
+  
+  constitutionAnalysis:
+    handler: aws/endpoints/constitution-analysis/index.handler
+    package:
+      include:
+        - aws/endpoints/constitution-analysis/**
+        - src/utils/**
+        - src/models/**
+    memorySize: 1024
+    timeout: 60
+    environment:
+      MODEL_TYPE: 'TCM-Constitution-Llama-13b'
+      MODEL_PROVIDER: 'tcm_specialized'
+    events:
+      - http:
+          path: /api/consultation/constitution-analysis
+          method: post
+          cors: true
+          authorizer:
+            type: aws_iam
+  
+  herbalRecommendation:
+    handler: aws/endpoints/herbal-recommendation/index.handler
+    package:
+      include:
+        - aws/endpoints/herbal-recommendation/**
+        - src/utils/**
+        - src/models/**
+    memorySize: 1024
+    timeout: 60
+    environment:
+      MODEL_TYPE: 'TCM-Herbs-Llama-13b'
+      MODEL_PROVIDER: 'tcm_specialized'
+    events:
+      - http:
+          path: /api/consultation/herbal-recommendation
+          method: post
+          cors: true
+          authorizer:
+            type: aws_iam
+
+plugins:
+  - serverless-offline
+  - serverless-dotenv-plugin
+  - serverless-prune-plugin
+
+custom:
+  serverless-offline:
+    httpPort: 4010
+  prune:
+    automatic: true
+    number: 3 

@@ -45,7 +45,7 @@ This document tracks the development progress of ZhongYi-NaiCha.
       - ✅ Service-level tests for API endpoints
     - ✅ Implement structured dialogue management for guided health assessment journeys
     - ✅ Establish emergency detection protocols with appropriate redirection
-    - ⏳ Deploy specialized inference instances for each consultation type
+    - ✅ Deploy specialized inference instances for each consultation type
     - ⏳ Select and fine-tune base LLM (e.g., Mistral, LLaMA) for TCM knowledge
     - ⏳ Implement LoRA fine-tuning approach for specialized models
     - ⏳ Integrate with existing health data systems
