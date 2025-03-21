@@ -1,0 +1,410 @@
+/* diy-guidance.wxss */
+page {
+  background-color: #f7f7f7;
+  height: 100%;
+}
+
+.diy-guidance {
+  position: relative;
+  min-height: 100vh;
+}
+
+/* Loading and Error States */
+.loading-container, .error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  padding: 30rpx;
+}
+
+.loading-spinner {
+  width: 80rpx;
+  height: 80rpx;
+  border: 6rpx solid #f3f3f3;
+  border-top: 6rpx solid #8B6F4E;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 30rpx;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-container text {
+  margin-top: 20rpx;
+  margin-bottom: 30rpx;
+  color: #666;
+  font-size: 32rpx;
+}
+
+.retry-button {
+  margin-top: 30rpx;
+  background-color: #8B6F4E;
+  color: #fff;
+  border-radius: 40rpx;
+  padding: 12rpx 40rpx;
+  font-size: 28rpx;
+}
+
+/* Welcome Screen */
+.welcome-container {
+  position: relative;
+  min-height: 100vh;
+  background-color: #fff;
+}
+
+.back-btn {
+  position: absolute;
+  top: 40rpx;
+  left: 40rpx;
+  width: 80rpx;
+  height: 80rpx;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.icon {
+  color: #fff;
+  font-size: 40rpx;
+}
+
+.recipe-image {
+  width: 100%;
+  height: 500rpx;
+}
+
+.recipe-info {
+  padding: 40rpx;
+  margin-top: -60rpx;
+  border-radius: 30rpx 30rpx 0 0;
+  background-color: #fff;
+  position: relative;
+  z-index: 5;
+}
+
+.recipe-name {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.recipe-description {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 30rpx;
+}
+
+.recipe-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 40rpx;
+  padding-bottom: 30rpx;
+  border-bottom: 1rpx solid #eee;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 24rpx;
+  color: #666;
+}
+
+.meta-icon {
+  font-size: 40rpx;
+  margin-bottom: 10rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.ingredients-container {
+  margin-bottom: 40rpx;
+}
+
+.ingredients-list {
+  background-color: #f9f9f9;
+  border-radius: 16rpx;
+  padding: 20rpx;
+}
+
+.ingredient-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 15rpx 10rpx;
+  border-bottom: 1rpx solid #eee;
+}
+
+.ingredient-item:last-child {
+  border-bottom: none;
+}
+
+.ingredient-name {
+  color: #333;
+  font-size: 28rpx;
+}
+
+.ingredient-amount {
+  color: #666;
+  font-size: 26rpx;
+}
+
+.guidance-options {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 40rpx;
+  background-color: #f9f9f9;
+  border-radius: 16rpx;
+  padding: 20rpx;
+}
+
+.option-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10rpx 30rpx;
+}
+
+.option-icon {
+  font-size: 40rpx;
+  margin-bottom: 10rpx;
+}
+
+.option-item text {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.start-button {
+  background-color: #8B6F4E;
+  color: #fff;
+  font-size: 32rpx;
+  border-radius: 40rpx;
+  padding: 20rpx 0;
+  width: 100%;
+  margin-top: 20rpx;
+}
+
+/* Guidance Mode */
+.guidance-container {
+  position: relative;
+  min-height: 100vh;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.guidance-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx;
+  background-color: #8B6F4E;
+  color: #fff;
+}
+
+.exit-btn, .options-btn {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-info {
+  font-size: 28rpx;
+  font-weight: bold;
+}
+
+.progress-bar {
+  height: 6rpx;
+  background-color: #eee;
+  width: 100%;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #8B6F4E;
+  transition: width 0.3s ease;
+}
+
+.step-container {
+  flex: 1;
+  padding: 30rpx;
+  overflow-y: auto;
+}
+
+.step-number {
+  font-size: 34rpx;
+  font-weight: bold;
+  color: #8B6F4E;
+  margin-bottom: 20rpx;
+}
+
+.step-image-container {
+  margin-bottom: 30rpx;
+}
+
+.step-image {
+  width: 100%;
+  max-height: 400rpx;
+  border-radius: 16rpx;
+}
+
+.step-description {
+  font-size: 30rpx;
+  color: #333;
+  line-height: 1.8;
+  margin-bottom: 40rpx;
+}
+
+.timer-container {
+  background-color: #f9f9f9;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.timer-display {
+  font-size: 60rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 30rpx;
+}
+
+.timer-controls {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.timer-button {
+  width: 48%;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  padding: 15rpx 0;
+}
+
+.timer-button.start {
+  background-color: #8B6F4E;
+  color: #fff;
+}
+
+.timer-button.stop {
+  background-color: #E74C3C;
+  color: #fff;
+}
+
+.timer-button.reset {
+  background-color: #f0f0f0;
+  color: #666;
+}
+
+.step-navigation {
+  padding: 30rpx;
+  display: flex;
+  justify-content: space-between;
+  border-top: 1rpx solid #eee;
+}
+
+.nav-button {
+  width: 48%;
+  border-radius: 40rpx;
+  font-size: 30rpx;
+  padding: 20rpx 0;
+}
+
+.nav-button.prev {
+  background-color: #f0f0f0;
+  color: #666;
+}
+
+.nav-button.next {
+  background-color: #8B6F4E;
+  color: #fff;
+}
+
+.nav-button.disabled {
+  opacity: 0.5;
+}
+
+.ingredients-reference {
+  background-color: #f9f9f9;
+  border-top: 1rpx solid #eee;
+  padding: 20rpx 30rpx;
+}
+
+.reference-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 28rpx;
+  color: #666;
+}
+
+.toggle-icon {
+  font-size: 24rpx;
+}
+
+.ingredients-scroll {
+  max-height: 200rpx;
+  margin-top: 20rpx;
+}
+
+.reference-ingredients {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.reference-ingredient {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10rpx 0;
+  border-bottom: 1rpx dotted #eee;
+  font-size: 26rpx;
+}
+
+.completion-message {
+  position: fixed;
+  bottom: 180rpx;
+  left: 0;
+  right: 0;
+  text-align: center;
+  z-index: 10;
+}
+
+.message-content {
+  display: inline-flex;
+  align-items: center;
+  background-color: rgba(139, 111, 78, 0.9);
+  color: #fff;
+  border-radius: 40rpx;
+  padding: 20rpx 40rpx;
+}
+
+.message-icon {
+  font-size: 36rpx;
+  margin-right: 15rpx;
+}
+
+.message-text {
+  font-size: 28rpx;
+} 

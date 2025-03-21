@@ -1,0 +1,118 @@
+.health-widget {
+  width: 100%;
+  background-color: #FFFFFF;
+  border-radius: 15rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.1);
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+/* Health Profile Section */
+.health-profile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.constitution-icon {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.constitution-icon.balanced {
+  background-color: #77DD77;
+}
+
+.constitution-icon.qi_deficiency {
+  background-color: #AEC6CF;
+}
+
+.constitution-icon.yang_deficiency {
+  background-color: #B39EB5;
+}
+
+.constitution-icon.yin_deficiency {
+  background-color: #FF6961;
+}
+
+.constitution-icon.phlegm_dampness {
+  background-color: #836953;
+}
+
+.constitution-icon.damp_heat {
+  background-color: #FFB347;
+}
+
+.constitution-icon.blood_stasis {
+  background-color: #CB99C9;
+}
+
+.constitution-icon.qi_depression {
+  background-color: #7393B3;
+}
+
+.constitution-icon.special {
+  background-color: #D65976;
+}
+
+.constitution-text {
+  flex: 1;
+  font-size: 30rpx;
+  color: #333333;
+}
+
+.action-hint {
+  display: flex;
+  align-items: center;
+  color: #8B6F4E;
+  font-size: 24rpx;
+}
+
+.arrow {
+  width: 16rpx;
+  height: 16rpx;
+  border-top: 2rpx solid #8B6F4E;
+  border-right: 2rpx solid #8B6F4E;
+  transform: rotate(45deg);
+  margin-left: 10rpx;
+}
+
+/* No Profile Section */
+.no-profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20rpx 0;
+}
+
+.profile-icon {
+  width: 80rpx;
+  height: 80rpx;
+  background-color: #F5F1E7;
+  border-radius: 50%;
+  margin-bottom: 20rpx;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%238B6F4E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 40rpx;
+}
+
+.profile-text {
+  font-size: 28rpx;
+  color: #666666;
+  text-align: center;
+  margin-bottom: 20rpx;
+}
+
+.action-button {
+  background-color: #8B6F4E;
+  color: #FFFFFF;
+  font-size: 28rpx;
+  padding: 10rpx 30rpx;
+  border-radius: 30rpx;
+} 

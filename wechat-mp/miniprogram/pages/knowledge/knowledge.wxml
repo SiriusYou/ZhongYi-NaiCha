@@ -1,0 +1,190 @@
+<!-- knowledge.wxml -->
+<view class="knowledge-page">
+  <!-- Header with search and saved toggle -->
+  <view class="header">
+    <view class="search-bar" bindtap="navigateToSearch">
+      <icon type="search" size="14" color="#999"></icon>
+      <text>搜索中医知识、方剂、食疗...</text>
+    </view>
+    <view class="saved-toggle" bindtap="toggleSavedOnly">
+      <icon class="{{showSavedOnly ? 'active' : ''}}" type="success" size="16" color="{{showSavedOnly ? '#8D191D' : '#999'}}"></icon>
+      <text class="{{showSavedOnly ? 'active' : ''}}">离线内容</text>
+    </view>
+  </view>
+
+  <!-- Network Offline Notice -->
+  <view class="offline-notice" wx:if="{{!isNetworkAvailable}}">
+    <icon type="warn" size="14" color="#fa8c16"></icon>
+    <text>当前处于离线模式，仅显示已保存的内容</text>
+  </view>
+
+  <!-- Featured Articles (Carousel) -->
+  <view class="featured-section" wx:if="{{!showSavedOnly && !isSearchMode && featuredArticles.length > 0}}">
+    <swiper class="featured-swiper" indicator-dots="true" autoplay="true" interval="5000" duration="500" circular="true">
+      <block wx:for="{{featuredArticles}}" wx:key="id">
+        <swiper-item>
+          <view class="featured-item" data-id="{{item.id}}" bindtap="showArticleDetail">
+            <image class="featured-image" src="{{item.coverImage}}" mode="aspectFill"></image>
+            <view class="featured-content">
+              <view class="featured-title">{{item.title}}</view>
+              <view class="featured-desc">{{item.description}}</view>
+            </view>
+            <view class="featured-save" catchtap="toggleSaveArticle" data-id="{{item.id}}">
+              <icon type="{{item.isSaved ? 'success' : 'circle'}}" size="20" color="{{item.isSaved ? '#8D191D' : '#999'}}"></icon>
+            </view>
+          </view>
+        </swiper-item>
+      </block>
+    </swiper>
+  </view>
+
+  <!-- Category Filter (when not in search or saved only mode) -->
+  <scroll-view class="category-scroll" scroll-x="true" wx:if="{{!showSavedOnly && !isSearchMode}}">
+    <view class="category-container">
+      <block wx:for="{{categories}}" wx:key="id">
+        <view class="category-item {{item.selected ? 'selected' : ''}}" data-id="{{item.id}}" bindtap="changeCategory">
+          {{item.name}}
+        </view>
+      </block>
+    </view>
+  </scroll-view>
+
+  <!-- Mode Title -->
+  <view class="mode-title">
+    <text wx:if="{{isSearchMode}}">搜索结果: "{{searchQuery}}"</text>
+    <text wx:elif="{{showSavedOnly}}">已保存的知识内容</text>
+    <text wx:else>{{categories[categories.findIndex(c => c.selected)].name}}</text>
+  </view>
+
+  <!-- Loading State -->
+  <view class="loading-container" wx:if="{{isLoading}}">
+    <view class="loading">
+      <view class="loading-spinner"></view>
+      <text>加载中...</text>
+    </view>
+  </view>
+
+  <!-- Error State -->
+  <view class="error-container" wx:elif="{{loadError}}">
+    <icon type="warn" size="40" color="#fa8c16"></icon>
+    <text>内容加载失败</text>
+    <button class="retry-button" bindtap="{{isSearchMode ? 'searchArticles' : 'fetchArticles'}}">重试</button>
+  </view>
+
+  <!-- Empty State (No Results) -->
+  <view class="empty-container" wx:elif="{{
+    (isSearchMode && searchResults.length === 0) || 
+    (showSavedOnly && savedArticles.length === 0) || 
+    (!isSearchMode && !showSavedOnly && articles.length === 0)
+  }}">
+    <image class="empty-image" src="/images/empty-state.png" mode="aspectFit"></image>
+    <text wx:if="{{isSearchMode}}">未找到相关内容</text>
+    <text wx:elif="{{showSavedOnly}}">您还没有保存任何内容</text>
+    <text wx:else>该分类暂无内容</text>
+  </view>
+
+  <!-- Content (Articles List) -->
+  <view class="articles-container" wx:else>
+    <!-- Search Results -->
+    <block wx:if="{{isSearchMode}}">
+      <view class="article-card" wx:for="{{searchResults}}" wx:key="id" data-id="{{item.id}}" bindtap="showArticleDetail">
+        <view class="article-header">
+          <image class="article-image" src="{{item.coverImage}}" mode="aspectFill"></image>
+          <view class="article-save" catchtap="toggleSaveArticle" data-id="{{item.id}}">
+            <icon type="{{item.isSaved ? 'success' : 'circle'}}" size="20" color="{{item.isSaved ? '#8D191D' : '#999'}}"></icon>
+          </view>
+        </view>
+        <view class="article-content">
+          <view class="article-title">{{item.title}}</view>
+          <view class="article-desc">{{item.description}}</view>
+          <view class="article-meta">
+            <text class="article-category">{{item.categoryName}}</text>
+            <text class="article-date">{{item.publishDate}}</text>
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <!-- Saved Articles -->
+    <block wx:elif="{{showSavedOnly}}">
+      <view class="article-card" wx:for="{{savedArticles}}" wx:key="id" data-id="{{item.id}}" bindtap="showArticleDetail">
+        <view class="article-header">
+          <image class="article-image" src="{{item.coverImage}}" mode="aspectFill"></image>
+          <view class="article-save" catchtap="toggleSaveArticle" data-id="{{item.id}}">
+            <icon type="success" size="20" color="#8D191D"></icon>
+          </view>
+        </view>
+        <view class="article-content">
+          <view class="article-title">{{item.title}}</view>
+          <view class="article-desc">{{item.description}}</view>
+          <view class="article-meta">
+            <text class="article-category">{{item.categoryName}}</text>
+            <text class="article-date">{{item.publishDate}}</text>
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <!-- Category Articles -->
+    <block wx:else>
+      <view class="article-card" wx:for="{{articles}}" wx:key="id" data-id="{{item.id}}" bindtap="showArticleDetail">
+        <view class="article-header">
+          <image class="article-image" src="{{item.coverImage}}" mode="aspectFill"></image>
+          <view class="article-save" catchtap="toggleSaveArticle" data-id="{{item.id}}">
+            <icon type="{{item.isSaved ? 'success' : 'circle'}}" size="20" color="{{item.isSaved ? '#8D191D' : '#999'}}"></icon>
+          </view>
+        </view>
+        <view class="article-content">
+          <view class="article-title">{{item.title}}</view>
+          <view class="article-desc">{{item.description}}</view>
+          <view class="article-meta">
+            <text class="article-category">{{item.categoryName}}</text>
+            <text class="article-date">{{item.publishDate}}</text>
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <!-- Load More -->
+    <view class="load-more" wx:if="{{hasMoreData && !isLoading}}">
+      <button class="load-more-button" bindtap="{{isSearchMode ? 'loadMoreSearchResults' : 'loadMoreArticles'}}">
+        加载更多
+      </button>
+    </view>
+  </view>
+
+  <!-- Article Detail Modal -->
+  <view class="article-detail-modal {{showArticleDetail ? 'show' : ''}}" wx:if="{{showArticleDetail}}">
+    <view class="article-detail-container">
+      <view class="article-detail-header">
+        <view class="article-detail-back" bindtap="closeArticleDetail">
+          <icon type="cancel" size="24" color="#333"></icon>
+        </view>
+        <view class="article-detail-save" bindtap="toggleSaveArticle" data-id="{{currentArticle.id}}">
+          <icon type="{{currentArticle.isSaved ? 'success' : 'circle'}}" size="24" color="{{currentArticle.isSaved ? '#8D191D' : '#999'}}"></icon>
+        </view>
+      </view>
+      
+      <scroll-view class="article-detail-content" scroll-y="true">
+        <view class="article-detail-title">{{currentArticle.title}}</view>
+        <view class="article-detail-meta">
+          <text class="article-detail-category">{{currentArticle.categoryName}}</text>
+          <text class="article-detail-date">{{currentArticle.publishDate}}</text>
+        </view>
+        
+        <image 
+          wx:if="{{currentArticle.coverImage}}" 
+          class="article-detail-image" 
+          src="{{currentArticle.coverImage}}" 
+          mode="widthFix">
+        </image>
+        
+        <rich-text class="article-detail-body" nodes="{{currentArticle.content}}"></rich-text>
+        
+        <view class="article-detail-footer">
+          <button class="share-button" open-type="share">分享文章</button>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+</view> 

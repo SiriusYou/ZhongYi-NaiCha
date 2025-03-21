@@ -1,0 +1,27 @@
+/**app.wxss**/
+@import "./styles/common.wxss";
+
+page {
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 28rpx;
+  color: #333333;
+  background-color: #F5F1E7;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.page-section {
+  margin: 20rpx 0;
+}
+
+/* Override tab bar styles */
+.tab-bar-icon {
+  width: 48rpx;
+  height: 48rpx;
+} 

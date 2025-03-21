@@ -1,0 +1,213 @@
+<!-- order.wxml -->
+<view class="order-page">
+  <!-- Loading State -->
+  <view class="loading-container" wx:if="{{isLoading}}">
+    <view class="loading-spinner"></view>
+    <text>加载中...</text>
+  </view>
+
+  <!-- Content when loaded -->
+  <block wx:else>
+    <!-- Empty Cart -->
+    <view class="empty-cart" wx:if="{{cartItems.length === 0}}">
+      <image src="/images/empty-cart.png" mode="aspectFit" class="empty-cart-image"></image>
+      <text class="empty-cart-text">您的购物车是空的</text>
+      <button class="shop-button" bindtap="navigateToTea">去购物</button>
+    </view>
+
+    <!-- Cart with items -->
+    <block wx:else>
+      <!-- Order Type Selection -->
+      <view class="order-type-container">
+        <view 
+          class="order-type-option {{orderType === 'delivery' ? 'selected' : ''}}" 
+          bindtap="switchOrderType" 
+          data-type="delivery">
+          <text class="order-type-icon">🚚</text>
+          <text>外卖配送</text>
+        </view>
+        <view 
+          class="order-type-option {{orderType === 'pickup' ? 'selected' : ''}}" 
+          bindtap="switchOrderType" 
+          data-type="pickup">
+          <text class="order-type-icon">🏪</text>
+          <text>门店自取</text>
+        </view>
+      </view>
+
+      <!-- Delivery Address (for delivery) -->
+      <view class="address-container" wx:if="{{orderType === 'delivery'}}">
+        <view class="section-title">
+          <text>配送地址</text>
+        </view>
+        
+        <view class="address-content" bindtap="navigateToAddress">
+          <view class="address-placeholder" wx:if="{{!address}}">
+            <text>请选择配送地址</text>
+            <text class="arrow">></text>
+          </view>
+          
+          <view class="address-info" wx:else>
+            <view class="address-header">
+              <text class="address-name">{{address.name}}</text>
+              <text class="address-phone">{{address.phone}}</text>
+            </view>
+            <view class="address-detail">{{address.province}} {{address.city}} {{address.district}} {{address.detail}}</view>
+            <text class="arrow">></text>
+          </view>
+        </view>
+      </view>
+
+      <!-- Shop Selection (for pickup) -->
+      <view class="shop-container" wx:if="{{orderType === 'pickup'}}">
+        <view class="section-title">
+          <text>自取门店</text>
+        </view>
+        
+        <view class="shop-selection">
+          <picker 
+            bindchange="selectShop" 
+            value="{{shops.findIndex(shop => shop.id === selectedShopId)}}" 
+            range="{{shops}}" 
+            range-key="name">
+            <view class="shop-picker {{selectedShopId ? '' : 'placeholder'}}">
+              <text>{{selectedShopId ? shops.find(shop => shop.id === selectedShopId).name : '请选择自取门店'}}</text>
+              <text class="arrow">▼</text>
+            </view>
+          </picker>
+          
+          <view class="shop-details" wx:if="{{selectedShopId}}">
+            <view class="shop-address">
+              {{shops.find(shop => shop.id === selectedShopId).address}}
+            </view>
+            <view class="shop-hours">
+              营业时间: {{shops.find(shop => shop.id === selectedShopId).hours}}
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- Cart Items -->
+      <view class="cart-container">
+        <view class="section-title">
+          <text>商品清单</text>
+        </view>
+        
+        <view class="cart-items">
+          <view class="cart-item" wx:for="{{cartItems}}" wx:key="id">
+            <image class="item-image" src="{{item.image}}" mode="aspectFill"></image>
+            
+            <view class="item-info">
+              <view class="item-name">{{item.name}}</view>
+              <view class="item-attributes" wx:if="{{item.attributes}}">
+                <text wx:for="{{item.attributes}}" wx:for-item="attr" wx:key="name">
+                  {{attr.name}}: {{attr.value}}
+                </text>
+              </view>
+              <view class="item-price">¥ {{item.price}}</view>
+            </view>
+            
+            <view class="item-actions">
+              <view class="quantity-control">
+                <view 
+                  class="quantity-btn" 
+                  bindtap="updateItemQuantity" 
+                  data-index="{{index}}" 
+                  data-action="decrease">−</view>
+                <view class="quantity-display">{{item.quantity}}</view>
+                <view 
+                  class="quantity-btn" 
+                  bindtap="updateItemQuantity" 
+                  data-index="{{index}}" 
+                  data-action="increase">+</view>
+              </view>
+              
+              <view 
+                class="remove-btn" 
+                bindtap="removeItem" 
+                data-index="{{index}}">
+                <text>删除</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- Order Notes -->
+      <view class="notes-container">
+        <view class="section-title">
+          <text>订单备注</text>
+        </view>
+        
+        <textarea 
+          class="notes-input" 
+          placeholder="请输入特殊需求或备注信息" 
+          value="{{orderNotes}}" 
+          bindinput="onNotesInput">
+        </textarea>
+      </view>
+
+      <!-- Coupon Section -->
+      <view class="coupon-container">
+        <view class="coupon-header" bindtap="toggleCouponInput">
+          <text>优惠券</text>
+          <text class="coupon-value" wx:if="{{appliedCoupon}}">-¥ {{discount.toFixed(2)}}</text>
+          <text class="coupon-action" wx:else>{{showCouponInput ? '收起' : '使用优惠券'}}</text>
+        </view>
+        
+        <view class="coupon-input-container" wx:if="{{showCouponInput && !appliedCoupon}}">
+          <input 
+            class="coupon-input" 
+            placeholder="请输入优惠码" 
+            value="{{couponCode}}" 
+            bindinput="onCouponInput">
+          </input>
+          <button class="coupon-apply-btn" bindtap="applyCoupon">应用</button>
+        </view>
+        
+        <view class="applied-coupon" wx:if="{{appliedCoupon}}">
+          <view class="applied-coupon-info">
+            <text class="applied-coupon-name">{{appliedCoupon.name}}</text>
+            <text class="applied-coupon-value">
+              {{appliedCoupon.type === 'percentage' ? appliedCoupon.value + '%' : '¥' + appliedCoupon.value}}
+            </text>
+          </view>
+          <view class="coupon-remove-btn" bindtap="removeCoupon">移除</view>
+        </view>
+      </view>
+
+      <!-- Order Summary -->
+      <view class="order-summary">
+        <view class="summary-row">
+          <text>小计</text>
+          <text>¥ {{subtotal.toFixed(2)}}</text>
+        </view>
+        
+        <view class="summary-row">
+          <text>配送费</text>
+          <text>¥ {{deliveryFee.toFixed(2)}}</text>
+        </view>
+        
+        <view class="summary-row" wx:if="{{discount > 0}}">
+          <text>优惠</text>
+          <text>-¥ {{discount.toFixed(2)}}</text>
+        </view>
+        
+        <view class="summary-total">
+          <text>总计</text>
+          <text class="total-amount">¥ {{total.toFixed(2)}}</text>
+        </view>
+      </view>
+
+      <!-- Submit Order Button -->
+      <view class="submit-container">
+        <button 
+          class="submit-button {{!isNetworkAvailable ? 'disabled' : ''}}" 
+          bindtap="createOrder"
+          disabled="{{!isNetworkAvailable}}">
+          {{isNetworkAvailable ? '提交订单' : '离线模式无法下单'}}
+        </button>
+      </view>
+    </block>
+  </block>
+</view> 

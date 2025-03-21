@@ -1,0 +1,122 @@
+<view class="recommendations-container">
+  <!-- 加载状态 - Loading state -->
+  <view class="loading-state" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <view class="loading-text">加载推荐中...</view>
+  </view>
+
+  <block wx:if="{{!loading}}">
+    <!-- 症状选择器 - Symptom selector -->
+    <view class="symptom-selector">
+      <view class="selector-header" bindtap="toggleSymptomSelector">
+        <text class="header-text">当前症状</text>
+        <text class="toggle-icon">{{showSymptomSelector ? '▲' : '▼'}}</text>
+      </view>
+      
+      <view class="symptoms-list" wx:if="{{showSymptomSelector}}">
+        <view 
+          wx:for="{{symptoms}}" 
+          wx:key="id"
+          class="symptom-item {{selectedSymptoms.includes(item.id) ? 'selected' : ''}}"
+          bindtap="onSymptomChange"
+          data-symptom="{{item.id}}"
+        >
+          {{item.name}}
+        </view>
+      </view>
+      
+      <view class="selected-symptoms" wx:if="{{selectedSymptoms.length > 0 && !showSymptomSelector}}">
+        <text 
+          wx:for="{{selectedSymptoms}}" 
+          wx:key="*this"
+          class="selected-symptom"
+        >
+          {{symptoms.find(s => s.id === item).name}}
+        </text>
+      </view>
+      
+      <view class="no-symptoms" wx:if="{{selectedSymptoms.length === 0 && !showSymptomSelector}}">
+        <text>未选择症状，显示基于您体质的推荐</text>
+      </view>
+    </view>
+    
+    <!-- 茶饮推荐 - Tea recommendations -->
+    <view class="section-title">
+      <text>个性化茶饮推荐</text>
+    </view>
+    
+    <view class="tea-recommendations" wx:if="{{teaRecommendations.length > 0}}">
+      <view 
+        class="tea-card" 
+        wx:for="{{teaRecommendations}}" 
+        wx:key="id"
+        bindtap="onTeaTap"
+        data-index="{{index}}"
+      >
+        <image class="tea-image" src="{{item.imageUrl || '/images/default-tea.png'}}" mode="aspectFill"></image>
+        <view class="tea-info">
+          <view class="tea-name">{{item.name}}</view>
+          <view class="tea-desc">{{item.shortDescription}}</view>
+          <view class="tea-tags">
+            <text class="tea-tag" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
+          </view>
+          <view class="tea-match">
+            <text class="match-text">体质匹配度: </text>
+            <view class="match-stars">
+              <text class="star filled" wx:for="{{item.matchScore}}" wx:key="*this">★</text>
+              <text class="star" wx:for="{{5 - item.matchScore}}" wx:key="*this">☆</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <view class="empty-recommendations" wx:if="{{teaRecommendations.length === 0}}">
+      <image src="/images/empty-recommendations.png" mode="aspectFit" class="empty-image"></image>
+      <text class="empty-text">当前没有符合条件的推荐</text>
+      <text class="empty-subtext">请尝试更新您的健康档案或选择不同症状</text>
+    </view>
+    
+    <!-- 养生建议 - Wellness advice -->
+    <view class="section-title" wx:if="{{wellnessAdvice}}">
+      <text>日常养生建议</text>
+    </view>
+    
+    <view class="wellness-advice" wx:if="{{wellnessAdvice}}">
+      <view class="advice-card">
+        <view class="advice-header">
+          <text class="advice-title">{{wellnessAdvice.title}}</text>
+          <text class="advice-subtitle">根据您的{{wellnessAdvice.constitutionType}}体质制定</text>
+        </view>
+        
+        <view class="advice-content">
+          <view class="advice-item" wx:for="{{wellnessAdvice.advice}}" wx:key="*this">
+            <text class="advice-icon">•</text>
+            <text class="advice-text">{{item}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 季节健康提示 - Seasonal health tips -->
+    <view class="section-title" wx:if="{{seasonalTips.length > 0}}">
+      <text>当季健康提示</text>
+    </view>
+    
+    <view class="seasonal-tips" wx:if="{{seasonalTips.length > 0}}">
+      <swiper class="tips-swiper" autoplay circular interval="5000">
+        <swiper-item wx:for="{{seasonalTips}}" wx:key="id">
+          <view class="tip-card">
+            <view class="tip-header">
+              <text class="tip-title">{{item.title}}</text>
+              <text class="tip-season">{{item.season}}</text>
+            </view>
+            <view class="tip-content">
+              <text class="tip-text">{{item.content}}</text>
+            </view>
+          </view>
+        </swiper-item>
+      </swiper>
+    </view>
+  </block>
+</view> 

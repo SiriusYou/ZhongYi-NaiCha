@@ -1,0 +1,321 @@
+/**
+ * 中医奶茶养生 WeChat Mini-Program Common Styles
+ */
+
+/* Color Variables */
+page {
+  --primary-color: #8B6F4E;
+  --light-primary: #F5F1E7;
+  --accent-color: #00B4D8;
+  --text-color: #333333;
+  --text-secondary: #666666;
+  --text-light: #999999;
+  --background-color: #F5F1E7;
+  --white: #FFFFFF;
+  --danger: #FF6B6B;
+  --success: #77DD77;
+  --warning: #FFB347;
+  --disabled: #CCCCCC;
+}
+
+/* Base Styles */
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-size: 28rpx;
+}
+
+/* Text Styles */
+.title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: var(--text-color);
+  margin-bottom: 20rpx;
+}
+
+.subtitle {
+  font-size: 32rpx;
+  font-weight: 500;
+  color: var(--text-color);
+  margin-bottom: 15rpx;
+}
+
+.label {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+  margin-bottom: 10rpx;
+}
+
+.small-text {
+  font-size: 24rpx;
+  color: var(--text-light);
+}
+
+/* Button Styles */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20rpx 40rpx;
+  border-radius: 10rpx;
+  font-size: 30rpx;
+  margin: 20rpx 0;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: var(--white);
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--primary-color);
+  border: 2rpx solid var(--primary-color);
+}
+
+.btn-accent {
+  background-color: var(--accent-color);
+  color: var(--white);
+}
+
+.btn-danger {
+  background-color: var(--danger);
+  color: var(--white);
+}
+
+.btn-small {
+  padding: 10rpx 20rpx;
+  font-size: 26rpx;
+}
+
+.btn-large {
+  padding: 25rpx 50rpx;
+  font-size: 32rpx;
+}
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-icon .icon {
+  margin-right: 10rpx;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn-disabled {
+  background-color: var(--disabled);
+  color: var(--white);
+  opacity: 0.7;
+}
+
+/* Card Styles */
+.card {
+  background-color: var(--white);
+  border-radius: 15rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.1);
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 15rpx;
+  border-bottom: 1rpx solid var(--light-primary);
+  margin-bottom: 15rpx;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-top: 15rpx;
+  border-top: 1rpx solid var(--light-primary);
+  margin-top: 15rpx;
+}
+
+/* Form Styles */
+.form-group {
+  margin-bottom: 20rpx;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 10rpx;
+  font-size: 28rpx;
+  color: var(--text-secondary);
+}
+
+.form-input {
+  width: 100%;
+  height: 80rpx;
+  padding: 0 20rpx;
+  border: 2rpx solid #EEEEEE;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  background-color: var(--white);
+  color: var(--text-color);
+}
+
+.form-textarea {
+  width: 100%;
+  padding: 20rpx;
+  border: 2rpx solid #EEEEEE;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  min-height: 200rpx;
+  background-color: var(--white);
+  color: var(--text-color);
+}
+
+/* List Styles */
+.list {
+  background-color: var(--white);
+  border-radius: 15rpx;
+  overflow: hidden;
+  margin-bottom: 20rpx;
+}
+
+.list-item {
+  padding: 20rpx;
+  border-bottom: 1rpx solid var(--light-primary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+
+.list-content {
+  flex: 1;
+}
+
+.list-right {
+  margin-left: 20rpx;
+}
+
+/* Utility Classes */
+.flex {
+  display: flex;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-primary {
+  color: var(--primary-color);
+}
+
+.text-accent {
+  color: var(--accent-color);
+}
+
+.text-danger {
+  color: var(--danger);
+}
+
+.text-success {
+  color: var(--success);
+}
+
+.text-warning {
+  color: var(--warning);
+}
+
+.bg-primary {
+  background-color: var(--primary-color);
+}
+
+.bg-light-primary {
+  background-color: var(--light-primary);
+}
+
+.bg-accent {
+  background-color: var(--accent-color);
+}
+
+.bg-white {
+  background-color: var(--white);
+}
+
+.mt-10 {
+  margin-top: 10rpx;
+}
+
+.mt-20 {
+  margin-top: 20rpx;
+}
+
+.mb-10 {
+  margin-bottom: 10rpx;
+}
+
+.mb-20 {
+  margin-bottom: 20rpx;
+}
+
+.p-20 {
+  padding: 20rpx;
+}
+
+.py-20 {
+  padding-top: 20rpx;
+  padding-bottom: 20rpx;
+}
+
+.px-20 {
+  padding-left: 20rpx;
+  padding-right: 20rpx;
+}
+
+/* Animation */
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+.slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20rpx); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+} 

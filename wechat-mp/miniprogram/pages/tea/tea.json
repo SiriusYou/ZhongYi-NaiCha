@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "养生茶饮",
+  "navigationBarBackgroundColor": "#8B6F4E",
+  "navigationBarTextStyle": "white",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark",
+  "backgroundColor": "#F5F1E7",
+  "onReachBottomDistance": 50,
+  "usingComponents": {}
+} 

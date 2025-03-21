@@ -1,0 +1,304 @@
+<view class="tea-container">
+  <!-- Header with search bar -->
+  <view class="header">
+    <view class="search-bar">
+      <input 
+        class="search-input" 
+        placeholder="搜索茶饮名称或功效..." 
+        confirm-type="search"
+        value="{{searchQuery}}"
+        bindinput="onSearchInput"
+        bindconfirm="onSearchSubmit"
+      />
+      <icon class="search-icon" type="search" size="18" color="#8B6F4E" />
+    </view>
+  </view>
+  
+  <!-- Tab navigation -->
+  <view class="tabs">
+    <view 
+      class="tab-item {{activeTab === 'recommend' ? 'active' : ''}}" 
+      bindtap="switchTab" 
+      data-tab="recommend">
+      个性化推荐
+    </view>
+    <view 
+      class="tab-item {{activeTab === 'favorite' ? 'active' : ''}}" 
+      bindtap="switchTab" 
+      data-tab="favorite">
+      我的收藏
+    </view>
+    <view 
+      class="tab-item {{activeTab === 'history' ? 'active' : ''}}" 
+      bindtap="switchTab" 
+      data-tab="history">
+      浏览历史
+    </view>
+  </view>
+  
+  <!-- Category filters -->
+  <scroll-view scroll-x class="category-scroll" enhanced="true" show-scrollbar="false">
+    <view class="category-container">
+      <view 
+        wx:for="{{categories}}" 
+        wx:key="id"
+        class="category-item {{selectedCategory === item.id ? 'active' : ''}}"
+        bindtap="changeCategory"
+        data-category="{{item.id}}">
+        {{item.name}}
+      </view>
+    </view>
+  </scroll-view>
+  
+  <!-- Content area - Loading state -->
+  <view class="content-area" wx:if="{{isLoading}}">
+    <view class="loading-container">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">加载中...</text>
+    </view>
+  </view>
+  
+  <!-- Content area - Error state -->
+  <view class="content-area" wx:elif="{{loadError}}">
+    <view class="error-container">
+      <icon type="warn" size="64" color="#ff6b6b"></icon>
+      <text class="error-text">加载失败，请稍后重试</text>
+      <button class="retry-button" bindtap="fetchRecommendations">重新加载</button>
+    </view>
+  </view>
+  
+  <!-- Content area - No health profile -->
+  <view class="content-area" wx:elif="{{!userInfo.hasHealthProfile && activeTab === 'recommend'}}">
+    <view class="no-profile-container">
+      <image class="no-profile-image" src="/images/health-profile.png" mode="aspectFit"></image>
+      <text class="no-profile-title">完善健康档案获取个性化推荐</text>
+      <text class="no-profile-desc">根据您的体质特点和健康目标，我们将为您提供量身定制的茶饮推荐</text>
+      <navigator url="/pages/health/health" class="profile-button">完善健康档案</navigator>
+    </view>
+  </view>
+  
+  <!-- Content area - No data state -->
+  <view class="content-area" wx:elif="{{
+    (activeTab === 'recommend' && !dailyRecommendation && seasonRecommendations.length === 0 && symptomRecommendations.length === 0) ||
+    (activeTab === 'favorite' && seasonRecommendations.length === 0) ||
+    (activeTab === 'history' && symptomRecommendations.length === 0)
+  }}">
+    <view class="no-data-container">
+      <image class="no-data-image" src="/images/no-data.png" mode="aspectFit"></image>
+      <text class="no-data-text">
+        {{activeTab === 'recommend' ? '暂无推荐内容' : 
+          activeTab === 'favorite' ? '您还没有收藏任何茶饮' : 
+          '您还没有浏览记录'}}
+      </text>
+    </view>
+  </view>
+  
+  <!-- Content area - Recommend tab -->
+  <scroll-view 
+    class="content-area" 
+    scroll-y
+    wx:elif="{{activeTab === 'recommend'}}"
+    enable-flex
+    enhanced="true"
+    show-scrollbar="false">
+    
+    <!-- Daily recommendation -->
+    <view class="section daily-section" wx:if="{{dailyRecommendation}}">
+      <view class="section-header">
+        <text class="section-title">今日推荐</text>
+        <text class="section-subtitle">根据您的体质特点与当前季节定制</text>
+      </view>
+      
+      <view class="daily-card" bindtap="navigateToDetail" data-id="{{dailyRecommendation.id}}">
+        <image class="daily-image" src="{{dailyRecommendation.image}}" mode="aspectFill"></image>
+        <view class="daily-info">
+          <text class="daily-title">{{dailyRecommendation.name}}</text>
+          <text class="daily-desc">{{dailyRecommendation.shortDescription}}</text>
+          
+          <view class="daily-tags">
+            <view class="tag" wx:for="{{dailyRecommendation.tags}}" wx:key="*this">{{item}}</view>
+          </view>
+          
+          <view class="daily-bottom">
+            <text class="daily-season">{{seasonNames[currentSeason]}}特选</text>
+            <view class="action-button favorite" 
+              catchtap="toggleFavorite" 
+              data-id="{{dailyRecommendation.id}}" 
+              data-action="{{dailyRecommendation.isFavorite ? 'remove' : 'add'}}">
+              <icon type="{{dailyRecommendation.isFavorite ? 'success' : 'circle'}}" size="18" color="{{dailyRecommendation.isFavorite ? '#8B6F4E' : '#999'}}"></icon>
+              <text>{{dailyRecommendation.isFavorite ? '已收藏' : '收藏'}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- Seasonal recommendations -->
+    <view class="section" wx:if="{{seasonRecommendations.length > 0}}">
+      <view class="section-header">
+        <text class="section-title">{{seasonNames[currentSeason]}}养生茶饮</text>
+        <text class="section-subtitle">应季茶饮，调养身心</text>
+      </view>
+      
+      <view class="tea-grid">
+        <view 
+          class="tea-card" 
+          wx:for="{{seasonRecommendations}}" 
+          wx:key="id"
+          bindtap="navigateToDetail"
+          data-id="{{item.id}}">
+          
+          <image class="tea-image" src="{{item.image}}" mode="aspectFill"></image>
+          <view class="tea-content">
+            <text class="tea-title">{{item.name}}</text>
+            <view class="tea-tags">
+              <view class="tag small" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</view>
+            </view>
+            <text class="tea-desc">{{item.shortDescription}}</text>
+            
+            <view class="tea-actions">
+              <view 
+                class="favorite-icon" 
+                catchtap="toggleFavorite" 
+                data-id="{{item.id}}" 
+                data-action="{{item.isFavorite ? 'remove' : 'add'}}">
+                <icon type="{{item.isFavorite ? 'success' : 'circle'}}" size="16" color="{{item.isFavorite ? '#8B6F4E' : '#999'}}"></icon>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- Symptom based recommendations -->
+    <view class="section" wx:if="{{symptomRecommendations.length > 0}}">
+      <view class="section-header">
+        <text class="section-title">症状改善推荐</text>
+        <text class="section-subtitle">根据您的常见症状推荐</text>
+      </view>
+      
+      <view class="tea-grid">
+        <view 
+          class="tea-card" 
+          wx:for="{{symptomRecommendations}}" 
+          wx:key="id"
+          bindtap="navigateToDetail"
+          data-id="{{item.id}}">
+          
+          <image class="tea-image" src="{{item.image}}" mode="aspectFill"></image>
+          <view class="tea-content">
+            <text class="tea-title">{{item.name}}</text>
+            <view class="tea-tags">
+              <view class="tag small" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</view>
+            </view>
+            <text class="tea-desc">{{item.shortDescription}}</text>
+            
+            <view class="tea-actions">
+              <view 
+                class="favorite-icon" 
+                catchtap="toggleFavorite" 
+                data-id="{{item.id}}" 
+                data-action="{{item.isFavorite ? 'remove' : 'add'}}">
+                <icon type="{{item.isFavorite ? 'success' : 'circle'}}" size="16" color="{{item.isFavorite ? '#8B6F4E' : '#999'}}"></icon>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+  
+  <!-- Content area - Favorite/History tab -->
+  <scroll-view 
+    class="content-area" 
+    scroll-y 
+    wx:else
+    enable-flex
+    bindscrolltolower="onReachBottom"
+    enhanced="true"
+    show-scrollbar="false">
+    
+    <view class="tea-grid">
+      <view 
+        class="tea-card" 
+        wx:for="{{activeTab === 'favorite' ? seasonRecommendations : symptomRecommendations}}" 
+        wx:key="id"
+        bindtap="navigateToDetail"
+        data-id="{{item.id}}">
+        
+        <image class="tea-image" src="{{item.image}}" mode="aspectFill"></image>
+        <view class="tea-content">
+          <text class="tea-title">{{item.name}}</text>
+          <view class="tea-tags">
+            <view class="tag small" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</view>
+          </view>
+          <text class="tea-desc">{{item.shortDescription}}</text>
+          
+          <view class="tea-actions">
+            <view 
+              class="favorite-icon" 
+              catchtap="toggleFavorite" 
+              data-id="{{item.id}}" 
+              data-action="{{item.isFavorite ? 'remove' : 'add'}}">
+              <icon type="{{item.isFavorite ? 'success' : 'circle'}}" size="16" color="{{item.isFavorite ? '#8B6F4E' : '#999'}}"></icon>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- Loading more indicator -->
+    <view class="loading-more" wx:if="{{isLoading && !loadError && currentPage > 1}}">
+      <view class="loading-spinner small"></view>
+      <text class="loading-text small">加载更多...</text>
+    </view>
+    
+    <!-- End of list indicator -->
+    <view class="end-of-list" wx:if="{{!hasMoreData && (activeTab === 'favorite' ? seasonRecommendations.length > 0 : symptomRecommendations.length > 0)}}">
+      <text class="end-text">- 已经到底啦 -</text>
+    </view>
+  </scroll-view>
+  
+  <!-- Tea detail modal -->
+  <view class="tea-detail-modal {{showTeaDetail ? 'show' : ''}}" wx:if="{{showTeaDetail}}">
+    <view class="modal-mask" bindtap="hideTeaDetail"></view>
+    <view class="modal-content">
+      <view class="modal-close" bindtap="hideTeaDetail">×</view>
+      
+      <image class="modal-image" src="{{currentTea.image}}" mode="aspectFill"></image>
+      
+      <view class="modal-body">
+        <text class="modal-title">{{currentTea.name}}</text>
+        
+        <view class="modal-tags">
+          <view class="tag" wx:for="{{currentTea.tags}}" wx:key="*this">{{item}}</view>
+        </view>
+        
+        <text class="modal-description">{{currentTea.description}}</text>
+        
+        <view class="modal-section">
+          <text class="section-label">功效</text>
+          <text class="section-value">{{currentTea.benefits}}</text>
+        </view>
+        
+        <view class="modal-section">
+          <text class="section-label">主要成分</text>
+          <text class="section-value">{{currentTea.ingredients}}</text>
+        </view>
+        
+        <view class="modal-actions">
+          <button class="action-button detail" bindtap="navigateToDetail" data-id="{{currentTea.id}}">
+            查看详情
+          </button>
+          <button 
+            class="action-button {{currentTea.isFavorite ? 'unfavorite' : 'favorite'}}" 
+            bindtap="toggleFavorite" 
+            data-id="{{currentTea.id}}" 
+            data-action="{{currentTea.isFavorite ? 'remove' : 'add'}}">
+            {{currentTea.isFavorite ? '取消收藏' : '收藏'}}
+          </button>
+        </view>
+      </view>
+    </view>
+  </view>
+</view> 

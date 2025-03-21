@@ -1,0 +1,5 @@
+<!-- ec-canvas.wxml -->
+<canvas wx:if="{{isCanvasReady}}" canvas-id="{{canvasId}}" class="ec-canvas" bindtouchstart="touchStart" bindtouchmove="touchMove" bindtouchend="touchEnd"></canvas>
+<view wx:else class="ec-canvas loading-container">
+  <view class="loading-text">加载中...</view>
+</view> 

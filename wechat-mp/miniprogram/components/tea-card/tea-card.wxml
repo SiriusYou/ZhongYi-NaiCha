@@ -1,0 +1,13 @@
+<view class="tea-card {{ loading ? 'loading' : '' }}" bindtap="onTapCard">
+  <view class="tea-image-container">
+    <image class="tea-image" src="{{ tea.imageSrc || defaultImageSrc }}" mode="aspectFill" binderror="onImageError"></image>
+    <view wx:if="tea.isRecommended" class="recommended-tag">推荐</view>
+  </view>
+  <view class="tea-info">
+    <text class="tea-name">{{ tea.name || '加载中...' }}</text>
+    <text class="tea-description">{{ tea.shortDescription || '请稍候...' }}</text>
+    <view class="tea-tags">
+      <text wx:for="{{ tea.tags }}" wx:key="*this" class="tag">{{ item }}</text>
+    </view>
+  </view>
+</view> 

@@ -1,0 +1,254 @@
+<!--health.wxml-->
+<view class="container">
+  <view class="header">
+    <text class="title">健康档案</text>
+    <text class="subtitle">{{isSetup ? '设置您的健康档案以获取个性化建议' : '管理您的健康档案'}}</text>
+    <view class="sync-button" bindtap="forceSync">
+      <text class="sync-icon">🔄</text>
+      <text class="sync-text">同步数据</text>
+    </view>
+  </view>
+  
+  <view class="tab-container">
+    <view class="tab {{activeTab === 'profile' ? 'active' : ''}}" bindtap="switchTab" data-tab="profile">基本档案</view>
+    <view class="tab {{activeTab === 'tracking' ? 'active' : ''}}" bindtap="switchTab" data-tab="tracking">健康记录</view>
+    <view class="tab {{activeTab === 'insights' ? 'active' : ''}}" bindtap="switchTab" data-tab="insights">健康洞察</view>
+  </view>
+  
+  <!-- Profile Tab -->
+  <view class="tab-content" hidden="{{activeTab !== 'profile'}}">
+    <view class="section">
+      <view class="section-title">基本信息</view>
+      <view class="form-group">
+        <view class="form-item">
+          <text class="label">年龄</text>
+          <input type="number" class="input" value="{{basicInfo.age}}" data-field="age" bindinput="updateBasicInfo" placeholder="请输入年龄" />
+        </view>
+        <view class="form-item">
+          <text class="label">性别</text>
+          <radio-group class="radio-group" bindchange="updateGender">
+            <label class="radio">
+              <radio value="male" checked="{{basicInfo.gender === 'male'}}" />男
+            </label>
+            <label class="radio">
+              <radio value="female" checked="{{basicInfo.gender === 'female'}}" />女
+            </label>
+          </radio-group>
+        </view>
+        <view class="form-item">
+          <text class="label">身高 (cm)</text>
+          <input type="digit" class="input" value="{{basicInfo.height}}" data-field="height" bindinput="updateBasicInfo" placeholder="请输入身高" />
+        </view>
+        <view class="form-item">
+          <text class="label">体重 (kg)</text>
+          <input type="digit" class="input" value="{{basicInfo.weight}}" data-field="weight" bindinput="updateBasicInfo" placeholder="请输入体重" />
+        </view>
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-title">体质类型</view>
+      <view class="selection-grid">
+        <view 
+          wx:for="{{constitutionTypes}}" 
+          wx:key="id" 
+          class="selection-item {{item.selected ? 'selected' : ''}}"
+          bindtap="toggleConstitution" 
+          data-index="{{index}}"
+        >
+          <text>{{item.name}}</text>
+          <text class="info-icon" catchtap="showConstitutionInfo" data-index="{{index}}">?</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-title">健康目标</view>
+      <view class="selection-grid">
+        <view 
+          wx:for="{{healthGoals}}" 
+          wx:key="id" 
+          class="selection-item {{item.selected ? 'selected' : ''}}"
+          bindtap="toggleHealthGoal" 
+          data-index="{{index}}"
+        >
+          <text>{{item.name}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-title">常见症状</view>
+      <view class="selection-grid">
+        <view 
+          wx:for="{{symptoms}}" 
+          wx:key="id" 
+          class="selection-item {{item.selected ? 'selected' : ''}}"
+          bindtap="toggleSymptom" 
+          data-index="{{index}}"
+        >
+          <text>{{item.name}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="button-container">
+      <button class="save-btn" bindtap="saveProfile" loading="{{isLoading}}">保存</button>
+    </view>
+  </view>
+  
+  <!-- Tracking Tab -->
+  <view class="tab-content" hidden="{{activeTab !== 'tracking'}}">
+    <view class="tracking-section">
+      <view class="section-title">每日健康记录</view>
+      
+      <view class="date-selector">
+        <view class="arrow" bindtap="previousDay">
+          <text class="icon">←</text>
+        </view>
+        <view class="current-date">{{currentDate}}</view>
+        <view class="arrow" bindtap="nextDay">
+          <text class="icon">→</text>
+        </view>
+      </view>
+      
+      <!-- Daily Metrics -->
+      <view class="metrics-container">
+        <view class="metric-card">
+          <view class="metric-title">睡眠时间 (小时)</view>
+          <slider min="0" max="12" step="0.5" value="{{metrics.sleep}}" block-size="28" show-value bindchange="updateMetric" data-metric="sleep"></slider>
+        </view>
+        
+        <view class="metric-card">
+          <view class="metric-title">水分摄入 (杯)</view>
+          <slider min="0" max="10" step="1" value="{{metrics.water}}" block-size="28" show-value bindchange="updateMetric" data-metric="water"></slider>
+        </view>
+        
+        <view class="metric-card">
+          <view class="metric-title">情绪状态</view>
+          <view class="mood-selector">
+            <view class="mood-item {{metrics.mood === 'excellent' ? 'selected' : ''}}" bindtap="selectMood" data-mood="excellent">😀</view>
+            <view class="mood-item {{metrics.mood === 'good' ? 'selected' : ''}}" bindtap="selectMood" data-mood="good">🙂</view>
+            <view class="mood-item {{metrics.mood === 'neutral' ? 'selected' : ''}}" bindtap="selectMood" data-mood="neutral">😐</view>
+            <view class="mood-item {{metrics.mood === 'bad' ? 'selected' : ''}}" bindtap="selectMood" data-mood="bad">🙁</view>
+            <view class="mood-item {{metrics.mood === 'terrible' ? 'selected' : ''}}" bindtap="selectMood" data-mood="terrible">😣</view>
+          </view>
+        </view>
+        
+        <view class="metric-card">
+          <view class="metric-title">体重 (kg)</view>
+          <input type="digit" class="metric-input" value="{{metrics.weight}}" bindinput="updateWeight" placeholder="输入体重" />
+        </view>
+        
+        <view class="metric-card">
+          <view class="metric-title">活动量 (分钟)</view>
+          <input type="number" class="metric-input" value="{{metrics.activity}}" bindinput="updateActivity" placeholder="输入活动时间" />
+        </view>
+        
+        <view class="metric-card">
+          <view class="metric-title">今日症状</view>
+          <view class="symptom-selector">
+            <view 
+              wx:for="{{dailySymptoms}}" 
+              wx:key="id" 
+              class="symptom-tag {{item.selected ? 'selected' : ''}}"
+              bindtap="toggleDailySymptom" 
+              data-index="{{index}}"
+            >
+              {{item.name}}
+            </view>
+          </view>
+        </view>
+        
+        <view class="metric-card">
+          <view class="metric-title">饮食记录</view>
+          <textarea class="food-input" value="{{metrics.food}}" bindinput="updateFood" placeholder="今日饮食记录"></textarea>
+        </view>
+      </view>
+      
+      <view class="button-container">
+        <button class="save-btn" bindtap="saveTracking" loading="{{isSavingTracking}}">保存记录</button>
+      </view>
+    </view>
+  </view>
+  
+  <!-- Insights Tab -->
+  <view class="tab-content" hidden="{{activeTab !== 'insights'}}">
+    <view class="insights-section">
+      <view class="section-title">健康趋势</view>
+      
+      <view class="period-selector">
+        <view class="period {{insightsPeriod === 'week' ? 'selected' : ''}}" bindtap="changePeriod" data-period="week">周</view>
+        <view class="period {{insightsPeriod === 'month' ? 'selected' : ''}}" bindtap="changePeriod" data-period="month">月</view>
+        <view class="period {{insightsPeriod === 'year' ? 'selected' : ''}}" bindtap="changePeriod" data-period="year">年</view>
+      </view>
+      
+      <view class="chart-container">
+        <view class="chart-title">睡眠趋势</view>
+        <view wx:if="{{sleepData.length === 0}}" class="no-data">暂无数据</view>
+        <view wx:else class="echart-container">
+          <ec-canvas id="ec-sleep" canvas-id="sleepEchart" ec="{{ecSleep}}"></ec-canvas>
+        </view>
+        <canvas wx:if="{{!echarts && sleepData.length > 0}}" canvas-id="sleepChart" class="chart"></canvas>
+      </view>
+      
+      <view class="chart-container">
+        <view class="chart-title">体重趋势</view>
+        <view wx:if="{{weightData.length === 0}}" class="no-data">暂无数据</view>
+        <view wx:else class="echart-container">
+          <ec-canvas id="ec-weight" canvas-id="weightEchart" ec="{{ecWeight}}"></ec-canvas>
+        </view>
+        <canvas wx:if="{{!echarts && weightData.length > 0}}" canvas-id="weightChart" class="chart"></canvas>
+      </view>
+      
+      <view class="chart-container">
+        <view class="chart-title">水分摄入</view>
+        <view wx:if="{{waterData.length === 0}}" class="no-data">暂无数据</view>
+        <view wx:else class="echart-container">
+          <ec-canvas id="ec-water" canvas-id="waterEchart" ec="{{ecWater}}"></ec-canvas>
+        </view>
+        <canvas wx:if="{{!echarts && waterData.length > 0}}" canvas-id="waterChart" class="chart"></canvas>
+      </view>
+      
+      <view class="chart-container">
+        <view class="chart-title">活动时间</view>
+        <view wx:if="{{activityData.length === 0}}" class="no-data">暂无数据</view>
+        <view wx:else class="echart-container">
+          <ec-canvas id="ec-activity" canvas-id="activityEchart" ec="{{ecActivity}}"></ec-canvas>
+        </view>
+        <canvas wx:if="{{!echarts && activityData.length > 0}}" canvas-id="activityChart" class="chart"></canvas>
+      </view>
+      
+      <view class="insights-summary">
+        <view class="summary-title">健康建议</view>
+        <view class="summary-content">
+          <view wx:if="{{insights.length === 0}}" class="no-data">
+            记录更多数据以获取个性化健康建议
+          </view>
+          <view wx:for="{{insights}}" wx:key="index" class="insight-item">
+            <view class="insight-icon">💡</view>
+            <view class="insight-text">{{item.text}}</view>
+          </view>
+        </view>
+      </view>
+      
+      <view class="report-container">
+        <button class="report-btn" bindtap="generateReport">生成健康报告</button>
+      </view>
+    </view>
+  </view>
+  
+  <!-- Constitution Info Modal -->
+  <view class="modal" hidden="{{!showConstitutionInfo}}">
+    <view class="modal-mask" bindtap="closeConstitutionInfo"></view>
+    <view class="modal-content">
+      <view class="modal-header">{{currentConstitution.name}}</view>
+      <view class="modal-body">
+        <text>{{currentConstitution.description}}</text>
+      </view>
+      <view class="modal-footer">
+        <button class="modal-btn" bindtap="closeConstitutionInfo">关闭</button>
+      </view>
+    </view>
+  </view>
+</view> 

@@ -1,0 +1,238 @@
+<!-- community.wxml -->
+<view class="community-page">
+  <!-- Loading State -->
+  <view class="loading-container" wx:if="{{isLoading}}">
+    <view class="loading-spinner"></view>
+    <text>加载中...</text>
+  </view>
+  
+  <!-- Error State -->
+  <view class="error-container" wx:elif="{{loadError}}">
+    <icon type="warn" size="64" color="#fa8c16"></icon>
+    <text>内容加载失败</text>
+    <button class="retry-button" bindtap="getPosts">重试</button>
+  </view>
+  
+  <!-- Content when loaded -->
+  <block wx:else>
+    <!-- Categories -->
+    <scroll-view scroll-x class="categories-scroll">
+      <view class="categories">
+        <view 
+          class="category-tag {{activeCategoryId === category.id ? 'active' : ''}}" 
+          wx:for="{{categories}}" 
+          wx:for-item="category" 
+          wx:key="id"
+          bindtap="changeCategory"
+          data-id="{{category.id}}">
+          {{category.name}}
+        </view>
+      </view>
+    </scroll-view>
+    
+    <!-- Empty State -->
+    <view class="empty-container" wx:if="{{posts.length === 0}}">
+      <image src="/images/empty-posts.png" mode="aspectFit" class="empty-image"></image>
+      <text class="empty-text">暂时没有内容</text>
+      <text class="empty-desc">成为第一个分享的人吧！</text>
+    </view>
+    
+    <!-- Posts List -->
+    <view class="posts-list" wx:else>
+      <view class="post-card" wx:for="{{posts}}" wx:key="id">
+        <!-- Post Header -->
+        <view class="post-header">
+          <view class="user-info" bindtap="navigateToProfile" data-id="{{item.user.id}}">
+            <image class="user-avatar" src="{{item.user.avatar}}" mode="aspectFill"></image>
+            <view class="user-details">
+              <text class="user-name">{{item.user.nickname}}</text>
+              <text class="post-time">{{formatDate(item.createdAt)}}</text>
+            </view>
+          </view>
+          <view class="post-category">{{categories.find(c => c.id === item.category).name}}</view>
+        </view>
+        
+        <!-- Post Content -->
+        <view class="post-content">
+          <text class="{{item.showAllContent || item.content.length <= 200 ? '' : 'truncated'}}">
+            {{item.content}}
+          </text>
+          <text 
+            class="read-more" 
+            wx:if="{{item.content.length > 200 && !item.showAllContent}}"
+            bindtap="togglePostContent"
+            data-index="{{index}}">
+            展开全文
+          </text>
+          <text 
+            class="read-less" 
+            wx:if="{{item.content.length > 200 && item.showAllContent}}"
+            bindtap="togglePostContent"
+            data-index="{{index}}">
+            收起
+          </text>
+        </view>
+        
+        <!-- Post Images -->
+        <view class="post-images" wx:if="{{item.images && item.images.length > 0}}">
+          <!-- Single image -->
+          <view class="image-container single" wx:if="{{item.images.length === 1}}">
+            <image 
+              src="{{item.images[0]}}" 
+              mode="widthFix" 
+              bindtap="previewImage" 
+              data-src="{{item.images[0]}}" 
+              data-images="{{item.images}}">
+            </image>
+          </view>
+          
+          <!-- Multiple images grid -->
+          <view class="image-grid" wx:elif="{{item.images.length > 1}}">
+            <view 
+              class="grid-item" 
+              wx:for="{{item.images}}" 
+              wx:for-item="img" 
+              wx:for-index="imgIndex" 
+              wx:key="*this"
+              wx:if="{{imgIndex < 9}}">
+              <image 
+                src="{{img}}" 
+                mode="aspectFill" 
+                bindtap="previewImage"
+                data-src="{{img}}"
+                data-images="{{item.images}}">
+              </image>
+              <view class="more-overlay" wx:if="{{imgIndex === 8 && item.images.length > 9}}">
+                +{{item.images.length - 9}}
+              </view>
+            </view>
+          </view>
+        </view>
+        
+        <!-- Post Actions -->
+        <view class="post-actions">
+          <view 
+            class="action-item {{item.isLikedByUser ? 'liked' : ''}}" 
+            bindtap="likePost" 
+            data-id="{{item.id}}" 
+            data-index="{{index}}">
+            <icon class="action-icon {{item.isLikedByUser ? 'liked' : ''}}" type="like"></icon>
+            <text>{{item.likesCount || 0}}</text>
+          </view>
+          
+          <view 
+            class="action-item" 
+            bindtap="showComments" 
+            data-id="{{item.id}}">
+            <icon class="action-icon" type="comment"></icon>
+            <text>{{item.commentsCount || 0}}</text>
+          </view>
+          
+          <view 
+            class="action-item" 
+            bindtap="sharePost" 
+            data-id="{{item.id}}">
+            <icon class="action-icon" type="share"></icon>
+            <text>分享</text>
+          </view>
+        </view>
+        
+        <!-- Comment Preview -->
+        <view class="comment-preview" wx:if="{{item.topComments && item.topComments.length > 0}}">
+          <view 
+            class="comment-item" 
+            wx:for="{{item.topComments}}" 
+            wx:for-item="comment" 
+            wx:key="id"
+            bindtap="showComments"
+            data-id="{{item.id}}">
+            <text class="comment-user">{{comment.user.nickname}}:</text>
+            <text class="comment-text">{{comment.content}}</text>
+          </view>
+          <view 
+            class="view-more-comments" 
+            wx:if="{{item.commentsCount > item.topComments.length}}"
+            bindtap="showComments"
+            data-id="{{item.id}}">
+            查看全部{{item.commentsCount}}条评论
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- Loading More -->
+    <view class="loading-more" wx:if="{{hasMorePosts && !isLoading && posts.length > 0}}">
+      <text>上拉加载更多</text>
+    </view>
+  </block>
+  
+  <!-- Floating New Post Button -->
+  <view class="new-post-button" bindtap="togglePostForm">
+    <icon class="new-post-icon" type="write"></icon>
+  </view>
+  
+  <!-- New Post Form (Slide-up panel) -->
+  <view class="post-form-overlay {{showPostForm ? 'show' : ''}}" bindtap="togglePostForm"></view>
+  <view class="post-form-container" animation="{{animationData}}">
+    <view class="post-form-header">
+      <text>发布新内容</text>
+      <icon class="close-icon" type="cancel" bindtap="togglePostForm"></icon>
+    </view>
+    
+    <view class="post-form-content" catchtap>
+      <textarea 
+        class="post-content-input" 
+        placeholder="分享您的养生心得、问题或中医知识..." 
+        maxlength="2000" 
+        bindinput="onPostContentInput"
+        value="{{newPostContent}}">
+      </textarea>
+      
+      <view class="post-images-preview" wx:if="{{newPostImages.length > 0}}">
+        <view class="preview-item" wx:for="{{newPostImages}}" wx:key="*this">
+          <image 
+            src="{{item}}" 
+            mode="aspectFill" 
+            bindtap="previewImage" 
+            data-src="{{item}}">
+          </image>
+          <icon 
+            class="remove-image" 
+            type="cancel" 
+            bindtap="removeImage" 
+            data-index="{{index}}">
+          </icon>
+        </view>
+      </view>
+      
+      <view class="post-form-actions">
+        <view class="post-category-picker">
+          <picker 
+            bindchange="choosePostCategory" 
+            value="{{categories.findIndex(c => c.id === newPostCategory)}}" 
+            range="{{categories.filter(c => c.id !== 'all')}}" 
+            range-key="name">
+            <view class="picker-content">
+              <text>分类: {{categories.find(c => c.id === newPostCategory).name}}</text>
+              <text class="arrow">▼</text>
+            </view>
+          </picker>
+        </view>
+        
+        <view class="post-actions-buttons">
+          <view class="action-button" bindtap="chooseImage">
+            <icon class="action-icon" type="image"></icon>
+            <text>添加图片</text>
+          </view>
+          
+          <button 
+            class="submit-button {{newPostContent.trim() ? '' : 'disabled'}}" 
+            bindtap="submitPost"
+            disabled="{{!newPostContent.trim()}}">
+            发布
+          </button>
+        </view>
+      </view>
+    </view>
+  </view>
+</view> 

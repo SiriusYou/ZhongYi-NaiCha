@@ -1,0 +1,428 @@
+/* 中医师市场页面样式 - Herbalist marketplace page styles */
+
+.marketplace-container {
+  padding: 0 0 30rpx;
+  background-color: #f8f8f8;
+  min-height: 100vh;
+}
+
+/* 搜索栏 - Search bar */
+.search-bar {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  background-color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.05);
+}
+
+.search-input-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background-color: #f5f5f5;
+  border-radius: 32rpx;
+  padding: 12rpx 20rpx;
+}
+
+.search-icon {
+  margin-right: 10rpx;
+  color: #999;
+}
+
+.search-input {
+  flex: 1;
+  height: 36rpx;
+  font-size: 28rpx;
+  color: #333;
+}
+
+.clear-icon {
+  margin-left: 10rpx;
+  color: #999;
+}
+
+.filter-button {
+  display: flex;
+  align-items: center;
+  margin-left: 20rpx;
+  font-size: 28rpx;
+  color: #4b8b60;
+}
+
+.filter-icon {
+  width: 32rpx;
+  height: 32rpx;
+  margin-left: 6rpx;
+}
+
+/* 筛选面板 - Filter panel */
+.filter-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  display: flex;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.filter-panel.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.filter-panel-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.filter-panel-content {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 75%;
+  background-color: #fff;
+  padding: 30rpx;
+  overflow-y: auto;
+  transform: translateX(100%);
+  transition: transform 0.3s;
+}
+
+.filter-panel.show .filter-panel-content {
+  transform: translateX(0);
+}
+
+.filter-section {
+  margin-bottom: 30rpx;
+}
+
+.filter-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.specialty-list {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.specialty-item {
+  background-color: #f0f7f2;
+  color: #4b8b60;
+  font-size: 26rpx;
+  padding: 12rpx 24rpx;
+  border-radius: 30rpx;
+  margin-right: 16rpx;
+  margin-bottom: 16rpx;
+}
+
+.specialty-item.selected {
+  background-color: #4b8b60;
+  color: #fff;
+}
+
+.option-list {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.option-item {
+  background-color: #f0f7f2;
+  color: #4b8b60;
+  font-size: 26rpx;
+  padding: 12rpx 24rpx;
+  border-radius: 30rpx;
+  margin-right: 16rpx;
+  margin-bottom: 16rpx;
+}
+
+.option-item.selected {
+  background-color: #4b8b60;
+  color: #fff;
+}
+
+.filter-actions {
+  display: flex;
+  margin-top: 40rpx;
+}
+
+.reset-button, .apply-button {
+  flex: 1;
+  height: 80rpx;
+  line-height: 80rpx;
+  font-size: 28rpx;
+  text-align: center;
+  border-radius: 40rpx;
+}
+
+.reset-button {
+  background-color: #f5f5f5;
+  color: #666;
+  margin-right: 20rpx;
+}
+
+.apply-button {
+  background-color: #4b8b60;
+  color: #fff;
+}
+
+/* 加载状态 - Loading state */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300rpx;
+  margin-top: 100rpx;
+}
+
+.loading-spinner {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  border: 6rpx solid rgba(75, 139, 96, 0.1);
+  border-top-color: #4b8b60;
+  animation: spin 1s linear infinite;
+}
+
+.loading-spinner.small {
+  width: 40rpx;
+  height: 40rpx;
+  border-width: 4rpx;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  margin-top: 20rpx;
+  font-size: 28rpx;
+  color: #888;
+}
+
+/* 专业人士列表 - Practitioners list */
+.practitioners-list {
+  padding: 20rpx;
+}
+
+.practitioner-card {
+  display: flex;
+  background-color: #fff;
+  border-radius: 12rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.practitioner-avatar-container {
+  position: relative;
+  margin-right: 20rpx;
+}
+
+.practitioner-avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 60rpx;
+  background-color: #f0f7f2;
+}
+
+.verification-badge {
+  position: absolute;
+  right: -6rpx;
+  bottom: -6rpx;
+  background-color: #4b8b60;
+  border-radius: 50%;
+  width: 36rpx;
+  height: 36rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.verification-icon {
+  width: 24rpx;
+  height: 24rpx;
+}
+
+.practitioner-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.practitioner-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.practitioner-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.practitioner-title {
+  font-size: 24rpx;
+  color: #4b8b60;
+  font-weight: normal;
+  margin-left: 10rpx;
+}
+
+.practitioner-rating {
+  display: flex;
+  align-items: center;
+}
+
+.rating-score {
+  font-size: 28rpx;
+  color: #f6a623;
+  font-weight: 600;
+  margin-right: 6rpx;
+}
+
+.rating-star {
+  width: 24rpx;
+  height: 24rpx;
+}
+
+.practitioner-specialties {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 12rpx;
+}
+
+.specialty-tag {
+  background-color: #f0f7f2;
+  color: #4b8b60;
+  font-size: 22rpx;
+  padding: 6rpx 16rpx;
+  border-radius: 20rpx;
+  margin-right: 12rpx;
+  margin-bottom: 8rpx;
+}
+
+.practitioner-clinic {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.clinic-icon {
+  width: 24rpx;
+  height: 24rpx;
+  margin-right: 8rpx;
+}
+
+.clinic-name {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.practitioner-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+}
+
+.distance-info {
+  display: flex;
+  align-items: center;
+}
+
+.distance-icon {
+  width: 24rpx;
+  height: 24rpx;
+  margin-right: 8rpx;
+}
+
+.distance-text {
+  font-size: 24rpx;
+  color: #888;
+}
+
+.consultation-info {
+  display: flex;
+  align-items: center;
+}
+
+.consultation-price {
+  font-size: 28rpx;
+  color: #ff7b31;
+  font-weight: 600;
+  margin-right: 16rpx;
+}
+
+.consultation-count {
+  font-size: 24rpx;
+  color: #888;
+}
+
+/* 底部加载更多 - Load more at bottom */
+.load-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30rpx 0;
+}
+
+.load-more-text {
+  font-size: 26rpx;
+  color: #888;
+  margin-left: 10rpx;
+}
+
+/* 无更多数据 - No more data */
+.no-more {
+  text-align: center;
+  padding: 30rpx 0;
+}
+
+.no-more-text {
+  font-size: 26rpx;
+  color: #888;
+}
+
+/* 空状态 - Empty state */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60rpx 40rpx;
+  margin-top: 100rpx;
+}
+
+.empty-image {
+  width: 240rpx;
+  height: 240rpx;
+  margin-bottom: 30rpx;
+}
+
+.empty-text {
+  font-size: 30rpx;
+  color: #555;
+  font-weight: 500;
+  margin-bottom: 10rpx;
+}
+
+.empty-subtext {
+  font-size: 26rpx;
+  color: #888;
+} 

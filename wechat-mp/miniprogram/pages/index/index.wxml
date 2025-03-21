@@ -1,0 +1,114 @@
+<!--index.wxml-->
+<view class="container">
+  <view class="header">
+    <view class="user-info">
+      <block wx:if="{{hasUserInfo}}">
+        <image class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
+        <text class="welcome">{{userInfo.nickName}}，{{seasonalMessage}}</text>
+      </block>
+      <block wx:else>
+        <image class="avatar" src="/images/default-avatar.png" mode="aspectFill"></image>
+        <navigator url="/pages/auth/auth" class="login-btn">点击登录</navigator>
+      </block>
+    </view>
+    <view class="network-status">
+      <text class="{{networkStatus === 'none' ? 'offline' : 'online'}}">
+        {{networkStatus === 'none' ? '离线模式' : '在线'}}
+      </text>
+    </view>
+  </view>
+
+  <!-- Health Profile Banner -->
+  <view class="health-banner" bindtap="navigateToHealth">
+    <view class="health-profile">
+      <block wx:if="{{currentConstitution}}">
+        <text class="constitution">您的体质类型：{{currentConstitution.name}}</text>
+      </block>
+      <block wx:else>
+        <text class="constitution">尚未完成体质测评</text>
+      </block>
+    </view>
+    <text class="action-text">点击完善健康档案 ></text>
+  </view>
+
+  <!-- Tea Recommendations -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">今日推荐</text>
+      <text class="section-subtitle">基于您的体质和当季特点</text>
+    </view>
+    
+    <view class="recommendations-container">
+      <view class="loading" wx:if="{{loading}}">
+        <view class="loading-spinner"></view>
+        <text>加载中...</text>
+      </view>
+      <view class="empty-state" wx:elif="{{recommendations.length === 0}}">
+        <text>暂无推荐，请完善健康档案</text>
+      </view>
+      <scroll-view scroll-x class="recommendations-scroll" wx:else>
+        <view class="recommendations-list">
+          <view class="recommendation-item" 
+                wx:for="{{recommendations}}" 
+                wx:key="id" 
+                bindtap="navigateToRecipe" 
+                data-id="{{item.id}}">
+            <recommendation-card recipe="{{item}}" />
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+
+  <!-- Health Tips -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">健康小贴士</text>
+    </view>
+    
+    <view class="tips-container">
+      <view class="empty-state" wx:if="{{healthTips.length === 0}}">
+        <text>暂无健康贴士</text>
+      </view>
+      <view class="tip-card" wx:for="{{healthTips}}" wx:key="id">
+        <view class="tip-content">
+          <text class="tip-title">{{item.title}}</text>
+          <text class="tip-text">{{item.content}}</text>
+        </view>
+        <view class="tip-info">
+          <text class="tip-category">{{item.category}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Quick Actions -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">快捷操作</text>
+    </view>
+    
+    <view class="quick-actions">
+      <navigator url="/pages/tea/tea" class="action-card">
+        <image src="/images/tea-icon.png" class="action-icon"></image>
+        <text class="action-name">茶饮</text>
+      </navigator>
+      <navigator url="/pages/knowledge/knowledge" class="action-card">
+        <image src="/images/knowledge-icon.png" class="action-icon"></image>
+        <text class="action-name">知识</text>
+      </navigator>
+      <navigator url="/pages/community/community" class="action-card">
+        <image src="/images/community-icon.png" class="action-icon"></image>
+        <text class="action-name">社区</text>
+      </navigator>
+      <navigator url="/pages/health-tracking/health-tracking" class="action-card">
+        <image src="/images/tracking-icon.png" class="action-icon"></image>
+        <text class="action-name">健康打卡</text>
+      </navigator>
+    </view>
+  </view>
+
+  <view class="footer">
+    <text class="copyright">© 2023 中医奶茶养生</text>
+  </view>
+</view> 

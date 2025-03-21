@@ -1,0 +1,113 @@
+<view class="create-post-container">
+  <view class="form-group">
+    <input 
+      class="title-input" 
+      placeholder="请输入标题" 
+      maxlength="50" 
+      bindinput="onTitleInput" 
+      value="{{title}}"
+    />
+    <view class="title-count">{{title.length}}/50</view>
+  </view>
+  
+  <view class="form-group">
+    <textarea 
+      class="content-input" 
+      placeholder="分享你的健康心得..." 
+      maxlength="2000" 
+      bindinput="onContentInput" 
+      value="{{content}}"
+      auto-height
+    ></textarea>
+    <view class="content-count">{{content.length}}/2000</view>
+  </view>
+  
+  <view class="form-group">
+    <view class="images-container">
+      <view 
+        class="image-item" 
+        wx:for="{{images}}" 
+        wx:key="*this"
+      >
+        <image 
+          src="{{item}}" 
+          mode="aspectFill"
+          bindtap="previewImage" 
+          data-index="{{index}}"
+        ></image>
+        <view 
+          class="image-delete" 
+          catchtap="removeImage" 
+          data-index="{{index}}"
+        >×</view>
+      </view>
+      
+      <view class="image-add" bindtap="chooseImage" wx:if="{{images.length < maxImageCount}}">
+        <text class="iconfont icon-add"></text>
+        <text class="add-text">添加图片</text>
+      </view>
+    </view>
+  </view>
+  
+  <view class="form-group">
+    <picker 
+      mode="selector" 
+      range="{{categories}}" 
+      range-key="name" 
+      value="{{index}}" 
+      bindchange="onCategoryChange"
+    >
+      <view class="picker">
+        <text class="picker-label">分类</text>
+        <text class="picker-value">{{categories.find(c => c.id === category).name}}</text>
+        <text class="iconfont icon-arrow-right"></text>
+      </view>
+    </picker>
+  </view>
+  
+  <view class="form-group">
+    <view class="tag-input-container">
+      <text class="tag-label">标签</text>
+      <input 
+        class="tag-input" 
+        placeholder="输入标签，用逗号或空格分隔" 
+        bindinput="onTagsInput"
+      />
+    </view>
+    <view class="tags-preview" wx:if="{{tags.length > 0}}">
+      <text class="tag-item" wx:for="{{tags}}" wx:key="*this">#{{item}}</text>
+    </view>
+  </view>
+  
+  <view class="form-group">
+    <view class="switch-item">
+      <text>添加位置</text>
+      <switch bindchange="onLocationChange" checked="{{locationEnabled}}"></switch>
+    </view>
+    <view class="location-preview" wx:if="{{location}}">
+      <text class="iconfont icon-location"></text>
+      <text>{{location.name || '当前位置'}}</text>
+    </view>
+  </view>
+  
+  <view class="form-group">
+    <view class="switch-item">
+      <text>公开</text>
+      <switch bindchange="onPublicChange" checked="{{isPublic}}"></switch>
+    </view>
+    <view class="privacy-tip">
+      <text class="tip-text">{{isPublic ? '所有人可见' : '仅自己可见'}}</text>
+    </view>
+  </view>
+  
+  <view class="form-actions">
+    <button class="btn-cancel" bindtap="cancelPost">取消</button>
+    <button 
+      class="btn-submit {{submitting ? 'disabled' : ''}}" 
+      bindtap="submitPost" 
+      disabled="{{submitting}}"
+    >
+      {{submitting ? '发布中...' : '发布'}}
+    </button>
+  </view>
+</view> 

@@ -1,0 +1,177 @@
+<!-- order-detail.wxml -->
+<view class="order-detail-page">
+  <!-- Loading State -->
+  <view class="loading-container" wx:if="{{isLoading}}">
+    <view class="loading-spinner"></view>
+    <text>加载中...</text>
+  </view>
+  
+  <!-- Error State -->
+  <view class="error-container" wx:elif="{{loadError}}">
+    <icon type="warn" size="64" color="#fa8c16"></icon>
+    <text>无法加载订单信息</text>
+    <button class="retry-button" bindtap="getOrderDetails">重试</button>
+  </view>
+  
+  <!-- Order Detail Content -->
+  <block wx:elif="{{order}}">
+    <!-- Order Status Card -->
+    <view class="status-card">
+      <view class="status-content">
+        <view class="status-label">订单状态</view>
+        <view class="status-value">{{formatOrderStatus(order.status)}}</view>
+        <view class="status-info" wx:if="{{order.status === 'pending' || order.status === 'confirmed'}}">
+          <text wx:if="{{order.paymentStatus === 'pending'}}">请尽快完成支付</text>
+          <text wx:elif="{{order.paymentStatus === 'paid'}}">您的订单已支付，正在处理中</text>
+        </view>
+        <view class="status-info" wx:elif="{{order.status === 'preparing'}}">
+          <text>您的订单正在准备中，请耐心等待</text>
+        </view>
+        <view class="status-info" wx:elif="{{order.status === 'ready'}}">
+          <text wx:if="{{order.orderType === 'pickup'}}">您的订单已准备好，请到店取餐</text>
+          <text wx:else>您的订单已准备好，即将开始配送</text>
+        </view>
+        <view class="status-info" wx:elif="{{order.status === 'delivering'}}">
+          <text>您的订单正在配送中，请注意接收</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- Time and Order ID -->
+    <view class="info-card">
+      <view class="info-item">
+        <text class="info-label">订单编号</text>
+        <text class="info-value">{{order.orderNumber || orderId}}</text>
+      </view>
+      <view class="info-item">
+        <text class="info-label">下单时间</text>
+        <text class="info-value">{{formatDate(order.createdAt)}}</text>
+      </view>
+      <view class="info-item">
+        <text class="info-label">支付状态</text>
+        <text class="info-value {{order.paymentStatus === 'paid' ? 'success' : ''}}">{{formatPaymentStatus(order.paymentStatus)}}</text>
+      </view>
+    </view>
+    
+    <!-- Delivery or Pickup Info -->
+    <view class="delivery-card">
+      <view class="card-title">
+        <text>{{order.orderType === 'pickup' ? '自取信息' : '配送信息'}}</text>
+      </view>
+      
+      <block wx:if="{{order.orderType === 'pickup'}}">
+        <view class="shop-info">
+          <view class="shop-name">{{order.shop.name}}</view>
+          <view class="shop-address">{{order.shop.address}}</view>
+          <view class="shop-hours">营业时间: {{order.shop.hours}}</view>
+          <view class="shop-phone">电话: {{order.shop.phone}}</view>
+        </view>
+      </block>
+      
+      <block wx:else>
+        <view class="address-info">
+          <view class="address-contact">
+            <text class="address-name">{{order.address.name}}</text>
+            <text class="address-phone">{{order.address.phone}}</text>
+          </view>
+          <view class="address-detail">
+            {{order.address.province}} {{order.address.city}} {{order.address.district}} {{order.address.detail}}
+          </view>
+        </view>
+      </block>
+    </view>
+    
+    <!-- Order Items -->
+    <view class="items-card">
+      <view class="card-title">
+        <text>订单商品</text>
+      </view>
+      
+      <view class="order-items">
+        <view class="order-item" wx:for="{{order.items}}" wx:key="id">
+          <image class="item-image" src="{{item.image}}" mode="aspectFill"></image>
+          
+          <view class="item-info">
+            <view class="item-name">{{item.name}}</view>
+            <view class="item-attributes" wx:if="{{item.attributes}}">
+              <text wx:for="{{item.attributes}}" wx:for-item="attr" wx:key="name">
+                {{attr.name}}: {{attr.value}}
+              </text>
+            </view>
+          </view>
+          
+          <view class="item-price-qty">
+            <view class="item-price">¥ {{formatCurrency(item.price)}}</view>
+            <view class="item-quantity">x{{item.quantity}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- Order Notes -->
+    <view class="notes-card" wx:if="{{order.notes}}">
+      <view class="card-title">
+        <text>订单备注</text>
+      </view>
+      
+      <view class="notes-content">
+        {{order.notes}}
+      </view>
+    </view>
+    
+    <!-- Order Summary -->
+    <view class="summary-card">
+      <view class="card-title">
+        <text>金额详情</text>
+      </view>
+      
+      <view class="summary-content">
+        <view class="summary-row">
+          <text>小计</text>
+          <text>¥ {{formatCurrency(order.subtotal)}}</text>
+        </view>
+        
+        <view class="summary-row">
+          <text>配送费</text>
+          <text>¥ {{formatCurrency(order.deliveryFee)}}</text>
+        </view>
+        
+        <view class="summary-row" wx:if="{{order.discount > 0}}">
+          <text>优惠</text>
+          <text>-¥ {{formatCurrency(order.discount)}}</text>
+        </view>
+        
+        <view class="summary-total">
+          <text>总计</text>
+          <text class="total-amount">¥ {{formatCurrency(order.total)}}</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- Action Buttons -->
+    <view class="action-container">
+      <!-- Payment Pending -->
+      <block wx:if="{{order.paymentStatus === 'pending'}}">
+        <button class="action-button primary" bindtap="continuePayment">继续支付</button>
+        <button class="action-button secondary" bindtap="cancelOrder">取消订单</button>
+      </block>
+      
+      <!-- Order Pending/Confirmed/Preparing (Paid) -->
+      <block wx:elif="{{(order.status === 'pending' || order.status === 'confirmed' || order.status === 'preparing') && order.paymentStatus === 'paid'}}">
+        <button class="action-button secondary" bindtap="cancelOrder">取消订单</button>
+        <button class="action-button primary" bindtap="navigateToShopping">继续购物</button>
+      </block>
+      
+      <!-- Order Ready/Delivering/Completed -->
+      <block wx:elif="{{order.status === 'ready' || order.status === 'delivering' || order.status === 'completed'}}">
+        <button class="action-button primary" bindtap="navigateToShopping">继续购物</button>
+        <button class="action-button share" open-type="share">分享订单</button>
+      </block>
+      
+      <!-- Order Cancelled -->
+      <block wx:elif="{{order.status === 'cancelled'}}">
+        <button class="action-button primary" bindtap="navigateToShopping">继续购物</button>
+      </block>
+    </view>
+  </block>
+</view> 

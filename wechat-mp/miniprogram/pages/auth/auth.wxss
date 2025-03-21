@@ -1,0 +1,173 @@
+.auth-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 100vh;
+  background-color: #F5F1E7;
+  padding: 60rpx 40rpx;
+  box-sizing: border-box;
+}
+
+.logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 80rpx;
+}
+
+.logo {
+  width: 180rpx;
+  height: 180rpx;
+  margin-bottom: 30rpx;
+}
+
+.app-name {
+  font-size: 46rpx;
+  font-weight: bold;
+  color: #8B6F4E;
+  margin-bottom: 16rpx;
+}
+
+.app-slogan {
+  font-size: 32rpx;
+  color: #666;
+  margin-bottom: 60rpx;
+}
+
+.auth-content {
+  width: 100%;
+  max-width: 600rpx;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx 0;
+}
+
+.loading-spinner {
+  width: 80rpx;
+  height: 80rpx;
+  border: 6rpx solid #f3f3f3;
+  border-top: 6rpx solid #8B6F4E;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20rpx;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  color: #666;
+  font-size: 30rpx;
+}
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.error-message {
+  width: 100%;
+  background-color: #fff2f0;
+  color: #ff4d4f;
+  padding: 20rpx;
+  border-radius: 8rpx;
+  text-align: center;
+  margin-bottom: 30rpx;
+  font-size: 28rpx;
+}
+
+.login-button {
+  width: 100%;
+  height: 90rpx;
+  border-radius: 45rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30rpx;
+  position: relative;
+  padding: 0;
+  font-size: 32rpx;
+}
+
+.login-button.wechat {
+  background-color: #8B6F4E;
+  color: white;
+  border: none;
+}
+
+.button-icon {
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 16rpx;
+}
+
+.privacy-container {
+  display: flex;
+  align-items: center;
+  margin-top: 20rpx;
+}
+
+.privacy-checkbox {
+  transform: scale(0.8);
+  margin-right: 8rpx;
+}
+
+.privacy-text {
+  font-size: 26rpx;
+  color: #666;
+  display: flex;
+}
+
+.privacy-link {
+  color: #8B6F4E;
+  margin-left: 4rpx;
+}
+
+.footer {
+  padding: 40rpx 0;
+  width: 100%;
+  text-align: center;
+}
+
+.footer-text {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* Button hover effects */
+.login-button.wechat:active {
+  opacity: 0.8;
+}
+
+/* For smaller screens */
+@media screen and (max-height: 700px) {
+  .logo-container {
+    margin-top: 40rpx;
+  }
+  
+  .logo {
+    width: 140rpx;
+    height: 140rpx;
+    margin-bottom: 20rpx;
+  }
+  
+  .app-name {
+    font-size: 40rpx;
+    margin-bottom: 12rpx;
+  }
+  
+  .app-slogan {
+    font-size: 28rpx;
+    margin-bottom: 40rpx;
+  }
+} 

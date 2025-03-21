@@ -1,0 +1,116 @@
+<view class="community-container">
+  <!-- 顶部导航栏 - Top navigation bar -->
+  <view class="tab-bar">
+    <view class="tab {{currentTab === 'latest' ? 'active' : ''}}" bindtap="onTabChange" data-tab="latest">最新</view>
+    <view class="tab {{currentTab === 'popular' ? 'active' : ''}}" bindtap="onTabChange" data-tab="popular">热门</view>
+    <view class="tab {{currentTab === 'following' ? 'active' : ''}}" bindtap="onTabChange" data-tab="following">关注</view>
+  </view>
+  
+  <!-- 分类滚动条 - Category scrollbar -->
+  <scroll-view scroll-x class="category-scroll" enhanced show-scrollbar="{{false}}">
+    <view class="category-list">
+      <view 
+        wx:for="{{categories}}" 
+        wx:key="id" 
+        class="category-item {{selectedCategory === item.id ? 'active' : ''}}"
+        bindtap="onCategoryChange" 
+        data-category="{{item.id}}">
+        {{item.name}}
+      </view>
+    </view>
+  </scroll-view>
+  
+  <!-- 热门话题 - Hot topics -->
+  <scroll-view wx:if="{{topics.length > 0}}" scroll-x class="topics-scroll" enhanced show-scrollbar="{{false}}">
+    <view class="topics-list">
+      <view 
+        wx:for="{{topics}}" 
+        wx:key="id" 
+        class="topic-item"
+        bindtap="onTopicTap" 
+        data-id="{{item.id}}">
+        #{{item.name}}
+      </view>
+    </view>
+  </scroll-view>
+  
+  <!-- 帖子列表 - Post list -->
+  <view class="post-list" wx:if="{{posts.length > 0}}">
+    <view 
+      wx:for="{{posts}}" 
+      wx:key="id" 
+      class="post-item"
+      bindtap="onPostTap" 
+      data-id="{{item.id}}">
+      
+      <!-- 用户信息 - User info -->
+      <view class="post-header">
+        <image class="avatar" src="{{item.author.avatar || '/images/default-avatar.png'}}"></image>
+        <view class="user-info">
+          <view class="username">{{item.author.nickname || '用户'}}</view>
+          <view class="post-meta">{{item.createTime}} · {{item.category}}</view>
+        </view>
+      </view>
+      
+      <!-- 帖子内容 - Post content -->
+      <view class="post-content">
+        <view class="post-title">{{item.title}}</view>
+        <view class="post-text">{{item.content}}</view>
+      </view>
+      
+      <!-- 帖子图片 - Post images -->
+      <view class="post-images" wx:if="{{item.images && item.images.length > 0}}">
+        <view class="image-grid">
+          <block wx:for="{{item.images}}" wx:for-item="image" wx:key="*this">
+            <image 
+              class="post-image"
+              mode="aspectFill" 
+              src="{{image}}"
+              wx:if="{{index < 3}}"
+            ></image>
+          </block>
+          <view class="image-count" wx:if="{{item.images.length > 3}}">+{{item.images.length - 3}}</view>
+        </view>
+      </view>
+      
+      <!-- 帖子统计 - Post stats -->
+      <view class="post-stats">
+        <view class="stat-item">
+          <text class="iconfont icon-comment"></text>
+          <text>{{item.commentCount || 0}}</text>
+        </view>
+        <view class="stat-item">
+          <text class="iconfont icon-like"></text>
+          <text>{{item.likeCount || 0}}</text>
+        </view>
+        <view class="stat-item">
+          <text class="iconfont icon-share"></text>
+          <text>分享</text>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 空状态 - Empty state -->
+  <view class="empty-state" wx:if="{{!loading && posts.length === 0}}">
+    <image src="/images/empty-posts.png" mode="aspectFit" class="empty-image"></image>
+    <view class="empty-text">暂无帖子</view>
+    <view class="empty-subtext">成为第一个发帖的人吧</view>
+  </view>
+  
+  <!-- 加载状态 - Loading state -->
+  <view class="loading-state" wx:if="{{loading && !refreshing}}">
+    <view class="loading-spinner"></view>
+    <view class="loading-text">加载中...</view>
+  </view>
+  
+  <!-- 底部提示 - Bottom tip -->
+  <view class="bottom-tip" wx:if="{{!hasMore && posts.length > 0}}">
+    已经到底啦 ~
+  </view>
+  
+  <!-- 悬浮按钮 - Floating button -->
+  <view class="floating-button" bindtap="onCreatePostTap">
+    <text class="iconfont icon-plus"></text>
+  </view>
+</view> 

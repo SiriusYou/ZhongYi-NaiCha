@@ -1,0 +1,85 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/health/health",
+    "pages/tea/tea",
+    "pages/knowledge/knowledge",
+    "pages/consultation/consultation",
+    "pages/profile/profile",
+    "pages/auth/auth",
+    "pages/recipe/recipe",
+    "pages/recipe-detail/recipe-detail",
+    "pages/recipe-create/recipe-create",
+    "pages/diy-guidance/diy-guidance",
+    "pages/order/order",
+    "pages/order-detail/order-detail",
+    "pages/order-history/order-history",
+    "pages/community/community",
+    "pages/community/post-detail/post-detail",
+    "pages/health-tracking/health-tracking",
+    "pages/appointment/appointment"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#8B6F4E",
+    "navigationBarTitleText": "中医奶茶养生",
+    "navigationBarTextStyle": "white"
+  },
+  "tabBar": {
+    "color": "#333333",
+    "selectedColor": "#8B6F4E",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "images/tab-home.png",
+        "selectedIconPath": "images/tab-home-active.png"
+      },
+      {
+        "pagePath": "pages/tea/tea",
+        "text": "茶饮",
+        "iconPath": "images/tab-tea.png",
+        "selectedIconPath": "images/tab-tea-active.png"
+      },
+      {
+        "pagePath": "pages/knowledge/knowledge",
+        "text": "知识",
+        "iconPath": "images/tab-knowledge.png",
+        "selectedIconPath": "images/tab-knowledge-active.png"
+      },
+      {
+        "pagePath": "pages/community/community",
+        "text": "社区",
+        "iconPath": "images/tab-community.png",
+        "selectedIconPath": "images/tab-community-active.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "images/tab-profile.png",
+        "selectedIconPath": "images/tab-profile-active.png"
+      }
+    ]
+  },
+  "networkTimeout": {
+    "request": 10000,
+    "downloadFile": 10000
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "您的位置信息将用于查找附近的奶茶店"
+    }
+  },
+  "requiredBackgroundModes": ["audio"],
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents",
+  "usingComponents": {
+    "tcm-card": "/components/tcm-card/tcm-card",
+    "recipe-item": "/components/recipe-item/recipe-item",
+    "health-chart": "/components/health-chart/health-chart",
+    "recommendation-card": "/components/recommendation-card/recommendation-card"
+  }
+} 

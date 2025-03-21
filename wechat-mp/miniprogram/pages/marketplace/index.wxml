@@ -1,0 +1,157 @@
+<view class="marketplace-container">
+  <!-- 搜索栏 - Search bar -->
+  <view class="search-bar">
+    <view class="search-input-container">
+      <icon type="search" size="18" class="search-icon"></icon>
+      <input 
+        class="search-input" 
+        placeholder="搜索中医师姓名或专长" 
+        value="{{searchValue}}"
+        bindinput="onSearchInput"
+        bindconfirm="confirmSearch"
+        confirm-type="search"
+      ></input>
+      <icon wx:if="{{searchValue}}" type="clear" size="18" class="clear-icon" bindtap="clearSearch"></icon>
+    </view>
+    <view class="filter-button" bindtap="toggleFilterPanel">
+      <text>筛选</text>
+      <image class="filter-icon" src="/images/icons/filter.png"></image>
+    </view>
+  </view>
+
+  <!-- 筛选面板 - Filter panel -->
+  <view class="filter-panel {{showFilterPanel ? 'show' : ''}}">
+    <view class="filter-panel-content">
+      <view class="filter-section">
+        <view class="filter-title">专长</view>
+        <view class="specialty-list">
+          <view 
+            wx:for="{{specialtyOptions}}" 
+            wx:key="id"
+            class="specialty-item {{selectedSpecialties.includes(item.id) ? 'selected' : ''}}"
+            bindtap="toggleSpecialty"
+            data-id="{{item.id}}"
+          >
+            {{item.name}}
+          </view>
+        </view>
+      </view>
+      
+      <view class="filter-section">
+        <view class="filter-title">评分</view>
+        <view class="option-list">
+          <view 
+            wx:for="{{ratingOptions}}" 
+            wx:key="value"
+            class="option-item {{filters.rating === item.value ? 'selected' : ''}}"
+            bindtap="setRatingFilter"
+            data-value="{{item.value}}"
+          >
+            {{item.label}}
+          </view>
+        </view>
+      </view>
+      
+      <view class="filter-section">
+        <view class="filter-title">距离</view>
+        <view class="option-list">
+          <view 
+            wx:for="{{distanceOptions}}" 
+            wx:key="value"
+            class="option-item {{filters.distance === item.value ? 'selected' : ''}}"
+            bindtap="setDistanceFilter"
+            data-value="{{item.value}}"
+          >
+            {{item.label}}
+          </view>
+        </view>
+      </view>
+      
+      <view class="filter-actions">
+        <button class="reset-button" bindtap="resetFilters">重置</button>
+        <button class="apply-button" bindtap="applyFilters">应用筛选</button>
+      </view>
+    </view>
+    <view class="filter-panel-mask" bindtap="toggleFilterPanel"></view>
+  </view>
+
+  <!-- 加载状态 - Loading state -->
+  <view class="loading-state" wx:if="{{loading && practitioners.length === 0}}">
+    <view class="loading-spinner"></view>
+    <view class="loading-text">加载中...</view>
+  </view>
+
+  <!-- 专业人士列表 - Practitioners list -->
+  <view class="practitioners-list" wx:if="{{practitioners.length > 0}}">
+    <view 
+      class="practitioner-card" 
+      wx:for="{{practitioners}}" 
+      wx:key="id"
+      bindtap="viewPractitionerDetails"
+      data-id="{{item.id}}"
+    >
+      <view class="practitioner-avatar-container">
+        <image class="practitioner-avatar" src="{{item.avatarUrl || '/images/default-avatar.png'}}"></image>
+        <view class="verification-badge" wx:if="{{item.isVerified}}">
+          <image class="verification-icon" src="/images/icons/verified.png"></image>
+        </view>
+      </view>
+      
+      <view class="practitioner-info">
+        <view class="practitioner-header">
+          <view class="practitioner-name">{{item.name}}
+            <text class="practitioner-title">{{item.title}}</text>
+          </view>
+          <view class="practitioner-rating">
+            <text class="rating-score">{{item.rating}}</text>
+            <image class="rating-star" src="/images/icons/star.png"></image>
+          </view>
+        </view>
+        
+        <view class="practitioner-specialties">
+          <text 
+            class="specialty-tag" 
+            wx:for="{{item.specialties}}" 
+            wx:for-item="specialty" 
+            wx:key="*this"
+          >{{specialtyOptions.find(s => s.id === specialty).name}}</text>
+        </view>
+        
+        <view class="practitioner-clinic">
+          <image class="clinic-icon" src="/images/icons/location.png"></image>
+          <text class="clinic-name">{{item.clinicName}}</text>
+        </view>
+        
+        <view class="practitioner-footer">
+          <view class="distance-info" wx:if="{{item.distance}}">
+            <image class="distance-icon" src="/images/icons/distance.png"></image>
+            <text class="distance-text">{{item.distance < 1000 ? item.distance + 'm' : (item.distance/1000).toFixed(1) + 'km'}}</text>
+          </view>
+          
+          <view class="consultation-info">
+            <text class="consultation-price">¥{{item.consultationFee}}/次</text>
+            <text class="consultation-count">已服务{{item.consultationCount}}人</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 底部加载更多 - Load more at bottom -->
+  <view class="load-more" wx:if="{{practitioners.length > 0 && loading}}">
+    <view class="loading-spinner small"></view>
+    <text class="load-more-text">加载更多...</text>
+  </view>
+  
+  <!-- 无更多数据 - No more data -->
+  <view class="no-more" wx:if="{{practitioners.length > 0 && !pagination.hasMore && !loading}}">
+    <text class="no-more-text">没有更多中医师了</text>
+  </view>
+  
+  <!-- 空状态 - Empty state -->
+  <view class="empty-state" wx:if="{{!loading && practitioners.length === 0}}">
+    <image class="empty-image" src="/images/empty-practitioners.png" mode="aspectFit"></image>
+    <text class="empty-text">未找到符合条件的中医师</text>
+    <text class="empty-subtext">请尝试调整筛选条件或搜索关键词</text>
+  </view>
+</view> 

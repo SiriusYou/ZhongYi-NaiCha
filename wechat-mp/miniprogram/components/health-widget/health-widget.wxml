@@ -1,0 +1,15 @@
+<view class="health-widget" bindtap="onTapHealthProfile">
+  <view wx:if="{{ hasHealthProfile }}" class="health-profile">
+    <view class="constitution-icon {{ userConstitution }}"></view>
+    <text class="constitution-text">{{ getConstitutionDescription() }}</text>
+    <view class="action-hint">
+      <text>查看详情</text>
+      <view class="arrow"></view>
+    </view>
+  </view>
+  <view wx:else class="no-profile">
+    <view class="profile-icon"></view>
+    <text class="profile-text">完成体质测评以获取专属养生方案</text>
+    <view class="action-button">开始测评</view>
+  </view>
+</view> 

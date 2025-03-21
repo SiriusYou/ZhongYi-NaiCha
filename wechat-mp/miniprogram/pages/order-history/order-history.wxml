@@ -1,0 +1,112 @@
+<!-- order-history.wxml -->
+<view class="order-history-page">
+  <!-- Filter Tabs -->
+  <view class="filter-tabs">
+    <view 
+      class="filter-tab {{activeTab === 'all' ? 'active' : ''}}" 
+      bindtap="changeTab" 
+      data-tab="all">
+      全部
+    </view>
+    <view 
+      class="filter-tab {{activeTab === 'unpaid' ? 'active' : ''}}" 
+      bindtap="changeTab" 
+      data-tab="unpaid">
+      待支付
+    </view>
+    <view 
+      class="filter-tab {{activeTab === 'processing' ? 'active' : ''}}" 
+      bindtap="changeTab" 
+      data-tab="processing">
+      处理中
+    </view>
+    <view 
+      class="filter-tab {{activeTab === 'completed' ? 'active' : ''}}" 
+      bindtap="changeTab" 
+      data-tab="completed">
+      已完成
+    </view>
+    <view 
+      class="filter-tab {{activeTab === 'cancelled' ? 'active' : ''}}" 
+      bindtap="changeTab" 
+      data-tab="cancelled">
+      已取消
+    </view>
+  </view>
+  
+  <!-- Loading State -->
+  <view class="loading-container" wx:if="{{isLoading}}">
+    <view class="loading-spinner"></view>
+    <text>加载中...</text>
+  </view>
+  
+  <!-- Error State -->
+  <view class="error-container" wx:elif="{{loadError}}">
+    <icon type="warn" size="64" color="#fa8c16"></icon>
+    <text>无法加载订单历史</text>
+    <button class="retry-button" bindtap="getOrderHistory">重试</button>
+  </view>
+  
+  <!-- Empty State -->
+  <view class="empty-container" wx:elif="{{orders.length === 0}}">
+    <image src="/images/empty-orders.png" mode="aspectFit" class="empty-image"></image>
+    <text class="empty-text">暂无订单记录</text>
+  </view>
+  
+  <!-- Orders List -->
+  <view class="orders-list" wx:else>
+    <view 
+      class="order-card" 
+      wx:for="{{orders}}" 
+      wx:key="id" 
+      bindtap="navigateToOrderDetail" 
+      data-id="{{item.id}}">
+      <!-- Order Header -->
+      <view class="order-header">
+        <view class="order-date">
+          <text>{{formatDate(item.createdAt)}}</text>
+        </view>
+        <view class="order-status {{item.status}}">
+          <text wx:if="{{item.paymentStatus === 'pending'}}">{{formatPaymentStatus(item.paymentStatus)}}</text>
+          <text wx:else>{{formatOrderStatus(item.status)}}</text>
+        </view>
+      </view>
+      
+      <!-- Order Items Preview -->
+      <view class="order-items-preview">
+        <view class="order-item-preview" wx:for="{{item.items}}" wx:for-item="product" wx:key="id" wx:if="{{index < 3}}">
+          <image src="{{product.image}}" mode="aspectFill" class="item-preview-image"></image>
+        </view>
+        <view class="more-items" wx:if="{{item.items.length > 3}}">
+          +{{item.items.length - 3}}
+        </view>
+      </view>
+      
+      <!-- Order Info -->
+      <view class="order-info">
+        <view class="order-shop" wx:if="{{item.orderType === 'pickup'}}">
+          自取门店: {{item.shop.name}}
+        </view>
+        <view class="order-total">
+          <text>共 {{item.items.length}} 件商品</text>
+          <text>合计: ¥ {{formatCurrency(item.total)}}</text>
+        </view>
+      </view>
+      
+      <!-- Order Actions -->
+      <view class="order-actions">
+        <block wx:if="{{item.paymentStatus === 'pending'}}">
+          <button class="action-button continue-pay">继续支付</button>
+        </block>
+        <block wx:elif="{{item.status === 'completed'}}">
+          <button class="action-button reorder">再次购买</button>
+        </block>
+      </view>
+    </view>
+  </view>
+  
+  <!-- Loading More -->
+  <view class="loading-more" wx:if="{{hasMore && !isLoading && orders.length > 0}}">
+    <text>上拉加载更多</text>
+  </view>
+</view> 

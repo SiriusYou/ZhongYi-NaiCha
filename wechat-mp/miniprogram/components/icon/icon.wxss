@@ -1,0 +1,35 @@
+/* components/icon/icon.wxss */
+@font-face {
+  font-family: 'FontAwesome';
+  src: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/webfonts/fa-solid-900.ttf') format('truetype');
+}
+
+.icon {
+  font-family: 'FontAwesome';
+  display: inline-block;
+}
+
+/* Basic Icons */
+.icon-heart:before {
+  content: '\f004';
+}
+
+.icon-comment:before {
+  content: '\f075';
+}
+
+.icon-share-alt:before {
+  content: '\f1e0';
+}
+
+.icon-edit:before {
+  content: '\f044';
+}
+
+.icon-image:before {
+  content: '\f03e';
+}
+
+.icon-times-circle:before {
+  content: '\f057';
+} 

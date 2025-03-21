@@ -1,0 +1,352 @@
+/* 推荐页面样式 - Recommendations page styles */
+
+.recommendations-container {
+  padding: 20rpx;
+  background-color: #f8f8f8;
+  min-height: 100vh;
+}
+
+/* 加载状态 - Loading state */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300rpx;
+  margin-top: 100rpx;
+}
+
+.loading-spinner {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  border: 6rpx solid rgba(75, 139, 96, 0.1);
+  border-top-color: #4b8b60;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  margin-top: 20rpx;
+  font-size: 28rpx;
+  color: #888;
+}
+
+/* 症状选择器 - Symptom selector */
+.symptom-selector {
+  background-color: #fff;
+  padding: 20rpx;
+  border-radius: 12rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.selector-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 16rpx;
+}
+
+.header-text {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.toggle-icon {
+  font-size: 24rpx;
+  color: #4b8b60;
+}
+
+.symptoms-list {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 16rpx;
+}
+
+.symptom-item {
+  background-color: #f0f7f2;
+  color: #4b8b60;
+  font-size: 26rpx;
+  padding: 10rpx 20rpx;
+  border-radius: 30rpx;
+  margin-right: 16rpx;
+  margin-bottom: 16rpx;
+}
+
+.symptom-item.selected {
+  background-color: #4b8b60;
+  color: #fff;
+}
+
+.selected-symptoms {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 16rpx;
+}
+
+.selected-symptom {
+  background-color: #4b8b60;
+  color: #fff;
+  font-size: 26rpx;
+  padding: 10rpx 20rpx;
+  border-radius: 30rpx;
+  margin-right: 16rpx;
+  margin-bottom: 16rpx;
+}
+
+.no-symptoms {
+  color: #888;
+  font-size: 26rpx;
+  padding: 10rpx 0;
+}
+
+/* 标题样式 - Section title styles */
+.section-title {
+  display: flex;
+  align-items: center;
+  margin: 30rpx 0 20rpx;
+}
+
+.section-title text {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #333;
+  position: relative;
+  padding-left: 20rpx;
+}
+
+.section-title text::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8rpx;
+  height: 36rpx;
+  background-color: #4b8b60;
+  border-radius: 4rpx;
+}
+
+/* 茶饮推荐 - Tea recommendations */
+.tea-recommendations {
+  display: flex;
+  flex-direction: column;
+}
+
+.tea-card {
+  display: flex;
+  background-color: #fff;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.tea-image {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 10rpx;
+  margin-right: 20rpx;
+  background-color: #f0f7f2;
+}
+
+.tea-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.tea-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+
+.tea-desc {
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 16rpx;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tea-tags {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 16rpx;
+}
+
+.tea-tag {
+  background-color: #f0f7f2;
+  color: #4b8b60;
+  font-size: 22rpx;
+  padding: 6rpx 16rpx;
+  border-radius: 20rpx;
+  margin-right: 12rpx;
+  margin-bottom: 10rpx;
+}
+
+.tea-match {
+  display: flex;
+  align-items: center;
+  margin-top: auto;
+}
+
+.match-text {
+  font-size: 24rpx;
+  color: #888;
+  margin-right: 10rpx;
+}
+
+.match-stars {
+  display: flex;
+}
+
+.star {
+  font-size: 26rpx;
+  color: #ddd;
+}
+
+.star.filled {
+  color: #f6a623;
+}
+
+.empty-recommendations {
+  background-color: #fff;
+  border-radius: 12rpx;
+  padding: 40rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.empty-image {
+  width: 200rpx;
+  height: 200rpx;
+  margin-bottom: 20rpx;
+}
+
+.empty-text {
+  font-size: 30rpx;
+  color: #555;
+  font-weight: 500;
+  margin-bottom: 10rpx;
+}
+
+.empty-subtext {
+  font-size: 26rpx;
+  color: #888;
+}
+
+/* 养生建议 - Wellness advice */
+.wellness-advice {
+  margin-bottom: 30rpx;
+}
+
+.advice-card {
+  background-color: #fff;
+  border-radius: 12rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.advice-header {
+  margin-bottom: 20rpx;
+}
+
+.advice-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10rpx;
+  display: block;
+}
+
+.advice-subtitle {
+  font-size: 26rpx;
+  color: #4b8b60;
+  display: block;
+}
+
+.advice-content {
+  margin-top: 20rpx;
+}
+
+.advice-item {
+  display: flex;
+  margin-bottom: 16rpx;
+}
+
+.advice-icon {
+  color: #4b8b60;
+  margin-right: 10rpx;
+  font-size: 30rpx;
+}
+
+.advice-text {
+  flex: 1;
+  font-size: 28rpx;
+  color: #555;
+  line-height: 1.5;
+}
+
+/* 季节健康提示 - Seasonal health tips */
+.seasonal-tips {
+  margin-bottom: 40rpx;
+}
+
+.tips-swiper {
+  height: 300rpx;
+}
+
+.tip-card {
+  background-color: #fff;
+  border-radius: 12rpx;
+  padding: 30rpx;
+  height: 240rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.tip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.tip-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.tip-season {
+  font-size: 26rpx;
+  color: #4b8b60;
+  padding: 6rpx 16rpx;
+  background-color: #f0f7f2;
+  border-radius: 20rpx;
+}
+
+.tip-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.tip-text {
+  font-size: 28rpx;
+  color: #555;
+  line-height: 1.5;
+} 

@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "社区交流",
+  "navigationBarBackgroundColor": "#8B6F4E",
+  "navigationBarTextStyle": "white",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "icon": "../../components/icon/icon"
+  }
+} 

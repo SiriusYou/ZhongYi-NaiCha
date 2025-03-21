@@ -1,0 +1,247 @@
+/**index.wxss**/
+.container {
+  padding: 0;
+  background-color: #F5F1E7;
+  min-height: 100vh;
+}
+
+/* Header Section */
+.header {
+  padding: 20rpx 30rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #8B6F4E;
+  color: #FFFFFF;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+  border: 2rpx solid #FFFFFF;
+}
+
+.welcome {
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.login-btn {
+  font-size: 28rpx;
+  color: #FFFFFF;
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 10rpx 20rpx;
+  border-radius: 30rpx;
+}
+
+.network-status {
+  font-size: 24rpx;
+}
+
+.online {
+  color: #00B4D8;
+}
+
+.offline {
+  color: #FF6B6B;
+}
+
+/* Health Banner */
+.health-banner {
+  background: linear-gradient(to right, #00B4D8, #0077B6);
+  margin: 20rpx 30rpx;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  display: flex;
+  flex-direction: column;
+  color: #FFFFFF;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+}
+
+.health-profile {
+  margin-bottom: 15rpx;
+}
+
+.constitution {
+  font-size: 32rpx;
+  font-weight: 500;
+}
+
+.action-text {
+  font-size: 24rpx;
+  opacity: 0.9;
+  align-self: flex-end;
+}
+
+/* Section Styles */
+.section {
+  margin: 40rpx 0;
+  padding: 0 30rpx;
+}
+
+.section-header {
+  margin-bottom: 20rpx;
+}
+
+.section-title {
+  font-size: 34rpx;
+  font-weight: bold;
+  color: #333333;
+  display: block;
+}
+
+.section-subtitle {
+  font-size: 24rpx;
+  color: #666666;
+  margin-top: 5rpx;
+  display: block;
+}
+
+/* Recommendations */
+.recommendations-container {
+  min-height: 300rpx;
+}
+
+.recommendations-scroll {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.recommendations-list {
+  display: inline-flex;
+  padding: 10rpx 0;
+}
+
+.recommendation-item {
+  width: 300rpx;
+  margin-right: 20rpx;
+  display: inline-block;
+}
+
+/* Loading and Empty States */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300rpx;
+}
+
+.loading-spinner {
+  width: 60rpx;
+  height: 60rpx;
+  border: 6rpx solid #F5F1E7;
+  border-top: 6rpx solid #8B6F4E;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20rpx;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200rpx;
+  background-color: white;
+  border-radius: 10rpx;
+  color: #999999;
+  font-size: 28rpx;
+}
+
+/* Health Tips */
+.tips-container {
+  margin-top: 20rpx;
+}
+
+.tip-card {
+  background-color: #FFFFFF;
+  border-radius: 10rpx;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+.tip-content {
+  margin-bottom: 15rpx;
+}
+
+.tip-title {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #333333;
+  display: block;
+  margin-bottom: 10rpx;
+}
+
+.tip-text {
+  font-size: 26rpx;
+  color: #666666;
+  display: block;
+  line-height: 1.5;
+}
+
+.tip-info {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.tip-category {
+  font-size: 24rpx;
+  color: #8B6F4E;
+  background-color: rgba(139, 111, 78, 0.1);
+  padding: 4rpx 12rpx;
+  border-radius: 20rpx;
+}
+
+/* Quick Actions */
+.quick-actions {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.action-card {
+  width: 22%;
+  background-color: #FFFFFF;
+  border-radius: 10rpx;
+  padding: 20rpx 10rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+.action-icon {
+  width: 80rpx;
+  height: 80rpx;
+  margin-bottom: 10rpx;
+}
+
+.action-name {
+  font-size: 24rpx;
+  color: #333333;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 30rpx 0;
+  margin-top: 40rpx;
+}
+
+.copyright {
+  font-size: 24rpx;
+  color: #999999;
+} 

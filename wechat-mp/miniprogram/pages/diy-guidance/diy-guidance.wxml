@@ -1,0 +1,164 @@
+<!-- diy-guidance.wxml -->
+<view class="diy-guidance">
+  <!-- Loading State -->
+  <view class="loading-container" wx:if="{{isLoading}}">
+    <view class="loading-spinner"></view>
+    <text>加载中...</text>
+  </view>
+  
+  <!-- Error State -->
+  <view class="error-container" wx:elif="{{loadError && !recipe}}">
+    <icon type="warn" size="64" color="#fa8c16"></icon>
+    <text>无法加载食谱数据</text>
+    <button class="retry-button" bindtap="fetchRecipeDetails">重试</button>
+  </view>
+  
+  <!-- Welcome Screen (Before Starting Guidance) -->
+  <view class="welcome-container" wx:elif="{{!isGuidanceStarted && recipe}}">
+    <view class="back-btn" bindtap="navigateBack">
+      <text class="icon">←</text>
+    </view>
+    
+    <image class="recipe-image" src="{{recipe.image}}" mode="aspectFill"></image>
+    
+    <view class="recipe-info">
+      <view class="recipe-name">{{recipe.name}}</view>
+      <view class="recipe-description">{{recipe.description}}</view>
+      
+      <view class="recipe-meta">
+        <view class="meta-item">
+          <text class="meta-icon">⏱</text>
+          <text>准备: {{recipe.prepTime}}分钟</text>
+        </view>
+        <view class="meta-item">
+          <text class="meta-icon">🍳</text>
+          <text>烹饪: {{recipe.cookingTime}}分钟</text>
+        </view>
+        <view class="meta-item">
+          <text class="meta-icon">👥</text>
+          <text>份量: {{recipe.servings}}人份</text>
+        </view>
+      </view>
+      
+      <view class="ingredients-container">
+        <view class="section-title">准备食材</view>
+        <view class="ingredients-list">
+          <view class="ingredient-item" wx:for="{{recipe.ingredients}}" wx:key="index">
+            <text class="ingredient-name">{{item.name}}</text>
+            <text class="ingredient-amount">{{item.amount}} {{item.unit}}</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="guidance-options">
+        <view class="option-item" bindtap="toggleVoice">
+          <text class="option-icon">{{isVoiceEnabled ? '🔊' : '🔇'}}</text>
+          <text>语音指导: {{isVoiceEnabled ? '开' : '关'}}</text>
+        </view>
+        <view class="option-item" bindtap="toggleKeepScreenOn">
+          <text class="option-icon">{{keepScreenOn ? '📱' : '💤'}}</text>
+          <text>屏幕常亮: {{keepScreenOn ? '开' : '关'}}</text>
+        </view>
+      </view>
+      
+      <button class="start-button" bindtap="startGuidance">开始制作指引</button>
+    </view>
+  </view>
+  
+  <!-- Guidance Mode (After Starting) -->
+  <view class="guidance-container" wx:elif="{{isGuidanceStarted && recipe}}">
+    <!-- Header with progress -->
+    <view class="guidance-header">
+      <view class="exit-btn" bindtap="exitGuidance">
+        <text class="icon">×</text>
+      </view>
+      
+      <view class="progress-info">
+        <text>步骤 {{currentStep + 1}}/{{totalSteps}}</text>
+      </view>
+      
+      <view class="options-btn" bindtap="toggleVoice">
+        <text class="icon">{{isVoiceEnabled ? '🔊' : '🔇'}}</text>
+      </view>
+    </view>
+    
+    <!-- Progress bar -->
+    <view class="progress-bar">
+      <view class="progress-fill" style="width: {{(currentStep + 1) / totalSteps * 100}}%"></view>
+    </view>
+    
+    <!-- Current step content -->
+    <view class="step-container">
+      <view class="step-number">步骤 {{currentStep + 1}}</view>
+      
+      <view class="step-image-container" wx:if="{{recipe.steps[currentStep].image}}">
+        <image class="step-image" src="{{recipe.steps[currentStep].image}}" mode="aspectFit"></image>
+      </view>
+      
+      <view class="step-description">
+        {{recipe.steps[currentStep].description}}
+      </view>
+      
+      <!-- Timer (if available for current step) -->
+      <view class="timer-container" wx:if="{{showTimer}}">
+        <view class="timer-display">
+          <text class="timer-text">{{formatTime(timerRemaining)}}</text>
+        </view>
+        
+        <view class="timer-controls">
+          <button 
+            class="timer-button {{timerRunning ? 'stop' : 'start'}}" 
+            bindtap="{{timerRunning ? 'stopTimer' : 'startTimer'}}">
+            {{timerRunning ? '暂停' : '开始'}}
+          </button>
+          
+          <button class="timer-button reset" bindtap="resetTimer">
+            重置
+          </button>
+        </view>
+      </view>
+    </view>
+    
+    <!-- Navigation controls -->
+    <view class="step-navigation">
+      <button 
+        class="nav-button prev {{currentStep === 0 ? 'disabled' : ''}}" 
+        disabled="{{currentStep === 0}}"
+        bindtap="prevStep">
+        上一步
+      </button>
+      
+      <button 
+        class="nav-button next {{currentStep === totalSteps - 1 ? 'disabled' : ''}}" 
+        disabled="{{currentStep === totalSteps - 1}}"
+        bindtap="nextStep">
+        下一步
+      </button>
+    </view>
+    
+    <!-- Ingredients reference -->
+    <view class="ingredients-reference">
+      <view class="reference-title" bindtap="toggleIngredientsPanel">
+        <text>食材参考</text>
+        <text class="toggle-icon">↓</text>
+      </view>
+      
+      <scroll-view class="ingredients-scroll" scroll-y="true">
+        <view class="reference-ingredients">
+          <view class="reference-ingredient" wx:for="{{recipe.ingredients}}" wx:key="index">
+            <text class="ingredient-name">{{item.name}}</text>
+            <text class="ingredient-amount">{{item.amount}} {{item.unit}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+    
+    <!-- Completion message (on last step) -->
+    <view class="completion-message" wx:if="{{currentStep === totalSteps - 1}}">
+      <view class="message-content">
+        <text class="message-icon">🎉</text>
+        <text class="message-text">恭喜您完成最后一步!</text>
+      </view>
+    </view>
+  </view>
+</view> 

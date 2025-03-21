@@ -1,0 +1,11 @@
+{
+  "usingComponents": {
+    "tea-card": "../../components/tea-card/tea-card",
+    "health-widget": "../../components/health-widget/health-widget"
+  },
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark",
+  "navigationBarTitleText": "中医奶茶",
+  "navigationBarBackgroundColor": "#8B6F4E",
+  "navigationBarTextStyle": "white"
+} 

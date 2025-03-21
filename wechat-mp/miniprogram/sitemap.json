@@ -1,0 +1,17 @@
+{
+  "desc": "中医奶茶养生微信小程序的索引配置",
+  "rules": [
+    {
+      "action": "allow",
+      "page": "*"
+    },
+    {
+      "action": "disallow",
+      "page": "pages/auth/auth"
+    },
+    {
+      "action": "disallow",
+      "page": "pages/profile/profile"
+    }
+  ]
+} 

@@ -1,0 +1,300 @@
+<!-- recipe-create.wxml -->
+<view class="recipe-create-page">
+  <!-- Header with back button -->
+  <view class="header">
+    <view class="back-btn" bindtap="navigateBack">
+      <text class="icon">←</text>
+    </view>
+    <view class="title">创建食谱</view>
+    <view class="submit-btn" bindtap="submitRecipe" wx:if="{{!isSubmitting}}">
+      <text>发布</text>
+    </view>
+    <view class="submit-btn disabled" wx:else>
+      <text>发布中...</text>
+    </view>
+  </view>
+
+  <!-- Form Container -->
+  <scroll-view class="form-container" scroll-y="true">
+    <!-- Basic Info Section -->
+    <view class="form-section">
+      <view class="section-title">基本信息</view>
+      
+      <!-- Recipe Image -->
+      <view class="image-upload" bindtap="chooseRecipeImage">
+        <image 
+          wx:if="{{recipeImage}}" 
+          src="{{recipeImage}}" 
+          mode="aspectFill" 
+          class="upload-preview">
+        </image>
+        <view class="upload-placeholder" wx:else>
+          <view class="upload-icon">+</view>
+          <text>添加食谱图片</text>
+        </view>
+      </view>
+      
+      <!-- Name -->
+      <view class="form-item">
+        <view class="form-label">食谱名称 <text class="required">*</text></view>
+        <input 
+          class="form-input" 
+          placeholder="输入食谱名称" 
+          value="{{recipeName}}" 
+          data-field="recipeName" 
+          bindinput="onInputChange">
+        </input>
+      </view>
+      
+      <!-- Description -->
+      <view class="form-item">
+        <view class="form-label">食谱描述 <text class="required">*</text></view>
+        <textarea 
+          class="form-textarea" 
+          placeholder="描述这个食谱的特点和功效"
+          value="{{recipeDescription}}" 
+          data-field="recipeDescription" 
+          bindinput="onInputChange">
+        </textarea>
+      </view>
+      
+      <!-- Category -->
+      <view class="form-item">
+        <view class="form-label">分类 <text class="required">*</text></view>
+        <view class="category-list">
+          <block wx:for="{{categories}}" wx:key="id">
+            <view 
+              class="category-item {{item.selected ? 'selected' : ''}}" 
+              data-category-id="{{item.id}}" 
+              bindtap="onCategorySelect">
+              {{item.name}}
+            </view>
+          </block>
+        </view>
+      </view>
+      
+      <!-- TCM Properties -->
+      <view class="form-item">
+        <view class="form-label">中医性质 <text class="required">*</text></view>
+        <view class="property-list">
+          <block wx:for="{{tcmProperties}}" wx:key="id">
+            <view 
+              class="property-item {{item.selected ? 'selected' : ''}}" 
+              data-property-id="{{item.id}}" 
+              bindtap="onPropertySelect">
+              {{item.name}}
+            </view>
+          </block>
+        </view>
+      </view>
+      
+      <!-- Prep Time, Cooking Time, Servings -->
+      <view class="form-row">
+        <view class="form-item half">
+          <view class="form-label">准备时间 (分钟)</view>
+          <input 
+            class="form-input" 
+            type="number" 
+            placeholder="30"
+            value="{{prepTime}}" 
+            data-field="prepTime" 
+            bindinput="onNumberInputChange">
+          </input>
+        </view>
+        
+        <view class="form-item half">
+          <view class="form-label">烹饪时间 (分钟)</view>
+          <input 
+            class="form-input" 
+            type="number" 
+            placeholder="60"
+            value="{{cookingTime}}" 
+            data-field="cookingTime" 
+            bindinput="onNumberInputChange">
+          </input>
+        </view>
+      </view>
+      
+      <view class="form-row">
+        <view class="form-item half">
+          <view class="form-label">份量 (人份)</view>
+          <input 
+            class="form-input" 
+            type="number" 
+            placeholder="2"
+            value="{{servings}}" 
+            data-field="servings" 
+            bindinput="onNumberInputChange">
+          </input>
+        </view>
+        
+        <view class="form-item half">
+          <view class="form-label">热量 (可选)</view>
+          <input 
+            class="form-input" 
+            type="number" 
+            placeholder="卡路里"
+            value="{{calories}}" 
+            data-field="calories" 
+            bindinput="onNumberInputChange">
+          </input>
+        </view>
+      </view>
+      
+      <!-- Difficulty -->
+      <view class="form-item">
+        <view class="form-label">难度</view>
+        <slider 
+          min="1" 
+          max="5" 
+          step="1" 
+          value="{{difficulty}}" 
+          show-value
+          activeColor="#8B6F4E"
+          data-field="difficulty"
+          bindchange="onInputChange">
+        </slider>
+        <view class="difficulty-labels">
+          <text>简单</text>
+          <text>适中</text>
+          <text>困难</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- Ingredients Section -->
+    <view class="form-section">
+      <view class="section-title">食材 <text class="required">*</text></view>
+      
+      <block wx:for="{{ingredients}}" wx:key="id">
+        <view class="ingredient-item">
+          <view class="ingredient-name">
+            <input 
+              placeholder="食材名称" 
+              value="{{item.name}}" 
+              data-id="{{item.id}}" 
+              data-field="name" 
+              bindinput="updateIngredient">
+            </input>
+          </view>
+          
+          <view class="ingredient-amount">
+            <input 
+              placeholder="数量" 
+              value="{{item.amount}}" 
+              data-id="{{item.id}}" 
+              data-field="amount" 
+              bindinput="updateIngredient">
+            </input>
+          </view>
+          
+          <view class="ingredient-unit">
+            <picker 
+              bindchange="changeIngredientUnit" 
+              value="{{unitOptions.indexOf(item.unit)}}" 
+              range="{{unitOptions}}" 
+              data-id="{{item.id}}">
+              <view class="picker">{{item.unit}}</view>
+            </picker>
+          </view>
+          
+          <view class="ingredient-action" catchtap="removeIngredient" data-id="{{item.id}}" wx:if="{{ingredients.length > 1}}">
+            <text class="delete-icon">×</text>
+          </view>
+        </view>
+      </block>
+      
+      <view class="add-btn" bindtap="addIngredient">
+        <text>+ 添加食材</text>
+      </view>
+    </view>
+    
+    <!-- Steps Section -->
+    <view class="form-section">
+      <view class="section-title">步骤 <text class="required">*</text></view>
+      
+      <block wx:for="{{steps}}" wx:key="id">
+        <view class="step-item">
+          <view class="step-number">{{index + 1}}</view>
+          
+          <view class="step-content">
+            <textarea 
+              placeholder="描述这一步的具体操作..." 
+              value="{{item.description}}" 
+              data-id="{{item.id}}" 
+              bindinput="updateStep">
+            </textarea>
+            
+            <view class="step-image" bindtap="chooseStepImage" data-id="{{item.id}}">
+              <image 
+                wx:if="{{item.image}}" 
+                src="{{item.image}}" 
+                mode="aspectFill">
+              </image>
+              <view class="image-placeholder" wx:else>
+                <text>添加图片</text>
+              </view>
+            </view>
+          </view>
+          
+          <view class="step-action" catchtap="removeStep" data-id="{{item.id}}" wx:if="{{steps.length > 1}}">
+            <text class="delete-icon">×</text>
+          </view>
+        </view>
+      </block>
+      
+      <view class="add-btn" bindtap="addStep">
+        <text>+ 添加步骤</text>
+      </view>
+    </view>
+    
+    <!-- Health Benefits Section -->
+    <view class="form-section">
+      <view class="section-title">健康功效</view>
+      
+      <view class="form-item">
+        <textarea 
+          class="form-textarea" 
+          placeholder="描述这个食谱的健康功效和适宜人群..."
+          value="{{healthBenefits}}" 
+          data-field="healthBenefits" 
+          bindinput="onInputChange">
+        </textarea>
+      </view>
+    </view>
+    
+    <!-- Suitable Constitutions Section -->
+    <view class="form-section">
+      <view class="section-title">适宜体质</view>
+      
+      <view class="constitution-list">
+        <block wx:for="{{constitutions}}" wx:key="id">
+          <view 
+            class="constitution-item {{item.selected ? 'selected' : ''}}" 
+            data-constitution-id="{{item.id}}" 
+            bindtap="onConstitutionToggle">
+            {{item.name}}
+          </view>
+        </block>
+      </view>
+    </view>
+    
+    <!-- Submit Button -->
+    <view class="submit-container">
+      <button 
+        class="submit-button {{isSubmitting ? 'disabled' : ''}}" 
+        bindtap="submitRecipe" 
+        disabled="{{isSubmitting}}">
+        {{isSubmitting ? '发布中...' : '发布食谱'}}
+      </button>
+    </view>
+  </scroll-view>
+  
+  <!-- Loading Overlay -->
+  <view class="loading-overlay" wx:if="{{isSubmitting}}">
+    <view class="loading-content">
+      <view class="loading-spinner"></view>
+      <text>正在上传...</text>
+    </view>
+  </view>
+</view> 

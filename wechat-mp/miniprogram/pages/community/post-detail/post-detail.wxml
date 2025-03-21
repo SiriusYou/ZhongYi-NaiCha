@@ -1,0 +1,126 @@
+<!-- post-detail.wxml -->
+<view class="post-detail-page">
+  <!-- Loading State -->
+  <view class="loading-container" wx:if="{{isLoading}}">
+    <view class="loading-spinner"></view>
+    <text>加载中...</text>
+  </view>
+  
+  <!-- Error State -->
+  <view class="error-container" wx:elif="{{loadError}}">
+    <icon type="warn" size="64" color="#fa8c16"></icon>
+    <text>内容加载失败</text>
+    <button class="retry-button" bindtap="getPostDetails">重试</button>
+  </view>
+  
+  <!-- Post Content -->
+  <block wx:elif="{{post}}">
+    <scroll-view scroll-y class="post-content-scroll" enable-flex>
+      <!-- Post Card -->
+      <view class="post-card">
+        <!-- Post Header -->
+        <view class="post-header">
+          <view class="user-info" bindtap="navigateToProfile" data-id="{{post.user.id}}">
+            <image class="user-avatar" src="{{post.user.avatar}}" mode="aspectFill"></image>
+            <view class="user-details">
+              <text class="user-name">{{post.user.nickname}}</text>
+              <text class="post-time">{{formatDate(post.createdAt)}}</text>
+            </view>
+          </view>
+          <view class="post-category">{{post.categoryName}}</view>
+        </view>
+        
+        <!-- Post Content -->
+        <view class="post-content">
+          <text>{{post.content}}</text>
+        </view>
+        
+        <!-- Post Images -->
+        <view class="post-images" wx:if="{{post.images && post.images.length > 0}}">
+          <image 
+            wx:for="{{post.images}}" 
+            wx:key="*this" 
+            src="{{item}}" 
+            mode="widthFix" 
+            bindtap="previewImage" 
+            data-src="{{item}}" 
+            data-images="{{post.images}}"
+            class="content-image">
+          </image>
+        </view>
+        
+        <!-- Post Actions -->
+        <view class="post-actions">
+          <view 
+            class="action-item {{post.isLikedByUser ? 'liked' : ''}}" 
+            bindtap="likePost">
+            <icon class="action-icon {{post.isLikedByUser ? 'liked' : ''}}" type="like"></icon>
+            <text>{{post.likesCount || 0}}</text>
+          </view>
+          
+          <view class="action-item">
+            <icon class="action-icon" type="comment"></icon>
+            <text>{{post.commentsCount || 0}}</text>
+          </view>
+          
+          <button 
+            class="action-item share-button" 
+            open-type="share">
+            <icon class="action-icon" type="share"></icon>
+            <text>分享</text>
+          </button>
+        </view>
+      </view>
+      
+      <!-- Comments Section -->
+      <view class="comments-section">
+        <view class="section-title">
+          评论 ({{post.commentsCount || 0}})
+        </view>
+        
+        <!-- Empty Comments -->
+        <view class="empty-comments" wx:if="{{comments.length === 0}}">
+          <text>暂无评论，快来发表第一条评论吧！</text>
+        </view>
+        
+        <!-- Comments List -->
+        <view class="comments-list" wx:else>
+          <view class="comment-item" wx:for="{{comments}}" wx:key="id">
+            <view class="comment-user-info" bindtap="navigateToProfile" data-id="{{item.user.id}}">
+              <image class="comment-avatar" src="{{item.user.avatar}}" mode="aspectFill"></image>
+              <view class="comment-user-details">
+                <text class="comment-user-name">{{item.user.nickname}}</text>
+                <text class="comment-time">{{formatDate(item.createdAt)}}</text>
+              </view>
+            </view>
+            <view class="comment-content">
+              {{item.content}}
+            </view>
+          </view>
+        </view>
+        
+        <!-- Load More Comments -->
+        <view class="load-more" wx:if="{{hasMoreComments && comments.length > 0}}" bindtap="loadMoreComments">
+          加载更多评论
+        </view>
+      </view>
+    </scroll-view>
+    
+    <!-- Comment Input -->
+    <view class="comment-input-container">
+      <input 
+        class="comment-input" 
+        placeholder="写评论..." 
+        value="{{commentContent}}" 
+        bindinput="onCommentInput"
+        confirm-type="send"
+        bindconfirm="submitComment">
+      </input>
+      <view 
+        class="send-button {{commentContent.trim() ? 'active' : ''}}" 
+        bindtap="submitComment">
+        发送
+      </view>
+    </view>
+  </block>
+</view> 

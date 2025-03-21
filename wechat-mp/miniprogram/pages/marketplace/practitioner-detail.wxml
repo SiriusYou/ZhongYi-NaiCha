@@ -1,0 +1,254 @@
+<view class="practitioner-detail-container">
+  <!-- 加载状态 - Loading state -->
+  <view class="loading-state" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <view class="loading-text">加载中...</view>
+  </view>
+
+  <block wx:if="{{!loading && practitioner}}">
+    <!-- 基本信息卡片 - Basic info card -->
+    <view class="basic-info-card">
+      <view class="practitioner-header">
+        <view class="avatar-container">
+          <image class="avatar" src="{{practitioner.avatarUrl || '/images/default-avatar.png'}}"></image>
+          <view class="verification-badge" wx:if="{{practitioner.isVerified}}">
+            <image class="verification-icon" src="/images/icons/verified.png"></image>
+          </view>
+        </view>
+        
+        <view class="basic-info">
+          <view class="name-title">
+            <text class="name">{{practitioner.name}}</text>
+            <text class="title">{{practitioner.title}}</text>
+          </view>
+          
+          <view class="rating-container">
+            <view class="rating">
+              <text class="rating-score">{{practitioner.rating}}</text>
+              <image wx:for="{{5}}" wx:key="*this" class="star {{index < Math.floor(practitioner.rating) ? 'filled' : (index < Math.ceil(practitioner.rating) ? 'half-filled' : '')}}" src="/images/icons/star.png"></image>
+            </view>
+            <text class="rating-count">({{practitioner.reviewCount}}条评价)</text>
+          </view>
+          
+          <view class="specialties">
+            <text wx:for="{{practitioner.specialties}}" wx:key="*this" class="specialty-tag">{{item.name}}</text>
+          </view>
+          
+          <view class="clinic">
+            <image class="icon" src="/images/icons/clinic.png"></image>
+            <text>{{practitioner.clinicName}}</text>
+          </view>
+          
+          <view class="consultation-fee">
+            <image class="icon" src="/images/icons/fee.png"></image>
+            <text>咨询费用: ¥{{practitioner.consultationFee}}/次</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="action-buttons">
+        <button class="action-button call" bindtap="callPractitioner">
+          <image class="button-icon" src="/images/icons/call.png"></image>
+          <text>电话咨询</text>
+        </button>
+        <button class="action-button appointment" bindtap="showAppointmentModal">
+          <image class="button-icon" src="/images/icons/appointment.png"></image>
+          <text>预约服务</text>
+        </button>
+      </view>
+    </view>
+    
+    <!-- 标签页 - Tabs -->
+    <view class="tabs">
+      <view class="tab {{currentTab === 'intro' ? 'active' : ''}}" bindtap="switchTab" data-tab="intro">简介</view>
+      <view class="tab {{currentTab === 'services' ? 'active' : ''}}" bindtap="switchTab" data-tab="services">服务</view>
+      <view class="tab {{currentTab === 'reviews' ? 'active' : ''}}" bindtap="switchTab" data-tab="reviews">评价({{reviewStatistics.total}})</view>
+    </view>
+    
+    <!-- 标签页内容 - Tab content -->
+    <view class="tab-content">
+      <!-- 简介内容 - Introduction content -->
+      <view class="intro-content" wx:if="{{currentTab === 'intro'}}">
+        <view class="section">
+          <view class="section-title">执业经历</view>
+          <view class="section-content">
+            <view class="text-content">{{practitioner.experience || '暂无执业经历信息'}}</view>
+          </view>
+        </view>
+        
+        <view class="section">
+          <view class="section-title">专业擅长</view>
+          <view class="section-content">
+            <view class="text-content">{{practitioner.expertise || '暂无专业擅长信息'}}</view>
+          </view>
+        </view>
+        
+        <view class="section">
+          <view class="section-title">教育背景</view>
+          <view class="section-content">
+            <view class="education-item" wx:for="{{practitioner.education}}" wx:key="*this">
+              <text class="education-school">{{item.school}}</text>
+              <text class="education-degree">{{item.degree}}</text>
+              <text class="education-year">{{item.year}}</text>
+            </view>
+            <view class="text-content" wx:if="{{!practitioner.education || practitioner.education.length === 0}}">暂无教育背景信息</view>
+          </view>
+        </view>
+        
+        <view class="section">
+          <view class="section-title">执业资格</view>
+          <view class="section-content">
+            <view class="certificate-item" wx:for="{{practitioner.certificates}}" wx:key="*this">
+              <text class="certificate-name">{{item.name}}</text>
+              <text class="certificate-number">证书编号: {{item.number}}</text>
+              <text class="certificate-year">获得时间: {{item.year}}</text>
+            </view>
+            <view class="text-content" wx:if="{{!practitioner.certificates || practitioner.certificates.length === 0}}">暂无执业资格信息</view>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 服务内容 - Services content -->
+      <view class="services-content" wx:if="{{currentTab === 'services'}}">
+        <view class="service-item" wx:for="{{practitioner.services}}" wx:key="id">
+          <view class="service-header">
+            <text class="service-name">{{item.name}}</text>
+            <text class="service-price">¥{{item.price}}</text>
+          </view>
+          <text class="service-description">{{item.description}}</text>
+          <view class="service-duration">
+            <image class="icon" src="/images/icons/time.png"></image>
+            <text>时长: {{item.duration}}分钟</text>
+          </view>
+        </view>
+        <view class="empty-services" wx:if="{{!practitioner.services || practitioner.services.length === 0}}">
+          <text>暂无服务项目</text>
+        </view>
+      </view>
+      
+      <!-- 评价内容 - Reviews content -->
+      <view class="reviews-content" wx:if="{{currentTab === 'reviews'}}">
+        <view class="review-statistics">
+          <view class="average-rating">
+            <text class="average-score">{{reviewStatistics.average}}</text>
+            <view class="average-stars">
+              <image wx:for="{{5}}" wx:key="*this" class="star {{index < Math.floor(reviewStatistics.average) ? 'filled' : (index < Math.ceil(reviewStatistics.average) ? 'half-filled' : '')}}" src="/images/icons/star.png"></image>
+            </view>
+          </view>
+          
+          <view class="rating-distribution">
+            <view class="rating-bar" wx:for="{{reviewStatistics.distribution}}" wx:key="*this" wx:for-index="idx">
+              <text class="rating-label">{{5 - idx}}星</text>
+              <view class="bar-container">
+                <view class="bar-fill" style="width: {{reviewStatistics.total > 0 ? (item / reviewStatistics.total * 100) : 0}}%"></view>
+              </view>
+              <text class="rating-count">{{item}}</text>
+            </view>
+          </view>
+        </view>
+        
+        <view class="review-list">
+          <view class="review-item" wx:for="{{reviews}}" wx:key="id">
+            <view class="review-header">
+              <image class="reviewer-avatar" src="{{item.userAvatarUrl || '/images/default-user.png'}}"></image>
+              <view class="reviewer-info">
+                <text class="reviewer-name">{{item.userName}}</text>
+                <view class="review-rating">
+                  <image wx:for="{{5}}" wx:for-item="star" wx:key="*this" class="star {{star < item.rating ? 'filled' : ''}}" src="/images/icons/star.png"></image>
+                </view>
+              </view>
+              <text class="review-date">{{item.createdAt}}</text>
+            </view>
+            <text class="review-content">{{item.content}}</text>
+            <view class="review-service" wx:if="{{item.serviceName}}">
+              <text>服务项目: {{item.serviceName}}</text>
+            </view>
+            <view class="practitioner-reply" wx:if="{{item.reply}}">
+              <text class="reply-label">医师回复:</text>
+              <text class="reply-content">{{item.reply}}</text>
+            </view>
+          </view>
+          
+          <view class="empty-reviews" wx:if="{{reviews.length === 0}}">
+            <text>暂无评价</text>
+          </view>
+          
+          <view class="load-more" wx:if="{{loadingMore}}">
+            <view class="loading-spinner small"></view>
+            <text class="load-more-text">加载更多...</text>
+          </view>
+          
+          <view class="no-more" wx:if="{{reviews.length > 0 && !pagination.hasMore && !loadingMore}}">
+            <text class="no-more-text">没有更多评价了</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </block>
+  
+  <!-- 预约弹窗 - Appointment modal -->
+  <view class="appointment-modal {{showAppointmentModal ? 'show' : ''}}">
+    <view class="modal-mask" bindtap="hideAppointmentModal"></view>
+    <view class="modal-content">
+      <view class="modal-header">
+        <text class="modal-title">预约咨询</text>
+        <image class="modal-close" src="/images/icons/close.png" bindtap="hideAppointmentModal"></image>
+      </view>
+      
+      <view class="modal-body">
+        <view class="form-item">
+          <text class="form-label">选择日期</text>
+          <picker 
+            mode="selector" 
+            range="{{dateOptions}}" 
+            range-key="display" 
+            value="0"
+            bindchange="onDateChange"
+          >
+            <view class="picker-container">
+              <text class="picker-value">{{dateOptions.find(d => d.date === appointmentDate).display}}</text>
+              <image class="picker-arrow" src="/images/icons/arrow-down.png"></image>
+            </view>
+          </picker>
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">选择时间</text>
+          <picker 
+            mode="selector" 
+            range="{{timeOptions}}" 
+            range-key="display" 
+            value="0"
+            bindchange="onTimeChange"
+          >
+            <view class="picker-container">
+              <text class="picker-value">{{timeOptions.find(t => t.time === appointmentTime).display}}</text>
+              <image class="picker-arrow" src="/images/icons/arrow-down.png"></image>
+            </view>
+          </picker>
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">咨询原因</text>
+          <textarea 
+            class="appointment-reason" 
+            placeholder="请简要描述您的症状或咨询需求" 
+            value="{{appointmentReason}}"
+            bindinput="onReasonInput"
+            maxlength="200"
+          ></textarea>
+          <text class="character-count">{{appointmentReason.length}}/200</text>
+        </view>
+        
+        <view class="appointment-notice">
+          <text class="notice-text">预约成功后，您可以在个人中心查看预约详情</text>
+        </view>
+      </view>
+      
+      <view class="modal-footer">
+        <button class="cancel-button" bindtap="hideAppointmentModal">取消</button>
+        <button class="submit-button" bindtap="submitAppointment">确认预约</button>
+      </view>
+    </view>
+  </view>
+</view> 
